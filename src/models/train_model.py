@@ -19,14 +19,17 @@ class CRM():
         [
             self.Time, self.Random_inj1, self.Random_inj2, self.Fixed_inj1,
             self.Net_Fixed_inj1, self.Fixed_inj2, self.Net_Fixed_inj2,
-            self.Prod1, self.Cum_Prod1, self.Prod2, self.Cum_Prod2,
-            self.Prod3, self.Cum_Prod3, self.Prod4, self.Cum_Prod4
+            self.Prod1, self.Net_Prod1, self.Prod2, self.Net_Prod2,
+            self.Prod3, self.Net_Prod3, self.Prod4, self.Net_Prod4
         ] = np.loadtxt(filename, delimiter=',', skiprows=1).T
         self.producers = np.array(
             [self.Prod1, self.Prod2, self.Prod3, self.Prod4]
         )
+        self.producer_names = [
+            'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
+        ]
         self.net_production_by_producer = np.array(
-            [self.Cum_Prod1, self.Cum_Prod2, self.Cum_Prod3, self.Cum_Prod4]
+            [self.Net_Prod1, self.Net_Prod2, self.Net_Prod3, self.Net_Prod4]
         )
         self.q2 = lambda X, f1, f2, tau: X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * (X[1] * f1 + X[2] * f2)
         self.p0 = .5, .5, 5
@@ -42,8 +45,9 @@ class CRM():
 
     def fit_producers(self):
         t = self.Time[1:]
-        for i in range(len(self.producers)):
-            producer = self.producers[i]
+        producers = self.producers
+        for i in range(len(producers)):
+            producer = producers[i]
             X = np.array([
                 producer[:-1], self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
             ])
@@ -52,9 +56,12 @@ class CRM():
             q2 = self.q2(X, f1, f2, tau)
             plt.scatter(t, y)
             plt.plot(t, q2, 'r')
-            plt.xlabel('Time')
-            plt.ylabel('Production Rate')
-            plt.title('Producer {}'.format(i + 1))
+            self.plot_labeler(
+                title='Producer {}'.format(i + 1),
+                xlabel='Time',
+                ylabel='Production Rate',
+                legend=['CRM', 'Data']
+            )
             plt.show()
 
     def crm_predict_net_production(self):
@@ -86,30 +93,17 @@ class CRM():
             net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
         ]).T
         y = net_production[1:]
-        print(X.shape)
         n_splits = (int(len(X) / 2) - 1)
-        print(n_splits)
         tscv = TimeSeriesSplit(n_splits=n_splits)
         r2_sum = 0
-        # param_grid = {
-        #         'alpha':[1, 0.1, 0.01, 0.001, 0.0001, 0],
-        #         'max_iter':[100, 1000, 10000],
-        #         'tol':[0.0001, 0.01, 1, 100, 10000]
-        #     }
-        # model = Lasso()
-        # grid = GridSearchCV(estimator=model, param_grid=param_grid)
-        # grid.fit(X, y)
-        # print('grid: ', grid)
-        # print(grid.best_score_)
-        # print(grid.best_estimator_)
-        # models = [LinearRegression(), Lasso(alpha=0, max_iter=100, tol=0.0001),
-        #         Ridge(), ElasticNet(),  Lars(),
-        #         LassoLars(), OrthogonalMatchingPursuit(), BayesianRidge(),
-        #         ARDRegression(), SGDRegressor(), PassiveAggressiveRegressor(),
-        #         KernelRidge(), SVR(), NuSVR(), LinearSVR(),
-        #         KNeighborsRegressor(n_neighbors=3),
-        #         RadiusNeighborsRegressor(radius=10000),
-        #         GaussianProcessRegressor(), MLPRegressor(hidden_layer_sizes=(60,))]
+        models = [LinearRegression(), Lasso(alpha=0, max_iter=100, tol=0.0001),
+                Ridge(), ElasticNet(),  Lars(),
+                LassoLars(), OrthogonalMatchingPursuit(), BayesianRidge(),
+                ARDRegression(), SGDRegressor(), PassiveAggressiveRegressor(),
+                KernelRidge(), SVR(), NuSVR(), LinearSVR(),
+                KNeighborsRegressor(n_neighbors=3),
+                RadiusNeighborsRegressor(radius=10000),
+                GaussianProcessRegressor(), MLPRegressor(hidden_layer_sizes=(60,))]
         with open('/Users/akhilpotla/ut/research/crm_validation/data/interim/train_output.txt', 'w') as f:
             for model in models:
                 f.write('==========================================================\n')
@@ -126,59 +120,60 @@ class CRM():
                 f.write('\n')
                 f.write('\n')
 
+    def plot_labeler(self, title='', xlabel='', ylabel='', legend=[]):
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.legend(legend)
+        plt.show()
+
     def plot_producers_vs_time(self):
         plt.plot(self.Time, self.producers.T)
-        plt.title('Production Rate vs Time')
-        plt.xlabel('Time')
-        plt.ylabel('Production Rate')
-        plt.legend(['Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'])
-        plt.show()
+        self.plot_labeler(
+            title='Production Rate vs Time',
+            xlabel='Time',
+            ylabel='Production Rate',
+            legend=self.producer_names
+        )
 
     def plot_net_production_vs_time(self):
         plt.plot(self.Time, self.net_production_by_producer.T)
-        plt.title('Total Production vs Time')
-        plt.xlabel('Time')
-        plt.ylabel('Total Production')
-        plt.legend(['Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'])
-        plt.show()
+        self.plot_labeler(
+            title='Total Production vs Time',
+            xlabel='Time',
+            ylabel='Net Production',
+            legend=self.producer_names
+        )
 
     def plot_producers_vs_injector(self):
-        for producer in self.producers:
-            plt.scatter(self.Fixed_inj1, producer)
-        plt.title('Injector 1')
-        plt.xlabel('Injection Rate')
-        plt.ylabel('Production Rate')
-        plt.legend(['Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'])
-        plt.show()
-        for producer in self.producers:
-            plt.scatter(self.Fixed_inj2, producer)
-        plt.title('Injector 2')
-        plt.xlabel('Injection Rate')
-        plt.ylabel('Production Rate')
-        plt.legend(['Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'])
-        plt.show()
+        injectors = [self.Fixed_inj1, self.Fixed_inj2]
+        for i in range(len(injectors)):
+            for producer in self.producers:
+                plt.scatter(injectors[i], producer)
+            self.plot_labeler(
+                title='Injector {}'.format(i + 1),
+                xlabel='Injection Rate',
+                ylabel='Production Rate',
+                legend=self.producer_names
+            )
 
     def plot_net_production_vs_injector(self):
-        for net_production in self.net_production_by_producer:
-            plt.plot(self.Net_Fixed_inj1, net_production)
-        plt.title('Injector 1')
-        plt.xlabel('Injection Rate')
-        plt.ylabel('Total Production')
-        plt.legend(['Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'])
-        plt.show()
-        for net_production in self.net_production_by_producer:
-            plt.plot(self.Net_Fixed_inj2, net_production)
-        plt.title('Injector 2')
-        plt.xlabel('Injection Rate')
-        plt.ylabel('Production Rate')
-        plt.legend(['Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'])
-        plt.show()
+        net_injections = [self.Net_Fixed_inj1, self.Net_Fixed_inj2]
+        for i in range(len(net_injections)):
+            for net_production in self.net_production_by_producer:
+                plt.plot(self.Net_Fixed_inj1, net_production)
+            self.plot_labeler(
+                title='Injector {}'.format(i + 1),
+                xlabel='Injection Rate',
+                ylabel='Net Production',
+                legend=self.producer_names
+            )
 
 model = CRM(filename)
-# model.fit_producers()
+model.fit_producers()
 model.crm_predict_net_production()
-# model.plot_producers_vs_time()
-# model.plot_net_production_vs_time()
-# model.plot_producers_vs_injector()
-# model.plot_net_production_vs_injector()
-# model.fit_ML()
+model.plot_producers_vs_time()
+model.plot_net_production_vs_time()
+model.plot_producers_vs_injector()
+model.plot_net_production_vs_injector()
+model.fit_ML()
