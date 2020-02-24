@@ -30,7 +30,7 @@ requirements:
 	conda install --file requirements.txt
 
 ## Make Dataset
-data: requirements
+data:
 	# $(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 	$(PYTHON_INTERPRETER) src/data/process_dataset.py
 
