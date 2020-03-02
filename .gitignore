@@ -79,7 +79,7 @@ target/
 /data/
 
 # exclude figures by default
-.reports/figures/
+reports/figures/
 
 # Mac OS-specific storage files
 .DS_Store
