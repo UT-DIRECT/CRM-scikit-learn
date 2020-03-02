@@ -36,7 +36,7 @@ data:
 
 ## Run the model
 model:
-	$(PYTHON_INTERPRETER) src/models/train_model.py
+	$(PYTHON_INTERPRETER) -m src.models.train_model
 
 ## Delete all compiled Python files
 clean:
