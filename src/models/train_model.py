@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import *
-from sklearn.metrics  import r2_score
+from sklearn.metrics  import r2_score, mean_squared_error
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
 from sklearn.neighbors import KNeighborsRegressor, RadiusNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
@@ -63,9 +63,11 @@ class CRM():
                 [f1, f2, tau] = self.fit_producer(producer)
                 q2 = self.q2(X, f1, f2, tau)
                 r2 = r2_score(q2, y)
+                mse = mean_squared_error(q2, y)
                 f.write('==========================================================\n')
                 f.write('Producer {}\n'.format(i + 1))
-                f.write('r2 score: {}\n'.format(r2_score(q2, y)))
+                f.write('r2 score: {}\n'.format(r2))
+                f.write('MSE: {}\n'.format(mse))
                 f.write('\n\n')
                 plt.figure()
                 plt.scatter(t, y)
@@ -128,15 +130,33 @@ class CRM():
                 n_splits = (int(len(X2) / 2) - 1)
                 tscv = TimeSeriesSplit(n_splits=n_splits)
                 r2_sum = 0
+                mse_sum = 0
                 for train_index, test_index in tscv.split(X2):
                     x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
                     y_train, y_test = y2[train_index], y2[test_index]
                     y_predict = self.N2(x_test)
                     r2_sum += r2_score(y_predict, y_test)
+                    mse_sum += mean_squared_error(y_predict, y_test)
                 f.write('==========================================================\n')
                 f.write('PRODUCER {}\n'.format(i + 1))
                 f.write('Average r2: {}\n'.format(r2_sum / n_splits))
+                f.write('Average MSE: {}\n'.format(mse_sum/ n_splits))
                 f.write('\n\n')
+
+    def forward_walk_and_ML(self, X, y, model):
+        n_splits = (int(len(X) / 2) - 1)
+        tscv = TimeSeriesSplit(n_splits=n_splits)
+        r2_sum = 0
+        mse_sum = 0
+        for train_index, test_index in tscv.split(X):
+            x_train, x_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            print('x_test: ', x_test)
+            model.fit(x_train, y_train)
+            y_predict = model.predict(x_test)
+            r2_sum += r2_score(y_predict, y_test)
+            mse_sum += mean_squared_error(y_predict, y_test)
+        return ((r2_sum / n_splits), (mse_sum / n_splits))
 
     def fit_ML_production_rate(self):
         producers = self.producers
@@ -149,8 +169,7 @@ class CRM():
                 y = production[1:]
                 n_splits = (int(len(X) / 2) - 1)
                 tscv = TimeSeriesSplit(n_splits=n_splits)
-                r2_sum = 0
-                models = [LinearRegression()]
+                models = [LinearRegression(), BayesianRidge()]
                 # models = [LinearRegression(), Lasso(alpha=0, max_iter=100, tol=0.0001),
                 #         Ridge(), ElasticNet(),  Lars(),
                 #         LassoLars(), OrthogonalMatchingPursuit(), BayesianRidge(),
@@ -159,36 +178,32 @@ class CRM():
                 #         KNeighborsRegressor(n_neighbors=3),
                 #         RadiusNeighborsRegressor(radius=10000),
                 #         GaussianProcessRegressor(), MLPRegressor(hidden_layer_sizes=(60,))]
+                f.write('==========================================================\n')
+                f.write('Producer {}\n'.format(i + 1))
                 for model in models:
-                    f.write('==========================================================\n')
-                    f.write('Producer {}\n'.format(i + 1))
+                    r2, mse = self.forward_walk_and_ML(X, y, model)
                     f.write('model: {}\n'.format(type(model)))
-                    for train_index, test_index in tscv.split(X):
-                        x_train, x_test = X[train_index], X[test_index]
-                        y_train, y_test = y[train_index], y[test_index]
-                        model.fit(x_train, y_train)
-                        y_predict = model.predict(x_test)
-                        r2_sum += r2_score(y_predict, y_test)
-                    f.write('Average r2: {}\n'.format(r2_sum / n_splits))
+                    f.write('Average r2: {}\n'.format(r2))
+                    f.write('Average MSE: {}\n'.format(mse))
                     f.write('\n')
-                    f.write('\n')
-                    f.write('\n')
-                    f.write('\n')
+                f.write('\n')
+                f.write('\n')
+                f.write('\n')
 
-    def fit_ML_net_production(self):
+    def predict_ML_net_production(self):
         producers = self.producers
         net_productions = self.net_production_by_producer
         with open('/Users/akhilpotla/ut/research/crm_validation/data/interim/train_output_net_production.txt', 'w') as f:
             for i in range(len(producers)):
+                production = producers[i]
                 net_production = self.net_production_by_producer[i]
                 X = np.array([
-                    net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
+                    production[:-1], net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
                 ]).T
                 y = net_production[1:]
                 n_splits = (int(len(X) / 2) - 1)
                 tscv = TimeSeriesSplit(n_splits=n_splits)
-                r2_sum = 0
-                models = [BayesianRidge()]
+                models = [LinearRegression(), BayesianRidge()]
                 # models = [LinearRegression(), Lasso(alpha=0, max_iter=100, tol=0.0001),
                 #         Ridge(), ElasticNet(),  Lars(),
                 #         LassoLars(), OrthogonalMatchingPursuit(), BayesianRidge(),
@@ -197,21 +212,17 @@ class CRM():
                 #         KNeighborsRegressor(n_neighbors=3),
                 #         RadiusNeighborsRegressor(radius=10000),
                 #         GaussianProcessRegressor(), MLPRegressor(hidden_layer_sizes=(60,))]
+                f.write('==========================================================\n')
+                f.write('Producer {}\n'.format(i + 1))
                 for model in models:
-                    f.write('==========================================================\n')
-                    f.write('Producer {}\n'.format(i + 1))
+                    r2, mse = self.forward_walk_and_ML(X, y, model)
                     f.write('model: {}\n'.format(type(model)))
-                    for train_index, test_index in tscv.split(X):
-                        x_train, x_test = X[train_index], X[test_index]
-                        y_train, y_test = y[train_index], y[test_index]
-                        model.fit(x_train, y_train)
-                        y_predict = model.predict(x_test)
-                        r2_sum += r2_score(y_predict, y_test)
-                    f.write('Average r2: {}\n'.format(r2_sum / n_splits))
+                    f.write('Average r2: {}\n'.format(r2))
+                    f.write('Average MSE: {}\n'.format(mse))
                     f.write('\n')
-                    f.write('\n')
-                    f.write('\n')
-                    f.write('\n')
+                f.write('\n')
+                f.write('\n')
+                f.write('\n')
 
     def plot_producers_vs_time(self):
         plt.figure()
@@ -267,13 +278,19 @@ class CRM():
             )
             plt.close()
 
+    def production_rate_predictions(self):
+        pass
+
+    def net_production_predictions(self):
+        self.crm_predict_net_production()
+        self.predict_ML_net_production()
+
 model = CRM(filename)
 model.fit_producers()
 model.fit_net_productions()
-model.crm_predict_net_production()
 model.plot_producers_vs_time()
 model.plot_net_production_vs_time()
 model.plot_producers_vs_injector()
 model.plot_net_production_vs_injector()
 model.fit_ML_production_rate()
-model.fit_ML_net_production()
+model.net_production_predictions()
