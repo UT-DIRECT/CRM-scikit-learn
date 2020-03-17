@@ -151,7 +151,6 @@ class CRM():
         for train_index, test_index in tscv.split(X):
             x_train, x_test = X[train_index], X[test_index]
             y_train, y_test = y[train_index], y[test_index]
-            print('x_test: ', x_test)
             model.fit(x_train, y_train)
             y_predict = model.predict(x_test)
             r2_sum += r2_score(y_predict, y_test)
