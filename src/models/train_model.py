@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from lmfit import Parameters, Model
 from scipy.optimize import curve_fit
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.kernel_ridge import KernelRidge
@@ -42,13 +43,19 @@ class CRM():
             producer[:-1], self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
         ])
         y = producer[1:]
-        return curve_fit(
-            self.q2, X, y, p0=self.p0,
-            bounds=(
-                (0.01, 0.01, 1,),
-                (0.8, 0.8, 30)
-            )
-        )[0]
+        model = Model(self.q2, independent_vars=['X'])
+        params = Parameters()
+
+        params.add('f1', value=0.5, min=0, max=1)
+        params.add('f2', expr='1-f1')
+        params.add('tau', value=5, min=1, max=30)
+        results = model.fit(y, X=X, params=params)
+
+        pars = []
+        pars.append(results.values['f1'])
+        pars.append(results.values['f2'])
+        pars.append(results.values['tau'])
+        return pars
 
     def fit_producers(self):
         t = self.Time[1:]
