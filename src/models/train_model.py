@@ -37,6 +37,7 @@ class CRM():
         self.q2 = lambda X, f1, f2, tau: X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * (X[1] * f1 + X[2] * f2)
         self.N2 = lambda X: X[0] + X[1]
         self.p0 = .5, .5, 5
+        self.step_sizes = np.linspace(2, 12, num=11)
 
     def fit_producer(self, producer):
         X = np.array([
@@ -134,25 +135,31 @@ class CRM():
                 q2 = self.q2(X, f1, f2, tau)
                 X2 = np.array([net_production[:-1], q2]).T
                 y2 = net_production[1:]
-                n_splits = (int(len(X2) / 2) - 1)
-                tscv = TimeSeriesSplit(n_splits=n_splits)
-                r2_sum = 0
-                mse_sum = 0
-                for train_index, test_index in tscv.split(X2):
-                    x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
-                    y_train, y_test = y2[train_index], y2[test_index]
-                    y_predict = self.N2(x_test)
-                    r2_sum += r2_score(y_predict, y_test)
-                    mse_sum += mean_squared_error(y_predict, y_test)
                 f.write('==========================================================\n')
                 f.write('PRODUCER {}\n'.format(i + 1))
-                f.write('Average r2: {}\n'.format(r2_sum / n_splits))
-                f.write('Average MSE: {}\n'.format(mse_sum/ n_splits))
+                for step_size in self.step_sizes:
+                    [tscv, n_splits] = self.time_series_cross_validator(X2, step_size)
+                    r2_sum = 0
+                    mse_sum = 0
+                    for train_index, test_index in tscv.split(X2):
+                        x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
+                        y_train, y_test = y2[train_index], y2[test_index]
+                        y_predict = self.N2(x_test)
+                        r2_sum += r2_score(y_predict, y_test)
+                        mse_sum += mean_squared_error(y_predict, y_test)
+                    f.write('step size: {}\n'.format(step_size))
+                    f.write('Average r2: {}\n'.format(r2_sum / n_splits))
+                    f.write('Average MSE: {}\n'.format(mse_sum/ n_splits))
+                    f.write('\n')
                 f.write('\n\n')
 
-    def forward_walk_and_ML(self, X, y, model):
-        n_splits = (int(len(X) / 2) - 1)
+    def time_series_cross_validator(self, X, step_size):
+        n_splits = (int(len(X) / step_size) - 1)
         tscv = TimeSeriesSplit(n_splits=n_splits)
+        return [tscv, n_splits]
+
+    def forward_walk_and_ML(self, X, y, model, step_size):
+        [tscv, n_splits] = self.time_series_cross_validator(X, step_size)
         r2_sum = 0
         mse_sum = 0
         for train_index, test_index in tscv.split(X):
@@ -187,11 +194,13 @@ class CRM():
                 f.write('==========================================================\n')
                 f.write('Producer {}\n'.format(i + 1))
                 for model in models:
-                    r2, mse = self.forward_walk_and_ML(X, y, model)
                     f.write('model: {}\n'.format(type(model)))
-                    f.write('Average r2: {}\n'.format(r2))
-                    f.write('Average MSE: {}\n'.format(mse))
-                    f.write('\n')
+                    for step_size in self.step_sizes:
+                        r2, mse = self.forward_walk_and_ML(X, y, model, step_size)
+                        f.write('step size: {}\n'.format(step_size))
+                        f.write('Average r2: {}\n'.format(r2))
+                        f.write('Average MSE: {}\n'.format(mse))
+                        f.write('\n')
                 f.write('\n')
                 f.write('\n')
                 f.write('\n')
@@ -221,11 +230,13 @@ class CRM():
                 f.write('==========================================================\n')
                 f.write('Producer {}\n'.format(i + 1))
                 for model in models:
-                    r2, mse = self.forward_walk_and_ML(X, y, model)
                     f.write('model: {}\n'.format(type(model)))
-                    f.write('Average r2: {}\n'.format(r2))
-                    f.write('Average MSE: {}\n'.format(mse))
-                    f.write('\n')
+                    for step_size in self.step_sizes:
+                        r2, mse = self.forward_walk_and_ML(X, y, model, step_size)
+                        f.write('step size: {}\n'.format(step_size))
+                        f.write('Average r2: {}\n'.format(r2))
+                        f.write('Average MSE: {}\n'.format(mse))
+                        f.write('\n')
                 f.write('\n')
                 f.write('\n')
                 f.write('\n')
