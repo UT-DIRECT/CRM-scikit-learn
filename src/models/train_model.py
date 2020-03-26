@@ -12,7 +12,7 @@ from sklearn.neighbors import KNeighborsRegressor, RadiusNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR, NuSVR, LinearSVR
 
-from ..helpers.figures import plot_helper, fig_filename
+from ..helpers.figures import plot_helper, fig_filename, fig_dir
 
 filename = "/Users/akhilpotla/ut/research/crm_validation/data/interim/CRMP_Corrected_July16_2018.csv"
 
@@ -207,13 +207,18 @@ class CRM():
             rects1 = ax.bar(x - width, CRM_mse, width, label='CRM, mse')
             rects2 = ax.bar(x, Linear_Regression_mse, width, label='Linear Regression, mse')
             rects3 = ax.bar(x + width, Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
+            xlabel = 'Step Size'
+            ylabel = 'Mean Squared Error'
+            title = 'Producer {}'.format(producer)
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
             ax.set_yscale('log')
-            ax.set_ylabel('Mean Squared Error')
-            ax.set_title('Mean Squared Error Predictive Forward Walk on Producer {}'.format(producer))
+            ax.set_title(title)
             ax.set_xticks(x)
             ax.set_xticklabels(labels)
             ax.legend()
-            plt.show()
+            fig_file = fig_filename(title, xlabel, ylabel)
+            plt.savefig('{}{}'.format(fig_dir, fig_file))
 
     def time_series_cross_validator(self, X, step_size):
         n_splits = (int(len(X) / step_size) - 1)
