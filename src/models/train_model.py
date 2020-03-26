@@ -38,6 +38,8 @@ class CRM():
         self.N2 = lambda X: X[0] + X[1]
         self.p0 = .5, .5, 5
         self.step_sizes = np.linspace(2, 12, num=11)
+        self.output_header = "producer, step_size, CRM_r2, CSE_mse, Linear_Regression_r2, Linear_Regression_mse, Bayesian_Ridge_r2, Bayesian_Ridge_mse"
+        self.net_production_forward_walk_predictions_output_file = '/Users/akhilpotla/ut/research/crm_validation/data/interim/net_production_forward_walk_predictions.txt'
 
     def fit_producer(self, producer):
         X = np.array([
@@ -124,6 +126,7 @@ class CRM():
 
     def crm_predict_net_production(self):
         net_productions = self.net_production_by_producer
+        producers = self.producers
         with open('/Users/akhilpotla/ut/research/crm_validation/data/interim/crm_forward_walk_results.txt', 'w') as f:
             for i in range(len(self.producers)):
                 producer = self.producers[i]
@@ -152,6 +155,65 @@ class CRM():
                     f.write('Average MSE: {}\n'.format(mse_sum/ n_splits))
                     f.write('\n')
                 f.write('\n\n')
+
+    def net_production_forward_walk_predictions(self):
+        net_productions = self.net_production_by_producer
+        producers = self.producers
+        with open(self.net_production_forward_walk_predictions_output_file, 'w') as f:
+            f.write('{}\n'.format(self.output_header))
+            for i in range(len(producers)):
+                producer = self.producers[i]
+                net_production = net_productions[i]
+                X = np.array([
+                    producer[:-1], self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
+                ])
+                [f1, f2, tau] = self.fit_producer(producer)
+                q2 = self.q2(X, f1, f2, tau)
+                X2 = np.array([net_production[:-1], q2]).T
+                y = net_production[1:]
+                models = [LinearRegression(), BayesianRidge()]
+                for step_size in self.step_sizes:
+                    r2_sum = 0
+                    mse_sum = 0
+                    tscv, n_splits = self.time_series_cross_validator(X2, step_size)
+                    for train_index, test_index in tscv.split(X2):
+                        x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
+                        y_train, y_test = y[train_index], y[test_index]
+                        y_predict = self.N2(x_test)
+                        r2_sum += r2_score(y_predict, y_test)
+                        mse_sum += mean_squared_error(y_predict, y_test)
+                    CRM_r2 = r2_sum / n_splits
+                    CRM_mse = mse_sum / n_splits
+                    models_performance_parameters = []
+                    for model in models:
+                        r2, mse = self.forward_walk_and_ML(X.T, y, model, step_size)
+                        models_performance_parameters.append(r2)
+                        models_performance_parameters.append(mse)
+                    f.write('{} {} {} {} {} {} {} {}\n'.format(i + 1, int(step_size), CRM_r2, CRM_mse, *models_performance_parameters))
+
+    def net_production_forward_walk_predictions_plot(self):
+        labels = [int(step_size) for step_size in self.step_sizes]
+        prediction_results = np.genfromtxt(self.net_production_forward_walk_predictions_output_file, skip_header=1)
+        x = np.arange(len(labels))
+        width = 0.3
+        for i in range(4):
+            fig, ax = plt.subplots()
+            producer = i + 1
+            producer_rows = np.where(prediction_results[:,0] == producer)
+            producer_results = prediction_results[producer_rows]
+            CRM_mse = producer_results[:, 3]
+            Linear_Regression_mse = producer_results[:, 5]
+            Bayesian_Ridge_mse = producer_results[:, 7]
+            rects1 = ax.bar(x - width, CRM_mse, width, label='CRM, mse')
+            rects2 = ax.bar(x, Linear_Regression_mse, width, label='Linear Regression, mse')
+            rects3 = ax.bar(x + width, Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
+            ax.set_yscale('log')
+            ax.set_ylabel('Mean Squared Error')
+            ax.set_title('Mean Squared Error Predictive Forward Walk on Producer {}'.format(producer))
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels)
+            ax.legend()
+            plt.show()
 
     def time_series_cross_validator(self, X, step_size):
         n_splits = (int(len(X) / step_size) - 1)
@@ -216,8 +278,6 @@ class CRM():
                     production[:-1], net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
                 ]).T
                 y = net_production[1:]
-                n_splits = (int(len(X) / 2) - 1)
-                tscv = TimeSeriesSplit(n_splits=n_splits)
                 models = [LinearRegression(), BayesianRidge()]
                 # models = [LinearRegression(), Lasso(alpha=0, max_iter=100, tol=0.0001),
                 #         Ridge(), ElasticNet(),  Lars(),
@@ -311,3 +371,5 @@ model.plot_producers_vs_injector()
 model.plot_net_production_vs_injector()
 model.fit_ML_production_rate()
 model.net_production_predictions()
+model.net_production_forward_walk_predictions()
+model.net_production_forward_walk_predictions_plot()
