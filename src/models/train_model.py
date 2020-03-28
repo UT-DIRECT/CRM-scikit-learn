@@ -45,6 +45,9 @@ class CRM():
             producer[:-1], self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
         ])
 
+    def net_production_features(self, net_production, q2):
+            return np.array([net_production[:-1], q2])
+
     def target_vector(self, production):
         return production[1:]
 
@@ -108,7 +111,7 @@ class CRM():
             [f1, f2, tau] = self.fit_producer(producer)
             X = self.production_rate_features(producer)
             q2 = self.q2(X, f1, f2, tau)
-            X2 = [net_production[:-1], q2]
+            X2 = self.net_production_features(net_production, q2)
             y = self.target_vector(net_production)
             predicted_net_production = self.N2(X2)
             r2 = r2_score(y, predicted_net_production)
@@ -131,7 +134,7 @@ class CRM():
         X = self.production_rate_features(producer)
         [f1, f2, tau] = self.fit_producer(producer)
         q2 = self.q2(X, f1, f2, tau)
-        X2 = np.array([net_production[:-1], q2]).T
+        X2 = self.net_production_features(net_production, q2).T
         y2 = net_production[1:]
         [tscv, n_splits] = self.time_series_cross_validator(X2, step_size)
         r2_sum = 0
