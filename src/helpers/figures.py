@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-fig_dir = "/Users/akhilpotla/ut/research/crm_validation/reports/figures/"
+FIG_DIR = "/Users/akhilpotla/ut/research/crm_validation/reports/figures/"
 
 def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):
     plt.title(title)
@@ -9,7 +9,7 @@ def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):
     plt.legend(legend)
     if save:
         fig_file = "{}{}".format(
-            fig_dir,
+            FIG_DIR,
             fig_filename(title, xlabel, ylabel)
         )
         plt.savefig(fig_file)
