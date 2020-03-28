@@ -7,6 +7,8 @@ def gaussian_white_noise(column):
     noise = np.random.normal(loc=mu, scale=sigma, size=length)
     for i in range(length):
         column[i] += noise[i]
+        if column[i] < 0:
+            column[i] = 0
     return column
 
 def net_flow(production):
