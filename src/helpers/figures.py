@@ -13,6 +13,7 @@ def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):
             fig_filename(title, xlabel, ylabel)
         )
         plt.savefig(fig_file)
+        plt.close()
     else:
         plt.show()
 

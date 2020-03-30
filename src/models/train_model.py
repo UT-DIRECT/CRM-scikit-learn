@@ -96,7 +96,6 @@ class CRM():
                     legend=['CRM', 'Data'],
                     save=True
                 )
-                plt.close()
 
     def fit_net_production(self, N1, q2):
         return N1 + q2
@@ -126,7 +125,6 @@ class CRM():
                 legend=['CRM', 'Data'],
                 save=True
             )
-            plt.close()
 
     def crm_predict_net_production(self, producer, step_size):
         net_production = self.net_production_by_producer[producer]
@@ -240,7 +238,6 @@ class CRM():
             legend=self.producer_names,
             save=True
         )
-        plt.close()
 
     def plot_net_production_vs_time(self):
         plt.figure()
@@ -252,7 +249,6 @@ class CRM():
             legend=self.producer_names,
             save=True
         )
-        plt.close()
 
     def plot_producers_vs_injector(self):
         injectors = [self.Fixed_inj1, self.Fixed_inj2]
@@ -267,7 +263,6 @@ class CRM():
                 legend=self.producer_names,
                 save=True
             )
-            plt.close()
 
 model = CRM(filename)
 model.fit_producers()
