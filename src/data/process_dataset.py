@@ -21,8 +21,8 @@ def net_flow(production):
             net.append(net[-1] + prod)
     return net
 
-input_filename = "~/ut/research/crm_validation/data/raw/CRMP_Corrected_July16_2018.xlsx"
-output_filename = "~/ut/research/crm_validation/data/interim/CRMP_Corrected_July16_2018.csv"
+input_filename = "./data/raw/CRMP_Corrected_July16_2018.xlsx"
+output_filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
 
 df = pd.read_excel(input_filename, 0, skiprows=9)
 df = df.drop(df.columns[[3, 4, 7, 8]], axis=1)
