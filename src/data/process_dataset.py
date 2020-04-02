@@ -12,6 +12,7 @@ def white_noise(column):
         # Multiplying by 1/exponential_decline_scaling increases the value of
         # the dataset by 3; therefore we divide by 3 below.
     return column * 1 / 3
+
 def net_flow(production):
     net = []
     for prod in production:
