@@ -5,12 +5,13 @@ def white_noise(column):
     length = len(column)
     mu, sigma = [column.mean(), column.std()]
     gaussian_noise = np.random.normal(loc=mu, scale=sigma, size=length)
-    exponential_decline_adjustments = np.linspace(0.1, 2, num=length)
+    exponential_decline_scaling = np.linspace(0.1, 2, num=length)
     for i in range(length):
         column[i] += gaussian_noise[i]
-        column[i] *= 1/exponential_decline_adjustments[i]
+        column[i] *= 1/exponential_decline_scaling[i]
+        # Multiplying by 1/exponential_decline_scaling increases the value of
+        # the dataset by 3; therefore we divide by 3 below.
     return column * 1 / 3
-
 def net_flow(production):
     net = []
     for prod in production:
