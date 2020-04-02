@@ -1,15 +1,15 @@
 import numpy as np
 import pandas as pd
 
-def gaussian_white_noise(column):
+def white_noise(column):
     length = len(column)
     mu, sigma = [column.mean(), column.std()]
-    noise = np.random.normal(loc=mu, scale=sigma, size=length)
+    gaussian_noise = np.random.normal(loc=mu, scale=sigma, size=length)
+    exponential_decline_adjustments = np.linspace(0.1, 2, num=length)
     for i in range(length):
-        column[i] += noise[i]
-        if column[i] < 0:
-            column[i] = 0
-    return column
+        column[i] += gaussian_noise[i]
+        column[i] *= 1/exponential_decline_adjustments[i]
+    return column * 1 / 3
 
 def net_flow(production):
     net = []
@@ -31,7 +31,7 @@ df.columns = [
 ]
 columns = df.columns[3:]
 for column in columns:
-    df[column] = gaussian_white_noise(df[column])
+    df[column] = white_noise(df[column])
 
 df.insert(4, 'Net_Fixed_inj1', net_flow(df['Fixed_inj1']))
 df.insert(6, 'Net_Fixed_inj2', net_flow(df['Fixed_inj2']))
