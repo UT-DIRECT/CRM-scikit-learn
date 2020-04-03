@@ -46,7 +46,9 @@ class CRM():
         ])
 
     def net_production_features(self, net_production, q2):
-            return np.array([net_production[:-1], q2])
+        return np.array([
+            net_production[:-1], q2, self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
+        ])
 
     def target_vector(self, production):
         return production[1:]
@@ -148,27 +150,63 @@ class CRM():
         return (r2, mse)
 
     def net_production_forward_walk_predictions(self):
-        output_header = "producer step_size crm_r2 cse_mse linear_regression_r2 linear_regression_mse bayesian_ridge_r2 bayesian_ridge_mse"
+        output_header = "producer step_size crm_r2 cse_mse linear_regression_r2 linear_regression_mse bayesian_ridge_r2 bayesian_ridge_mse lasso_r2 lasso_mse elastic_r2 elastic_mse"
         producers = self.producers
         with open(self.net_production_forward_walk_predictions_output_file, 'w') as f:
             f.write('{}\n'.format(output_header))
             for i in range(len(producers)):
-                models = [LinearRegression(), BayesianRidge()]
+                models = [
+                    LinearRegression(), BayesianRidge(),
+                    Lasso(max_iter=100000), ElasticNet(max_iter=100000)
+                ]
                 for step_size in self.step_sizes:
-                    CRM_r2, CRM_mse = self.crm_predict_net_production(i, step_size)
+                    CRM_r2, CRM_mse = self.crm_predict_net_production(
+                        i, step_size
+                    )
                     models_performance_parameters = []
                     for model in models:
-                        r2, mse = self.predict_ML_net_production(i, step_size, model)
+                        r2, mse = self.predict_ML_net_production(
+                            i, step_size, model
+                        )
                         models_performance_parameters.append(r2)
                         models_performance_parameters.append(mse)
-                    f.write('{} {} {} {} {} {} {} {}\n'.format(i + 1, int(step_size), CRM_r2, CRM_mse, *models_performance_parameters))
+                    f.write('{} {} {} {} {} {} {} {} {} {} {} {}\n'.format(i + 1, int(step_size), CRM_r2, CRM_mse, *models_performance_parameters))
+
+    def mse_of_net_production_vs_time(self):
+        producers = self.producers
+        net_productions = self.net_production_by_producer
+        for i in range(len(producers)):
+            producer = producers[i]
+            net_production = net_productions[i]
+            X = self.production_rate_features(producer)
+            [f1, f2, tau] = self.fit_producer(producer)
+            q2 = self.q2(X, f1, f2, tau)
+            X2 = self.net_production_features(net_production, q2).T
+            y2 = net_production[1:]
+            [tscv, n_splits] = self.time_series_cross_validator(X2, 12)
+            y = []
+            for train_index, test_index in tscv.split(X2):
+                x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
+                y_train, y_test = y2[train_index], y2[test_index]
+                y_predict = self.N2(x_test)
+                y.append(r2_score(y_predict, y_test))
+            size = len(y)
+            x = np.linspace(0, size, num=size)
+            plt.figure()
+            plt.plot(x, y, 'r')
+            plot_helper(
+                title='Producer {}'.format(i + 1),
+                xlabel='Time',
+                ylabel='MSE',
+                save=False
+            )
 
     def net_production_forward_walk_predictions_plot(self):
         # TODO: Refactor
         labels = [int(step_size) for step_size in self.step_sizes]
         prediction_results = np.genfromtxt(self.net_production_forward_walk_predictions_output_file, skip_header=1)
         x = np.arange(len(labels))
-        width = 0.3
+        width = 0.15
         for i in range(4):
             fig, ax = plt.subplots()
             producer = i + 1
@@ -177,9 +215,13 @@ class CRM():
             CRM_mse = producer_results[:, 3]
             Linear_Regression_mse = producer_results[:, 5]
             Bayesian_Ridge_mse = producer_results[:, 7]
-            rects1 = ax.bar(x - width, CRM_mse, width, label='CRM, mse')
-            rects2 = ax.bar(x, Linear_Regression_mse, width, label='Linear Regression, mse')
-            rects3 = ax.bar(x + width, Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
+            Lasso_mse = producer_results[:, 9]
+            Elastic_mse = producer_results[:, 11]
+            rects1 = ax.bar(x - 2 * width, CRM_mse, width, label='CRM, mse')
+            rects2 = ax.bar(x - width, Linear_Regression_mse, width, label='Linear Regression, mse')
+            rects3 = ax.bar(x , Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
+            rects4 = ax.bar(x + width, Lasso_mse, width, label='Lasso, mse')
+            rects5 = ax.bar(x + 2 * width, Elastic_mse, width, label='Elastic, mse')
             xlabel = 'Step Size'
             ylabel = 'Mean Squared Error'
             title = 'Producer {}'.format(producer)
@@ -272,3 +314,4 @@ model.plot_net_production_vs_time()
 model.plot_producers_vs_injector()
 model.net_production_forward_walk_predictions()
 model.net_production_forward_walk_predictions_plot()
+model.mse_of_net_production_vs_time()
