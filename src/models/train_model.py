@@ -14,7 +14,7 @@ from sklearn.svm import SVR, NuSVR, LinearSVR
 
 from ..helpers.figures import plot_helper, fig_filename, FIG_DIR
 
-filename = "/Users/akhilpotla/ut/research/crm_validation/data/interim/CRMP_Corrected_July16_2018.csv"
+filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
 
 class CRM():
 
@@ -31,14 +31,14 @@ class CRM():
         self.producer_names = [
             'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
         ]
-        self.net_production_by_producer = np.array(
+        self.net_productions = np.array(
             [self.Net_Prod1, self.Net_Prod2, self.Net_Prod3, self.Net_Prod4]
         )
         self.q2 = lambda X, f1, f2, tau: X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * (X[1] * f1 + X[2] * f2)
         self.N2 = lambda X: X[0] + X[1]
         self.p0 = .5, .5, 5
         self.step_sizes = np.linspace(2, 12, num=11)
-        self.net_production_forward_walk_predictions_output_file = '/Users/akhilpotla/ut/research/crm_validation/data/interim/net_production_forward_walk_predictions.txt'
+        self.net_production_forward_walk_predictions_output_file = './data/interim/net_production_forward_walk_predictions.txt'
 
     def production_rate_features(self, producer):
         return np.array([
@@ -46,16 +46,25 @@ class CRM():
         ])
 
     def net_production_features(self, net_production, q2):
-        return np.array([
-            net_production[:-1], q2, self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
-        ])
+        return np.array([net_production[:-1], q2])
 
     def target_vector(self, production):
         return production[1:]
 
+    def production_rate_dataset(self, producer):
+        return [
+            self.production_rate_features(producer),
+            self.target_vector(producer)
+        ]
+
+    def net_production_dataset(self, net_production, q2):
+        return [
+            self.net_production_features(net_production, q2).T,
+            self.target_vector(net_production)
+        ]
+
     def fit_producer(self, producer):
-        X = self.production_rate_features(producer)
-        y = self.target_vector(producer)
+        X, y = self.production_rate_dataset(producer)
         model = Model(self.q2, independent_vars=['X'])
         params = Parameters()
 
@@ -70,56 +79,53 @@ class CRM():
         pars.append(results.values['tau'])
         return pars
 
-    def fit_producers(self):
-        t = self.Time[1:]
-        producers = self.producers
-        with open('/Users/akhilpotla/ut/research/crm_validation/data/interim/crm_producers_fit_results.txt', 'w') as f:
-            for i in range(len(producers)):
-                producer = producers[i]
-                X = self.production_rate_features(producer)
-                y = self.target_vector(producer)
-                [f1, f2, tau] = self.fit_producer(producer)
-                q2 = self.q2(X, f1, f2, tau)
-                r2 = r2_score(q2, y)
-                mse = mean_squared_error(q2, y)
-                f.write('==========================================================\n')
-                f.write('Producer {}\n'.format(i + 1))
-                f.write('r2 score: {}\n'.format(r2))
-                f.write('MSE: {}\n'.format(mse))
-                f.write('\n\n')
-                plt.figure()
-                plt.scatter(t, y)
-                plt.plot(t, q2, 'r')
-                plt.text(80, 0.5, 'R-squared = %0.8f' % r2)
-                plot_helper(
-                    title='Producer {}'.format(i + 1),
-                    xlabel='Time',
-                    ylabel='Production Rate',
-                    legend=['CRM', 'Data'],
-                    save=True
-                )
+    def get_fitted_production_rate(self, producer):
+        X = self.production_rate_features(producer)
+        [f1, f2, tau] = self.fit_producer(producer)
+        q2 = self.q2(X, f1, f2, tau)
+        return q2
 
-    def fit_net_production(self, N1, q2):
-        return N1 + q2
+    def fit_producers(self):
+        t, producers = self.Time[1:], self.producers
+        for i in range(len(producers)):
+            producer = producers[i]
+            y = self.target_vector(producer)
+            q2 = self.get_fitted_production_rate(producer)
+            r2 = self.fit_statistics(q2, y)[0]
+            self.data_and_crm_fitting_plotter(t, y, q2, r2)
+            plot_helper(
+                title='Producer {}'.format(i + 1),
+                xlabel='Time',
+                ylabel='Production Rate',
+                legend=['CRM', 'Data'],
+                save=True
+            )
+
+    def data_and_crm_fitting_plotter(self, t, y, y_hat, r2):
+        plt.figure()
+        plt.scatter(t, y)
+        plt.plot(t, y_hat, 'r')
+        plt.text(80, y[0], 'R-squared = %0.8f' % r2)
+
+    def fit_statistics(self, y_hat, y):
+        r2 = r2_score(y_hat, y)
+        mse = mean_squared_error(y_hat, y)
+        return [r2, mse]
 
     def fit_net_productions(self):
         t = self.Time[1:]
         producers = self.producers
-        net_productions = self.net_production_by_producer
+        net_productions = self.net_productions
         for i in range(len(producers)):
             producer = producers[i]
             net_production = net_productions[i]
-            [f1, f2, tau] = self.fit_producer(producer)
-            X = self.production_rate_features(producer)
-            q2 = self.q2(X, f1, f2, tau)
-            X2 = self.net_production_features(net_production, q2)
             y = self.target_vector(net_production)
-            predicted_net_production = self.N2(X2)
-            r2 = r2_score(y, predicted_net_production)
-            plt.figure()
-            plt.scatter(t, y)
-            plt.plot(t, predicted_net_production, 'r')
-            plt.text(80, 0.5, 'R-squared = %0.8f' % r2)
+            net_production_fit = self.fit_net_production(
+                producer,
+                net_production
+            )
+            r2 = self.fit_statistics(net_production_fit, y)[0]
+            self.data_and_crm_fitting_plotter(t, y, net_production_fit, r2)
             plot_helper(
                 title='Producer {}'.format(i + 1),
                 xlabel='Time',
@@ -128,23 +134,27 @@ class CRM():
                 save=True
             )
 
+    def fit_net_production(self, producer, net_production):
+        q2 = self.get_fitted_production_rate(producer)
+        X2 = self.net_production_features(net_production, q2)
+        net_production_fit = self.N2(X2)
+        return net_production_fit
+
     def crm_predict_net_production(self, producer, step_size):
-        net_production = self.net_production_by_producer[producer]
+        net_production = self.net_productions[producer]
         producer = self.producers[producer]
-        X = self.production_rate_features(producer)
-        [f1, f2, tau] = self.fit_producer(producer)
-        q2 = self.q2(X, f1, f2, tau)
-        X2 = self.net_production_features(net_production, q2).T
-        y2 = net_production[1:]
+        q2 = self.get_fitted_production_rate(producer)
+        X2, y = self.net_production_dataset(net_production, q2)
         [tscv, n_splits] = self.time_series_cross_validator(X2, step_size)
         r2_sum = 0
         mse_sum = 0
         for train_index, test_index in tscv.split(X2):
             x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
-            y_train, y_test = y2[train_index], y2[test_index]
+            y_train, y_test = y[train_index], y[test_index]
             y_predict = self.N2(x_test)
-            r2_sum += r2_score(y_predict, y_test)
-            mse_sum += mean_squared_error(y_predict, y_test)
+            r2_i, mse_i = self.fit_statistics(y_predict, y_test)
+            r2_sum += r2_i
+            mse_sum += mse_i
         r2 = r2_sum / n_splits
         mse = mse_sum / n_splits
         return (r2, mse)
@@ -174,7 +184,7 @@ class CRM():
 
     def mse_of_net_production_vs_time(self):
         producers = self.producers
-        net_productions = self.net_production_by_producer
+        net_productions = self.net_productions
         for i in range(len(producers)):
             producer = producers[i]
             net_production = net_productions[i]
@@ -219,7 +229,7 @@ class CRM():
             Elastic_mse = producer_results[:, 11]
             rects1 = ax.bar(x - 2 * width, CRM_mse, width, label='CRM, mse')
             rects2 = ax.bar(x - width, Linear_Regression_mse, width, label='Linear Regression, mse')
-            rects3 = ax.bar(x , Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
+            rects3 = ax.bar(x, Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
             rects4 = ax.bar(x + width, Lasso_mse, width, label='Lasso, mse')
             rects5 = ax.bar(x + 2 * width, Elastic_mse, width, label='Elastic, mse')
             xlabel = 'Step Size'
@@ -242,19 +252,24 @@ class CRM():
 
     def forward_walk_and_ML(self, X, y, model, step_size):
         [tscv, n_splits] = self.time_series_cross_validator(X, step_size)
-        r2_sum = 0
-        mse_sum = 0
+        r2_sum, mse_sum= 0, 0
         for train_index, test_index in tscv.split(X):
             x_train, x_test = X[train_index], X[test_index]
             y_train, y_test = y[train_index], y[test_index]
-            model.fit(x_train, y_train)
-            y_predict = model.predict(x_test)
-            r2_sum += r2_score(y_predict, y_test)
-            mse_sum += mean_squared_error(y_predict, y_test)
-        return ((r2_sum / n_splits), (mse_sum / n_splits))
+            y_predict = self.train_and_test_model(model, x_train, y_train, x_test)
+            r2_i, mse_i = self.fit_statistics(y_predict, y_test)
+            r2_sum += r2_i
+            mse_sum += mse_i
+        r2 = r2_sum / n_splits
+        mse = mse_sum / n_splits
+        return (r2, mse)
+
+    def train_and_test_model(self, model, x_train, y_train, x_test):
+        model.fit(x_train, y_train)
+        return model.predict(x_test)
 
     def predict_ML_net_production(self, producer, step_size, model):
-        net_production = self.net_production_by_producer[producer]
+        net_production = self.net_productions[producer]
         producer = self.producers[producer]
         X = np.array([
             producer[:-1], net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
@@ -283,7 +298,7 @@ class CRM():
 
     def plot_net_production_vs_time(self):
         plt.figure()
-        plt.plot(self.Time, self.net_production_by_producer.T)
+        plt.plot(self.Time, self.net_productions.T)
         plot_helper(
             title='Total Production vs Time',
             xlabel='Time',
