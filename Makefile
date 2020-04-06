@@ -27,7 +27,11 @@ environment:
 # make a  `test_environment` command
 # run `conda activate $(PROJECT_NAME)` before running this command
 requirements:
-	conda install --file requirements.txt
+	conda install --file environment.yml
+
+## Save Environment
+save-environment:
+	conda env export > environment.yml
 
 ## Make Dataset
 data:

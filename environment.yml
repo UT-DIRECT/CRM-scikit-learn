@@ -8,8 +8,8 @@ dependencies:
   - awscli=1.17.13=py38_0
   - babel=2.8.0=py_0
   - botocore=1.14.13=py_0
-  - ca-certificates=2019.11.28=hecc5488_0
-  - certifi=2019.11.28=py38h32f6830_1
+  - ca-certificates=2020.4.5.1=hecc5488_0
+  - certifi=2020.4.5.1=py38h32f6830_0
   - cffi=1.13.2=py38h33e799b_0
   - chardet=3.0.4=py38_1003
   - click=7.0=py_0
@@ -43,7 +43,7 @@ dependencies:
   - mccabe=0.6.1=py_1
   - ncurses=6.1=h0a44026_1002
   - numpy=1.18.1=py38hde6bac1_0
-  - openssl=1.1.1d=h0b31af3_0
+  - openssl=1.1.1f=h0b31af3_0
   - packaging=20.1=py_0
   - pandas=1.0.1=py38h4f17bb1_0
   - patsy=0.5.1=py_0
