@@ -120,8 +120,7 @@ class CRM():
             net_production = net_productions[i]
             y = self.target_vector(net_production)
             net_production_fit = self.fit_net_production(
-                producer,
-                net_production
+                producer, net_production
             )
             r2 = fit_statistics(net_production_fit, y)[0]
             self.data_and_crm_fitting_plotter(t, y, net_production_fit, r2)
@@ -218,7 +217,8 @@ class CRM():
         net_production = self.net_productions[producer]
         producer = self.producers[producer]
         X = np.array([
-            producer[:-1], net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
+            producer[:-1], net_production[:-1],
+            self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
         ]).T
         y = self.target_vector(net_production)
         return forward_walk_and_ML(X, y, step_size, model)
