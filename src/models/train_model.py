@@ -3,6 +3,7 @@ import numpy as np
 
 from lmfit import Parameters, Model
 from scipy.optimize import curve_fit
+from sklearn.exceptions import ConvergenceWarning
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import *
@@ -11,7 +12,10 @@ from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
 from sklearn.neighbors import KNeighborsRegressor, RadiusNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR, NuSVR, LinearSVR
+from sklearn.utils.testing import ignore_warnings
 
+from ..helpers.analysis import fit_statistics
+from ..helpers.cross_validation import forward_walk, forward_walk_and_ML
 from ..helpers.figures import plot_helper, fig_filename, FIG_DIR
 
 filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
@@ -46,7 +50,7 @@ class CRM():
         ])
 
     def net_production_features(self, net_production, q2):
-        return np.array([net_production[:-1], q2])
+        return np.array([net_production[:-1], q2[:(net_production.size - 1)]])
 
     def target_vector(self, production):
         return production[1:]
@@ -91,7 +95,7 @@ class CRM():
             producer = producers[i]
             y = self.target_vector(producer)
             q2 = self.get_fitted_production_rate(producer)
-            r2 = self.fit_statistics(q2, y)[0]
+            r2 = fit_statistics(q2, y)[0]
             self.data_and_crm_fitting_plotter(t, y, q2, r2)
             plot_helper(
                 title='Producer {}'.format(i + 1),
@@ -107,11 +111,6 @@ class CRM():
         plt.plot(t, y_hat, 'r')
         plt.text(80, y[0], 'R-squared = %0.8f' % r2)
 
-    def fit_statistics(self, y_hat, y):
-        r2 = r2_score(y_hat, y)
-        mse = mean_squared_error(y_hat, y)
-        return [r2, mse]
-
     def fit_net_productions(self):
         t = self.Time[1:]
         producers = self.producers
@@ -124,7 +123,7 @@ class CRM():
                 producer,
                 net_production
             )
-            r2 = self.fit_statistics(net_production_fit, y)[0]
+            r2 = fit_statistics(net_production_fit, y)[0]
             self.data_and_crm_fitting_plotter(t, y, net_production_fit, r2)
             plot_helper(
                 title='Producer {}'.format(i + 1),
@@ -135,30 +134,29 @@ class CRM():
             )
 
     def fit_net_production(self, producer, net_production):
-        q2 = self.get_fitted_production_rate(producer)
-        X2 = self.net_production_features(net_production, q2)
+        X2 = self.net_production_features(net_production, producer)
         net_production_fit = self.N2(X2)
         return net_production_fit
 
     def crm_predict_net_production(self, producer, step_size):
         net_production = self.net_productions[producer]
         producer = self.producers[producer]
-        q2 = self.get_fitted_production_rate(producer)
-        X2, y = self.net_production_dataset(net_production, q2)
-        [tscv, n_splits] = self.time_series_cross_validator(X2, step_size)
-        r2_sum = 0
-        mse_sum = 0
-        for train_index, test_index in tscv.split(X2):
-            x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
-            y_train, y_test = y[train_index], y[test_index]
-            y_predict = self.N2(x_test)
-            r2_i, mse_i = self.fit_statistics(y_predict, y_test)
+        X2, y = self.net_production_dataset(net_production, producer)
+        r2_sum, mse_sum = 0, 0
+        split_data = forward_walk(X2, y, step_size)
+        length = len(split_data['x_train'])
+        for i in range(length):
+            x_train, x_test = split_data['x_train'][i], split_data['x_test'][i]
+            y_train, y_test = split_data['y_train'][i], split_data['y_test'][i]
+            y_predict = self.N2(x_test.T)
+            r2_i, mse_i = fit_statistics(y_predict, y_test)
             r2_sum += r2_i
             mse_sum += mse_i
-        r2 = r2_sum / n_splits
-        mse = mse_sum / n_splits
+        r2 = r2_sum / length
+        mse = mse_sum / length
         return (r2, mse)
 
+    @ignore_warnings(category=ConvergenceWarning)
     def net_production_forward_walk_predictions(self):
         output_header = "producer step_size crm_r2 cse_mse linear_regression_r2 linear_regression_mse bayesian_ridge_r2 bayesian_ridge_mse lasso_r2 lasso_mse elastic_r2 elastic_mse"
         producers = self.producers
@@ -167,7 +165,7 @@ class CRM():
             for i in range(len(producers)):
                 models = [
                     LinearRegression(), BayesianRidge(),
-                    Lasso(max_iter=100000), ElasticNet(max_iter=100000)
+                    Lasso(max_iter=10000), ElasticNet(max_iter=10000)
                 ]
                 for step_size in self.step_sizes:
                     CRM_r2, CRM_mse = self.crm_predict_net_production(
@@ -181,35 +179,6 @@ class CRM():
                         models_performance_parameters.append(r2)
                         models_performance_parameters.append(mse)
                     f.write('{} {} {} {} {} {} {} {} {} {} {} {}\n'.format(i + 1, int(step_size), CRM_r2, CRM_mse, *models_performance_parameters))
-
-    def mse_of_net_production_vs_time(self):
-        producers = self.producers
-        net_productions = self.net_productions
-        for i in range(len(producers)):
-            producer = producers[i]
-            net_production = net_productions[i]
-            X = self.production_rate_features(producer)
-            [f1, f2, tau] = self.fit_producer(producer)
-            q2 = self.q2(X, f1, f2, tau)
-            X2 = self.net_production_features(net_production, q2).T
-            y2 = net_production[1:]
-            [tscv, n_splits] = self.time_series_cross_validator(X2, 12)
-            y = []
-            for train_index, test_index in tscv.split(X2):
-                x_train, x_test = (X2[train_index]).T, (X2[test_index]).T
-                y_train, y_test = y2[train_index], y2[test_index]
-                y_predict = self.N2(x_test)
-                y.append(r2_score(y_predict, y_test))
-            size = len(y)
-            x = np.linspace(0, size, num=size)
-            plt.figure()
-            plt.plot(x, y, 'r')
-            plot_helper(
-                title='Producer {}'.format(i + 1),
-                xlabel='Time',
-                ylabel='MSE',
-                save=False
-            )
 
     def net_production_forward_walk_predictions_plot(self):
         # TODO: Refactor
@@ -245,29 +214,6 @@ class CRM():
             fig_file = fig_filename(title, xlabel, ylabel)
             plt.savefig('{}{}'.format(FIG_DIR, fig_file))
 
-    def time_series_cross_validator(self, X, step_size):
-        n_splits = (int(len(X) / step_size) - 1)
-        tscv = TimeSeriesSplit(n_splits=n_splits)
-        return [tscv, n_splits]
-
-    def forward_walk_and_ML(self, X, y, model, step_size):
-        [tscv, n_splits] = self.time_series_cross_validator(X, step_size)
-        r2_sum, mse_sum= 0, 0
-        for train_index, test_index in tscv.split(X):
-            x_train, x_test = X[train_index], X[test_index]
-            y_train, y_test = y[train_index], y[test_index]
-            y_predict = self.train_and_test_model(model, x_train, y_train, x_test)
-            r2_i, mse_i = self.fit_statistics(y_predict, y_test)
-            r2_sum += r2_i
-            mse_sum += mse_i
-        r2 = r2_sum / n_splits
-        mse = mse_sum / n_splits
-        return (r2, mse)
-
-    def train_and_test_model(self, model, x_train, y_train, x_test):
-        model.fit(x_train, y_train)
-        return model.predict(x_test)
-
     def predict_ML_net_production(self, producer, step_size, model):
         net_production = self.net_productions[producer]
         producer = self.producers[producer]
@@ -275,15 +221,7 @@ class CRM():
             producer[:-1], net_production[:-1], self.Net_Fixed_inj1[:-1], self.Net_Fixed_inj2[:-1]
         ]).T
         y = self.target_vector(net_production)
-        # models = [LinearRegression(), Lasso(alpha=0, max_iter=100, tol=0.0001),
-        #         Ridge(), ElasticNet(),  Lars(),
-        #         LassoLars(), OrthogonalMatchingPursuit(), BayesianRidge(),
-        #         ARDRegression(), SGDRegressor(), PassiveAggressiveRegressor(),
-        #         KernelRidge(), SVR(), NuSVR(), LinearSVR(),
-        #         KNeighborsRegressor(n_neighbors=3),
-        #         RadiusNeighborsRegressor(radius=10000),
-        #         GaussianProcessRegressor(), MLPRegressor(hidden_layer_sizes=(60,))]
-        return self.forward_walk_and_ML(X, y, model, step_size)
+        return forward_walk_and_ML(X, y, step_size, model)
 
     def plot_producers_vs_time(self):
         plt.figure()
@@ -329,4 +267,3 @@ model.plot_net_production_vs_time()
 model.plot_producers_vs_injector()
 model.net_production_forward_walk_predictions()
 model.net_production_forward_walk_predictions_plot()
-model.mse_of_net_production_vs_time()
