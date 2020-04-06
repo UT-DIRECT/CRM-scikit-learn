@@ -13,7 +13,6 @@ def forward_walk(X, y, step_size):
         test_end = (int(test_start + step_size)
             if test_start + step_size < length
             else length)
-        
         x_train, x_test = X[:train_end], X[test_start: test_end]
         y_train, y_test = y[:train_end], y[test_start: test_end]
         split_data['x_train'].append(x_train)
