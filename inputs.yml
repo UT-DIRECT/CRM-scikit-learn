@@ -1,0 +1,3 @@
+'files':
+    'data': './data/interim/CRMP_Corrected_July16_2018.csv'
+    'net_production_predictions': './data/interim/net_production_predictions.txt'

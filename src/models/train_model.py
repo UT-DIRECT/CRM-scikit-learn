@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
 
 from lmfit import Parameters, Model
 from scipy.optimize import curve_fit
@@ -18,17 +19,19 @@ from ..helpers.analysis import fit_statistics
 from ..helpers.cross_validation import forward_walk, forward_walk_and_ML
 from ..helpers.figures import plot_helper, fig_filename, FIG_DIR
 
-filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
 
 class CRM():
 
-    def __init__(self, filename):
+    def __init__(self, inputs):
+        with open(inputs) as f:
+            self.inputs = yaml.load(f, Loader=yaml.Loader)
+        data_file = self.inputs['files']['data']
         [
             self.Time, self.Random_inj1, self.Random_inj2, self.Fixed_inj1,
             self.Net_Fixed_inj1, self.Fixed_inj2, self.Net_Fixed_inj2,
             self.Prod1, self.Net_Prod1, self.Prod2, self.Net_Prod2,
             self.Prod3, self.Net_Prod3, self.Prod4, self.Net_Prod4
-        ] = np.loadtxt(filename, delimiter=',', skiprows=1).T
+        ] = np.loadtxt(data_file, delimiter=',', skiprows=1).T
         self.producers = np.array(
             [self.Prod1, self.Prod2, self.Prod3, self.Prod4]
         )
@@ -42,7 +45,7 @@ class CRM():
         self.N2 = lambda X: X[0] + X[1]
         self.p0 = .5, .5, 5
         self.step_sizes = np.linspace(2, 12, num=11)
-        self.net_production_forward_walk_predictions_output_file = './data/interim/net_production_forward_walk_predictions.txt'
+        self.net_production_predictions_output_file = self.inputs['files']['net_production_predictions']
 
     def production_rate_features(self, producer):
         return np.array([
@@ -159,7 +162,7 @@ class CRM():
     def net_production_forward_walk_predictions(self):
         output_header = "producer step_size crm_r2 cse_mse linear_regression_r2 linear_regression_mse bayesian_ridge_r2 bayesian_ridge_mse lasso_r2 lasso_mse elastic_r2 elastic_mse"
         producers = self.producers
-        with open(self.net_production_forward_walk_predictions_output_file, 'w') as f:
+        with open(self.net_production_predictions_output_file, 'w') as f:
             f.write('{}\n'.format(output_header))
             for i in range(len(producers)):
                 models = [
@@ -177,12 +180,18 @@ class CRM():
                         )
                         models_performance_parameters.append(r2)
                         models_performance_parameters.append(mse)
-                    f.write('{} {} {} {} {} {} {} {} {} {} {} {}\n'.format(i + 1, int(step_size), CRM_r2, CRM_mse, *models_performance_parameters))
+                    f.write('{} {} {} {} {} {} {} {} {} {} {} {}\n'.format(
+                            i + 1, int(step_size), CRM_r2, CRM_mse,
+                            *models_performance_parameters
+                        )
+                    )
 
     def net_production_forward_walk_predictions_plot(self):
         # TODO: Refactor
         labels = [int(step_size) for step_size in self.step_sizes]
-        prediction_results = np.genfromtxt(self.net_production_forward_walk_predictions_output_file, skip_header=1)
+        prediction_results = np.genfromtxt(
+            self.net_production_predictions_output_file, skip_header=1
+        )
         x = np.arange(len(labels))
         width = 0.15
         for i in range(4):
@@ -196,10 +205,19 @@ class CRM():
             Lasso_mse = producer_results[:, 9]
             Elastic_mse = producer_results[:, 11]
             rects1 = ax.bar(x - 2 * width, CRM_mse, width, label='CRM, mse')
-            rects2 = ax.bar(x - width, Linear_Regression_mse, width, label='Linear Regression, mse')
-            rects3 = ax.bar(x, Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
+            rects2 = ax.bar(
+                x - width, Linear_Regression_mse, width,
+                label='Linear Regression, mse'
+            )
+            rects3 = ax.bar(
+                x, Bayesian_Ridge_mse, width,
+                label='Bayesian Ridge, mse'
+            )
             rects4 = ax.bar(x + width, Lasso_mse, width, label='Lasso, mse')
-            rects5 = ax.bar(x + 2 * width, Elastic_mse, width, label='Elastic, mse')
+            rects5 = ax.bar(
+                x + 2 * width, Elastic_mse, width,
+                label='Elastic, mse'
+            )
             xlabel = 'Step Size'
             ylabel = 'Mean Squared Error'
             title = 'Producer {}'.format(producer)
@@ -259,7 +277,7 @@ class CRM():
                 save=True
             )
 
-model = CRM(filename)
+model = CRM('inputs.yml')
 model.fit_producers()
 model.fit_net_productions()
 model.plot_producers_vs_time()
