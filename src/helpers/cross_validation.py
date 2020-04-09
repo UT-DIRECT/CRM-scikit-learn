@@ -1,32 +1,52 @@
+import sys
+
+import numpy as np
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import *
+
 from .analysis import fit_statistics
 
+TRAINING_SPLIT = 0.8
+
 def forward_walk_and_ML(X, y, step_size, model):
-    split_data = forward_walk(X, y, step_size)
-    return train_and_test_model(model, split_data)
+    train_test_splits = forward_walk_splitter(X, y, step_size)
+    return train_and_test_model(X, y, model, train_test_splits)
 
-def forward_walk(X, y, step_size):
+def forward_walk_splitter(X, y, step_size):
     length = len(X)
-    split_data = {'x_train': [], 'x_test': [], 'y_train': [], 'y_test': []}
-    for i in range(length - 2):
-        train_end = i + 1
-        test_start = i + 1
-        test_end = (int(test_start + step_size)
+    split = []
+    for i in range(length - 1):
+        train_end = i
+        test_start = train_end + 1
+        # test_start + step_size is one too long, so subtract by 1.
+        # This is because linspace is inclusive.
+        test_end = (int(test_start + step_size - 1)
             if test_start + step_size < length
-            else length)
-        x_train, x_test = X[:train_end], X[test_start: test_end]
-        y_train, y_test = y[:train_end], y[test_start: test_end]
-        split_data['x_train'].append(x_train)
-        split_data['x_test'].append(x_test)
-        split_data['y_train'].append(y_train)
-        split_data['y_test'].append(y_test)
-    return split_data
+            else length - 1)
+        train = np.linspace(0, train_end, num=(train_end + 1)).astype(int)
+        # Sometimes the testing set is smaller than the step_size.
+        # This is to ensure that there are the same number of splits for 
+        # all step_sizes.
+        test = np.linspace(
+            test_start, test_end, num=(test_end - test_start + 1)
+        ).astype(int)
+        split.append([train, test])
+    train_test_seperation_idx = (int(TRAINING_SPLIT * len(split)) + 1)
+    return (split, train_test_seperation_idx)
 
-def train_and_test_model(model, split_data):
+def train_and_test_model(X, y, model, train_test_splits):
+    split = train_test_splits[0]
+    train_test_seperation_idx = train_test_splits[1]
     r2_sum, mse_sum = 0, 0
-    length = len(split_data['x_train'])
-    for i in range(length):
-        x_train, x_test = split_data['x_train'][i], split_data['x_test'][i]
-        y_train, y_test = split_data['y_train'][i], split_data['y_test'][i]
+    length = len(split)
+    if isinstance(model, LinearRegression) or isinstance(model, BayesianRidge): 
+        model.fit(X[:train_test_seperation_idx], y[:train_test_seperation_idx])
+    else:
+        model = train_model_with_cv(X, y, model, train_test_splits)
+    for train, test in split[train_test_seperation_idx:]:
+        x_train, x_test = X[train], X[test]
+        y_train, y_test = y[train], y[test]
         model.fit(x_train, y_train)
         y_predict = model.predict(x_test)
         r2_i, mse_i = fit_statistics(y_predict, y_test)
@@ -35,3 +55,13 @@ def train_and_test_model(model, split_data):
     r2 = r2_sum / length
     mse = mse_sum / length
     return (r2, mse)
+
+def train_model_with_cv(X, y, model, train_test_splits):
+    split = train_test_splits[0]
+    train_test_seperation_idx = train_test_splits[1]
+    m = model(cv=split[:train_test_seperation_idx], random_state=0).fit(X, y)
+    if isinstance(m, LassoCV):
+        trained_model = Lasso(alpha=m.alpha_)
+    if isinstance(m, ElasticNetCV):
+        trained_model = ElasticNet(alpha=m.alpha_, l1_ratio=m.l1_ratio_)
+    return trained_model
