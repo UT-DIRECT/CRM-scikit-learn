@@ -8,14 +8,17 @@ def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):
     plt.ylabel(ylabel)
     plt.legend(legend)
     if save:
-        fig_file = "{}{}".format(
-            FIG_DIR,
-            fig_filename(title, xlabel, ylabel)
-        )
-        plt.savefig(fig_file)
-        plt.close()
+        fig_saver(title, xlabel, ylabel)
     else:
         plt.show()
+
+def fig_saver(title, xlabel, ylabel):
+    fig_file = "{}{}".format(
+        FIG_DIR,
+        fig_filename(title, xlabel, ylabel)
+    )
+    plt.savefig(fig_file)
+    plt.close()
 
 def fig_filename(title, xlabel, ylabel):
     return "{}_{}_{}.png".format(
