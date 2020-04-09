@@ -167,7 +167,6 @@ class CRM():
         with open(self.net_production_predictions_output_file, 'w') as f:
             f.write('{}\n'.format(output_header))
             for i in range(len(producers)):
-                print('PRODUCER: ', i + 1)
                 models = [
                     LinearRegression(), BayesianRidge(),
                     LassoCV, ElasticNetCV
