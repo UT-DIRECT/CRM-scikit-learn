@@ -48,12 +48,13 @@ class CRM():
         self.net_production_predictions_output_file = self.inputs['files']['net_production_predictions']
 
     def production_rate_features(self, producer):
+        size = producer[:-1].size
         return np.array([
-            producer[:-1], self.Fixed_inj1[:-1], self.Fixed_inj2[:-1]
+            producer[:size], self.Fixed_inj1[:size], self.Fixed_inj2[:size]
         ])
 
     def net_production_features(self, net_production, q2):
-        return np.array([net_production[:-1], q2[:(net_production.size - 1)]])
+        return np.array([net_production[:-1], q2[:-1]])
 
     def target_vector(self, production):
         return production[1:]
@@ -72,6 +73,9 @@ class CRM():
 
     def fit_producer(self, producer):
         X, y = self.production_rate_dataset(producer)
+        return self.fit_production_rate(X, y)
+
+    def fit_production_rate(self, X, y):
         model = Model(self.q2, independent_vars=['X'])
         params = Parameters()
 
@@ -143,17 +147,30 @@ class CRM():
     def crm_predict_net_production(self, producer, step_size):
         net_production = self.net_productions[producer]
         producer = self.producers[producer]
-        X2, y = self.net_production_dataset(net_production, producer)
-        r2_sum, mse_sum = 0, 0
-        train_test_splits = forward_walk_splitter(X2, y, step_size)
+        X, y = self.production_rate_dataset(producer)
+        X_T = X.T
+        train_test_splits = forward_walk_splitter(X_T, y, step_size)
         split = train_test_splits[0]
-        train_test_seperation_idx = train_test_splits[1]
         length = len(split)
+        train_test_seperation_idx = train_test_splits[1]
+        X_train = X_T[:train_test_seperation_idx].T
+        y_train = y[:train_test_seperation_idx]
+        [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
+
+        y2 = self.target_vector(net_production)
+        r2_sum, mse_sum = 0, 0
         for train, test in split[train_test_seperation_idx:]:
-            x_train, x_test = X2[train], X2[test]
+            X_train, X_test = X_T[train].T, X_T[test].T
             y_train, y_test = y[train], y[test]
-            y_predict = self.N2(x_test.T)
-            r2_i, mse_i = fit_statistics(y_predict, y_test)
+            [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
+            q2_predicted = self.q2(X_test, f1, f1, tau)
+            q2 = np.concatenate((y_train, q2_predicted))
+            X2 = np.array([net_production[:(test[-1] + 1)], q2[:(test[-1] + 1)]])
+            X2 = X2.T
+            X2_train, X2_test = X2[train], X2[test]
+            y2_train, y2_test = y2[train], y2[test]
+            y2_predict = self.N2(X2_test.T)
+            r2_i, mse_i = fit_statistics(y2_predict, y2_test)
             r2_sum += r2_i
             mse_sum += mse_i
         r2 = r2_sum / length
@@ -272,10 +289,10 @@ class CRM():
             )
 
 model = CRM('inputs.yml')
-# model.fit_producers()
-# model.fit_net_productions()
-# model.plot_producers_vs_time()
-# model.plot_net_production_vs_time()
-# model.plot_producers_vs_injector()
+model.fit_producers()
+model.fit_net_productions()
+model.plot_producers_vs_time()
+model.plot_net_production_vs_time()
+model.plot_producers_vs_injector()
 model.net_production_predictions()
 model.net_production_predictions_plot()
