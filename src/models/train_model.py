@@ -16,10 +16,12 @@ from ..helpers.figures import fig_saver, plot_helper
 
 class CRM():
 
+
     def __init__(self, inputs):
         self.inputs = self.read_inputs(inputs)
         data_file = self.inputs['files']['data']
         self.read_data(data_file)
+
         self.producers = np.array([self.q_1, self.q_2, self.q_3, self.q_4])
         self.producer_names = [
             'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
@@ -27,14 +29,17 @@ class CRM():
         self.net_productions = np.array(
             [self.N_1, self.N_2, self.N_3, self.N_4]
         )
+
         self.make_crm_functions()
         self.step_sizes = np.linspace(2, 12, num=11).astype(int)
         self.N_predictions_output_file = self.inputs['files']['N_predictions']
+
 
     def make_crm_functions(self):
         self.q2 = lambda X, f1, f2, tau: X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * (X[1] * f1 + X[2] * f2)
         self.N2 = lambda X: X[0] + X[1]
         self.p0 = 0.5, 0.5, 5
+
 
     def read_data(self, data_file):
         data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
@@ -54,10 +59,12 @@ class CRM():
         self.q_4 = data[13]
         self.N_4 = data[14]
 
+
     def read_inputs(self, inputs):
         with open(inputs) as f:
             inputs = yaml.load(f, Loader=yaml.Loader)
         return inputs
+
 
     def production_rate_features(self, producer):
         size = producer[:-1].size
@@ -65,11 +72,14 @@ class CRM():
             producer[:size], self.Fixed_inj1[:size], self.Fixed_inj2[:size]
         ])
 
+
     def net_production_features(self, net_production, q2):
         return np.array([net_production[:-1], q2[:-1]])
 
+
     def target_vector(self, production):
         return production[1:]
+
 
     def production_rate_dataset(self, producer):
         return [
@@ -77,15 +87,18 @@ class CRM():
             self.target_vector(producer)
         ]
 
+
     def net_production_dataset(self, net_production, q2):
         return [
             self.net_production_features(net_production, q2).T,
             self.target_vector(net_production)
         ]
 
+
     def fit_producer(self, producer):
         X, y = self.production_rate_dataset(producer)
         return self.fit_production_rate(X, y)
+
 
     def fit_production_rate(self, X, y):
         model = Model(self.q2, independent_vars=['X'])
@@ -102,11 +115,13 @@ class CRM():
         pars.append(results.values['tau'])
         return pars
 
+
     def get_fitted_production_rate(self, producer):
         X = self.production_rate_features(producer)
         [f1, f2, tau] = self.fit_producer(producer)
         q2 = self.q2(X, f1, f2, tau)
         return q2
+
 
     def fit_producers(self):
         t, producers = self.Time[1:], self.producers
@@ -124,11 +139,13 @@ class CRM():
                 save=True
             )
 
+
     def data_and_crm_fitting_plotter(self, t, y, y_hat, r2):
         plt.figure()
         plt.scatter(t, y)
         plt.plot(t, y_hat, 'r')
         plt.text(80, y[0], 'R-squared = %0.8f' % r2)
+
 
     def fit_net_productions(self):
         t = self.Time[1:]
@@ -151,10 +168,12 @@ class CRM():
                 save=True
             )
 
+
     def fit_net_production(self, producer, net_production):
         X2 = self.net_production_features(net_production, producer)
         net_production_fit = self.N2(X2)
         return net_production_fit
+
 
     def crm_predict_net_production(self, producer, step_size):
         net_production = self.net_productions[producer]
@@ -191,6 +210,7 @@ class CRM():
         mse = mse_sum / length
         return (r2, mse)
 
+
     @ignore_warnings(category=ConvergenceWarning)
     def net_production_predictions(self):
         output_header = "producer step_size crm_r2 cse_mse linear_regression_r2 linear_regression_mse bayesian_ridge_r2 bayesian_ridge_mse lasso_r2 lasso_mse elastic_r2 elastic_mse"
@@ -217,6 +237,7 @@ class CRM():
                             *models_performance_parameters
                         )
                     )
+
 
     def net_production_predictions_plot(self):
         labels = [int(step_size) for step_size in self.step_sizes]
@@ -255,6 +276,7 @@ class CRM():
             plt.tight_layout()
             fig_saver(title, xlabel, ylabel)
 
+
     def predict_ML_net_production(self, producer, step_size, model):
         net_production = self.net_productions[producer]
         producer = self.producers[producer]
@@ -264,6 +286,7 @@ class CRM():
         ]).T
         y = self.target_vector(net_production)
         return forward_walk_and_ML(X, y, step_size, model)
+
 
     def plot_producers_vs_time(self):
         plt.figure()
@@ -276,6 +299,7 @@ class CRM():
             save=True
         )
 
+
     def plot_net_production_vs_time(self):
         plt.figure()
         plt.plot(self.Time, self.net_productions.T)
@@ -286,6 +310,7 @@ class CRM():
             legend=self.producer_names,
             save=True
         )
+
 
     def plot_producers_vs_injector(self):
         injectors = [self.Fixed_inj1, self.Fixed_inj2]

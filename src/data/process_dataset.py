@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 
+
+input_filename = "./data/raw/CRMP_Corrected_July16_2018.xlsx"
+output_filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
+
+
 def white_noise(column):
     length = len(column)
     mu, sigma = [column.mean(), column.std()]
@@ -13,6 +18,7 @@ def white_noise(column):
         # the dataset by 3; therefore we divide by 3 below.
     return column * 1 / 3
 
+
 def net_flow(production):
     net = []
     for prod in production:
@@ -21,9 +27,6 @@ def net_flow(production):
         else:
             net.append(net[-1] + prod)
     return net
-
-input_filename = "./data/raw/CRMP_Corrected_July16_2018.xlsx"
-output_filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
 
 df = pd.read_excel(input_filename, 0, skiprows=9)
 df = df.drop(df.columns[[3, 4, 7, 8]], axis=1)

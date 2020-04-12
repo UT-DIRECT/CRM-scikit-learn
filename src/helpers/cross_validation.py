@@ -5,11 +5,14 @@ from sklearn.linear_model import (BayesianRidge, ElasticNet, ElasticNetCV,
 
 from .analysis import fit_statistics
 
+
 TRAINING_SPLIT = 0.8
+
 
 def forward_walk_and_ML(X, y, step_size, model):
     train_test_splits = forward_walk_splitter(X, y, step_size)
     return train_and_test_model(X, y, model, train_test_splits)
+
 
 def forward_walk_splitter(X, y, step_size):
     length = len(X)
@@ -33,6 +36,7 @@ def forward_walk_splitter(X, y, step_size):
     train_test_seperation_idx = (int(TRAINING_SPLIT * len(split)) + 1)
     return (split, train_test_seperation_idx)
 
+
 def train_and_test_model(X, y, model, train_test_splits):
     split = train_test_splits[0]
     train_test_seperation_idx = train_test_splits[1]
@@ -53,6 +57,7 @@ def train_and_test_model(X, y, model, train_test_splits):
     r2 = r2_sum / length
     mse = mse_sum / length
     return (r2, mse)
+
 
 def train_model_with_cv(X, y, model, train_test_splits):
     split = train_test_splits[0]
