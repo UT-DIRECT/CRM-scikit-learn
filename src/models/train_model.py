@@ -2,22 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
-from lmfit import Parameters, Model
-from scipy.optimize import curve_fit
+from lmfit import Model, Parameters
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.kernel_ridge import KernelRidge
-from sklearn.linear_model import *
-from sklearn.metrics  import r2_score, mean_squared_error
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
-from sklearn.neighbors import KNeighborsRegressor, RadiusNeighborsRegressor
-from sklearn.neural_network import MLPRegressor
-from sklearn.svm import SVR, NuSVR, LinearSVR
+from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
+        LinearRegression)
 from sklearn.utils.testing import ignore_warnings
 
 from ..helpers.analysis import fit_statistics
-from ..helpers.cross_validation import forward_walk_splitter, forward_walk_and_ML
-from ..helpers.figures import plot_helper, fig_saver
+from ..helpers.cross_validation import (forward_walk_and_ML,
+        forward_walk_splitter)
+from ..helpers.figures import fig_saver, plot_helper
 
 
 class CRM():
@@ -187,8 +181,7 @@ class CRM():
             f.write('{}\n'.format(output_header))
             for i in range(len(producers)):
                 models = [
-                    LinearRegression(), BayesianRidge(),
-                    LassoCV, ElasticNetCV
+                    BayesianRidge(), ElasticNetCV, LassoCV, LinearRegression()
                 ]
                 for step_size in self.step_sizes:
                     CRM_r2, CRM_mse = self.crm_predict_net_production(
