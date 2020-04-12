@@ -1,7 +1,7 @@
 import numpy as np
 
-from sklearn.model_selection import GridSearchCV
-from sklearn.linear_model import *
+from sklearn.linear_model import (BayesianRidge, ElasticNet, ElasticNetCV,
+        Lasso, LassoCV, LinearRegression)
 
 from .analysis import fit_statistics
 
