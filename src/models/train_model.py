@@ -17,29 +17,47 @@ from ..helpers.figures import fig_saver, plot_helper
 class CRM():
 
     def __init__(self, inputs):
-        with open(inputs) as f:
-            self.inputs = yaml.load(f, Loader=yaml.Loader)
+        self.inputs = self.read_inputs(inputs)
         data_file = self.inputs['files']['data']
-        [
-            self.Time, self.Random_inj1, self.Random_inj2, self.Fixed_inj1,
-            self.Net_Fixed_inj1, self.Fixed_inj2, self.Net_Fixed_inj2,
-            self.Prod1, self.Net_Prod1, self.Prod2, self.Net_Prod2,
-            self.Prod3, self.Net_Prod3, self.Prod4, self.Net_Prod4
-        ] = np.loadtxt(data_file, delimiter=',', skiprows=1).T
-        self.producers = np.array(
-            [self.Prod1, self.Prod2, self.Prod3, self.Prod4]
-        )
+        self.read_data(data_file)
+        self.producers = np.array([self.q_1, self.q_2, self.q_3, self.q_4])
         self.producer_names = [
             'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
         ]
         self.net_productions = np.array(
-            [self.Net_Prod1, self.Net_Prod2, self.Net_Prod3, self.Net_Prod4]
+            [self.N_1, self.N_2, self.N_3, self.N_4]
         )
+        self.make_crm_functions()
+        self.step_sizes = np.linspace(2, 12, num=11).astype(int)
+        self.N_predictions_output_file = self.inputs['files']['N_predictions']
+
+    def make_crm_functions(self):
         self.q2 = lambda X, f1, f2, tau: X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * (X[1] * f1 + X[2] * f2)
         self.N2 = lambda X: X[0] + X[1]
-        self.p0 = .5, .5, 5
-        self.step_sizes = np.linspace(2, 12, num=11).astype(int)
-        self.net_production_predictions_output_file = self.inputs['files']['net_production_predictions']
+        self.p0 = 0.5, 0.5, 5
+
+    def read_data(self, data_file):
+        data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
+        self.Time = data[0]
+        self.Random_inj1 = data[1]
+        self.Random_inj2 = data[2]
+        self.Fixed_inj1 = data[3]
+        self.Net_Fixed_inj1 = data[4]
+        self.Fixed_inj2 = data[5]
+        self.Net_Fixed_inj2 = data[6]
+        self.q_1 = data[7]
+        self.N_1 = data[8]
+        self.q_2 = data[9]
+        self.N_2 = data[10]
+        self.q_3 = data[11]
+        self.N_3 = data[12]
+        self.q_4 = data[13]
+        self.N_4 = data[14]
+
+    def read_inputs(self, inputs):
+        with open(inputs) as f:
+            inputs = yaml.load(f, Loader=yaml.Loader)
+        return inputs
 
     def production_rate_features(self, producer):
         size = producer[:-1].size
@@ -177,7 +195,7 @@ class CRM():
     def net_production_predictions(self):
         output_header = "producer step_size crm_r2 cse_mse linear_regression_r2 linear_regression_mse bayesian_ridge_r2 bayesian_ridge_mse lasso_r2 lasso_mse elastic_r2 elastic_mse"
         producers = self.producers
-        with open(self.net_production_predictions_output_file, 'w') as f:
+        with open(self.N_predictions_output_file, 'w') as f:
             f.write('{}\n'.format(output_header))
             for i in range(len(producers)):
                 models = [
@@ -203,7 +221,7 @@ class CRM():
     def net_production_predictions_plot(self):
         labels = [int(step_size) for step_size in self.step_sizes]
         prediction_results = np.genfromtxt(
-            self.net_production_predictions_output_file, skip_header=1
+            self.N_predictions_output_file, skip_header=1
         )
         x = np.arange(len(labels))
         width = 0.15
