@@ -149,10 +149,12 @@ class CRM():
         producer = self.producers[producer]
         X, y = self.production_rate_dataset(producer)
         X_T = X.T
+
         train_test_splits = forward_walk_splitter(X_T, y, step_size)
         split = train_test_splits[0]
-        length = len(split)
         train_test_seperation_idx = train_test_splits[1]
+        length = len(split)
+
         X_train = X_T[:train_test_seperation_idx].T
         y_train = y[:train_test_seperation_idx]
         [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
