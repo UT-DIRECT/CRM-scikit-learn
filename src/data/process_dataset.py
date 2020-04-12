@@ -15,7 +15,7 @@ def white_noise(column):
         column[i] += gaussian_noise[i]
         column[i] *= 1/exponential_decline_scaling[i]
         # Multiplying by 1/exponential_decline_scaling increases the value of
-        # the dataset by 3; therefore we divide by 3 below.
+        # the dataset by 3; therefore we multiply by 1/3 below.
     return column * 1 / 3
 
 
