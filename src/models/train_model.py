@@ -124,13 +124,14 @@ class CRM():
 
 
     def fit_producers(self):
-        t, producers = self.Time[1:], self.producers
+        t = self.Time[1:]
+        producers = self.producers
         for i in range(len(producers)):
             producer = producers[i]
             y = self.target_vector(producer)
-            q2 = self.get_fitted_production_rate(producer)
-            r2 = fit_statistics(q2, y)[0]
-            self.data_and_crm_fitting_plotter(t, y, q2, r2)
+            y_hat = self.get_fitted_production_rate(producer)
+            r2 = fit_statistics(y_hat, y)[0]
+            self.data_and_crm_fitting_plotter(t, y, y_hat, r2)
             plot_helper(
                 title='Producer {}'.format(i + 1),
                 xlabel='Time',
