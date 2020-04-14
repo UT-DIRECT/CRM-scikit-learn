@@ -47,6 +47,10 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
+## Delete all the figures
+clean-figures:
+	rm reports/figures/*
+
 ## Lint using flake8
 lint:
 	flake8 src
