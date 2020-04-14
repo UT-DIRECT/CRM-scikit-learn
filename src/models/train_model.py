@@ -199,8 +199,7 @@ class CRM():
             [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
             q2_hat = self.q2(X_test, f1, f1, tau)
             q2 = np.concatenate((y_train, q2_hat))
-            X2 = np.array([net_production[:(test[-1] + 1)], q2[:(test[-1] + 1)]])
-            X2 = X2.T
+            X2 = np.array([net_production[:len(q2)], q2]).T
             X2_train, X2_test = X2[train], X2[test]
             y2_train, y2_test = y2[train], y2[test]
             y2_hat = self.N2(X2_test.T)
@@ -252,19 +251,19 @@ class CRM():
             producer = i + 1
             producer_rows = np.where(prediction_results[:,0] == producer)
             producer_results = prediction_results[producer_rows]
-            CRM_mse = producer_results[:, 3]
-            Linear_Regression_mse = producer_results[:, 5]
-            Bayesian_Ridge_mse = producer_results[:, 7]
-            Lasso_mse = producer_results[:, 9]
-            Elastic_mse = producer_results[:, 11]
-            plt.bar(x - 2 * width, CRM_mse, width, label='CRM, mse')
+            crm_mse = producer_results[:, 3]
+            linear_regression_mse = producer_results[:, 5]
+            bayesian_ridge_mse = producer_results[:, 7]
+            lasso_mse = producer_results[:, 9]
+            elastic_mse = producer_results[:, 11]
+            plt.bar(x - 2 * width, crm_mse, width, label='CRM, mse')
             plt.bar(
-                x - width, Linear_Regression_mse, width,
+                x - width, linear_regression_mse, width,
                 label='Linear Regression, mse'
             )
-            plt.bar(x, Bayesian_Ridge_mse, width, label='Bayesian Ridge, mse')
-            plt.bar(x + width, Lasso_mse, width, label='Lasso, mse')
-            plt.bar(x + 2 * width, Elastic_mse, width, label='Elastic, mse')
+            plt.bar(x, bayesian_ridge_mse, width, label='Bayesian Ridge, mse')
+            plt.bar(x + width, lasso_mse, width, label='Lasso, mse')
+            plt.bar(x + 2 * width, elastic_mse, width, label='Elastic, mse')
             xlabel = 'Step Size'
             ylabel = 'Mean Squared Error'
             title = 'Producer {}'.format(producer)
@@ -273,7 +272,41 @@ class CRM():
             plt.yscale('log')
             plt.title(title)
             plt.xticks(ticks=x, labels=labels)
-            plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
+            plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+            plt.tight_layout()
+            fig_saver(title, xlabel, ylabel)
+
+
+    def net_production_good_estimators_plot(self):
+        labels = [int(step_size) for step_size in self.step_sizes]
+        prediction_results = np.genfromtxt(
+            self.N_predictions_output_file, skip_header=1
+        )
+        x = np.arange(len(labels))
+        width = 0.3
+        for i in range(4):
+            plt.figure(figsize=[10, 4.8])
+            producer = i + 1
+            producer_rows = np.where(prediction_results[:,0] == producer)
+            producer_results = prediction_results[producer_rows]
+            crm_mse = producer_results[:, 3]
+            linear_regression_mse = producer_results[:, 5]
+            elastic_mse = producer_results[:, 11]
+            plt.bar(x - width, crm_mse, width, label='CRM, mse')
+            plt.bar(
+                x, linear_regression_mse, width,
+                label='Linear Regression, mse'
+            )
+            plt.bar(x + width, elastic_mse, width, label='Elastic, mse')
+            xlabel = 'Step Size'
+            ylabel = 'Mean Squared Error'
+            title = 'Good Estimator MSEs Producer {}'.format(producer)
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+            plt.yscale('log')
+            plt.title(title)
+            plt.xticks(ticks=x, labels=labels)
+            plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
             plt.tight_layout()
             fig_saver(title, xlabel, ylabel)
 
@@ -335,3 +368,4 @@ model.plot_net_production_vs_time()
 model.plot_producers_vs_injector()
 model.net_production_predictions()
 model.net_production_predictions_plot()
+model.net_production_good_estimators_plot()
