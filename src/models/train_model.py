@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
@@ -26,16 +28,16 @@ class CRM():
         self.producer_names = [
             'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
         ]
-        self.net_productions = np.array(
-            [self.N_1, self.N_2, self.N_3, self.N_4]
-        )
+        self.net_productions = np.array([
+            self.N_1, self.N_2, self.N_3, self.N_4
+        ])
 
-        self.make_crm_functions()
+        self.initialize_crm_functions()
         self.step_sizes = np.linspace(2, 12, num=11).astype(int)
         self.N_predictions_output_file = INPUTS['files']['N_predictions']
 
 
-    def make_crm_functions(self):
+    def initialize_crm_functions(self):
         self.q2 = lambda X, f1, f2, tau: X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * (X[1] * f1 + X[2] * f2)
         self.N2 = lambda X: X[0] + X[1]
         self.p0 = 0.5, 0.5, 5
@@ -68,7 +70,8 @@ class CRM():
 
 
     def net_production_features(self, net_production, q2):
-        return np.array([net_production[:-1], q2[:-1]])
+        size = min(net_production.size, q2.size) - 1
+        return np.array([net_production[:size], q2[:size]])
 
 
     def target_vector(self, production):
@@ -123,9 +126,9 @@ class CRM():
         for i in range(len(producers)):
             producer = producers[i]
             y = self.target_vector(producer)
-            y_hat = self.get_fitted_production_rate(producer)
-            r2 = fit_statistics(y_hat, y)[0]
-            self.data_and_crm_fitting_plotter(t, y, y_hat, r2)
+            q2 = self.get_fitted_production_rate(producer)
+            r2 = fit_statistics(q2, y)[0]
+            self.data_and_crm_fitting_plotter(t, y, q2, r2)
             plot_helper(
                 title='Producer {}'.format(i + 1),
                 xlabel='Time',
@@ -231,6 +234,7 @@ class CRM():
                             *models_performance_parameters
                         )
                     )
+                sys.exit()
 
 
     def net_production_predictions_plot(self):

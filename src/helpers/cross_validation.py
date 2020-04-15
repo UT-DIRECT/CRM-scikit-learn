@@ -64,9 +64,9 @@ def train_and_test_model(X, y, model, train_test_splits):
 
 def train_model_with_cv(X, y, model, train_split):
     fitted_model = model(cv=train_split, random_state=0).fit(X, y)
-    if isinstance(m, LassoCV):
+    if isinstance(fitted_model, LassoCV):
         trained_model = Lasso(alpha=fitted_model.alpha_)
-    if isinstance(m, ElasticNetCV):
+    if isinstance(fitted_model, ElasticNetCV):
         trained_model = ElasticNet(
             alpha=fitted_model.alpha_, l1_ratio=fitted_model.l1_ratio_
         )
