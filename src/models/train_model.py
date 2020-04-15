@@ -177,9 +177,9 @@ class CRM():
         X_T = X.T
 
         train_test_splits = forward_walk_splitter(X_T, y, step_size)
-        split = train_test_splits[0]
-        train_test_seperation_idx = train_test_splits[1]
-        length = len(split)
+        test_split = train_test_splits[1]
+        train_test_seperation_idx = train_test_splits[2]
+        length = len(test_split)
 
         X_train = X_T[:train_test_seperation_idx].T
         y_train = y[:train_test_seperation_idx]
@@ -187,7 +187,7 @@ class CRM():
 
         y2 = self.target_vector(net_production)
         r2_sum, mse_sum = 0, 0
-        for train, test in split[train_test_seperation_idx:]:
+        for train, test in test_split:
             X_train, X_test = X_T[train].T, X_T[test].T
             y_train, y_test = y[train], y[test]
             [f1, f2, tau] = self.fit_production_rate(X_train, y_train)

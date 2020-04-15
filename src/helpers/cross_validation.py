@@ -34,19 +34,22 @@ def forward_walk_splitter(X, y, step_size):
         ).astype(int)
         split.append([train, test])
     train_test_seperation_idx = (int(TRAINING_SPLIT * len(split)) + 1)
-    return (split, train_test_seperation_idx)
+    train_split = split[:train_test_seperation_idx]
+    test_split = split[train_test_seperation_idx:]
+    return (train_split, test_split, train_test_seperation_idx)
 
 
 def train_and_test_model(X, y, model, train_test_splits):
-    split = train_test_splits[0]
-    train_test_seperation_idx = train_test_splits[1]
+    train_split = train_test_splits[0]
+    test_split = train_test_splits[1]
+    train_test_seperation_idx = train_test_splits[2]
     r2_sum, mse_sum = 0, 0
-    length = len(split)
+    length = len(test_split)
     if isinstance(model, LinearRegression) or isinstance(model, BayesianRidge): 
         model.fit(X[:train_test_seperation_idx], y[:train_test_seperation_idx])
     else:
-        model = train_model_with_cv(X, y, model, train_test_splits)
-    for train, test in split[train_test_seperation_idx:]:
+        model = train_model_with_cv(X, y, model, train_split)
+    for train, test in test_split:
         x_train, x_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
         model.fit(x_train, y_train)
@@ -59,12 +62,12 @@ def train_and_test_model(X, y, model, train_test_splits):
     return (r2, mse)
 
 
-def train_model_with_cv(X, y, model, train_test_splits):
-    split = train_test_splits[0]
-    train_test_seperation_idx = train_test_splits[1]
-    m = model(cv=split[:train_test_seperation_idx], random_state=0).fit(X, y)
+def train_model_with_cv(X, y, model, train_split):
+    fitted_model = model(cv=train_split, random_state=0).fit(X, y)
     if isinstance(m, LassoCV):
-        trained_model = Lasso(alpha=m.alpha_)
+        trained_model = Lasso(alpha=fitted_model.alpha_)
     if isinstance(m, ElasticNetCV):
-        trained_model = ElasticNet(alpha=m.alpha_, l1_ratio=m.l1_ratio_)
+        trained_model = ElasticNet(
+            alpha=fitted_model.alpha_, l1_ratio=fitted_model.l1_ratio_
+        )
     return trained_model
