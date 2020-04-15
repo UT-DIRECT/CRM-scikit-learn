@@ -13,6 +13,7 @@ def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):
     plt.legend(legend)
     if save:
         fig_saver(title, xlabel, ylabel)
+        plt.close()
     else:
         plt.show()
 
@@ -23,7 +24,6 @@ def fig_saver(title, xlabel, ylabel):
         fig_filename(title, xlabel, ylabel)
     )
     plt.savefig(fig_file)
-    plt.close()
 
 
 def fig_filename(title, xlabel, ylabel):
