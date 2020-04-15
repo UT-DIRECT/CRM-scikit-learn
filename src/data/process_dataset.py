@@ -1,9 +1,14 @@
 import numpy as np
 import pandas as pd
+import yaml
 
 
-input_filename = "./data/raw/CRMP_Corrected_July16_2018.xlsx"
-output_filename = "./data/interim/CRMP_Corrected_July16_2018.csv"
+with open('inputs.yml') as f:
+    inputs = yaml.load(f, Loader=yaml.Loader)
+INPUTS = inputs
+
+input_filename = INPUTS['files']['raw_data']
+output_filename = INPUTS['files']['data']
 
 
 def white_noise(column):

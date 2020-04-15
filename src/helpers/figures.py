@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 
+from ..data.process_dataset import INPUTS
 
-FIG_DIR = "/Users/akhilpotla/ut/research/crm_validation/reports/figures/"
+
+FIG_DIR = INPUTS['files']['figures_dir']
 
 
 def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):

@@ -8,6 +8,7 @@ from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 from sklearn.utils.testing import ignore_warnings
 
+from ..data.process_dataset import INPUTS
 from ..helpers.analysis import fit_statistics
 from ..helpers.cross_validation import (forward_walk_and_ML,
         forward_walk_splitter)
@@ -17,9 +18,8 @@ from ..helpers.figures import fig_saver, plot_helper
 class CRM():
 
 
-    def __init__(self, inputs):
-        self.inputs = self.read_inputs(inputs)
-        data_file = self.inputs['files']['data']
+    def __init__(self):
+        data_file = INPUTS['files']['data']
         self.read_data(data_file)
 
         self.producers = np.array([self.q_1, self.q_2, self.q_3, self.q_4])
@@ -32,7 +32,7 @@ class CRM():
 
         self.make_crm_functions()
         self.step_sizes = np.linspace(2, 12, num=11).astype(int)
-        self.N_predictions_output_file = self.inputs['files']['N_predictions']
+        self.N_predictions_output_file = INPUTS['files']['N_predictions']
 
 
     def make_crm_functions(self):
@@ -58,12 +58,6 @@ class CRM():
         self.N_3 = data[12]
         self.q_4 = data[13]
         self.N_4 = data[14]
-
-
-    def read_inputs(self, inputs):
-        with open(inputs) as f:
-            inputs = yaml.load(f, Loader=yaml.Loader)
-        return inputs
 
 
     def production_rate_features(self, producer):
@@ -360,7 +354,7 @@ class CRM():
                 save=True
             )
 
-model = CRM('inputs.yml')
+model = CRM()
 model.fit_producers()
 model.fit_net_productions()
 model.plot_producers_vs_time()
