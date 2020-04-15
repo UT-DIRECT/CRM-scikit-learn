@@ -177,35 +177,49 @@ class CRM():
         net_production = self.net_productions[producer]
         producer = self.producers[producer]
         X, y = self.production_rate_dataset(producer)
-        X_T = X.T
+        X = X.T
 
-        train_test_splits = forward_walk_splitter(X_T, y, step_size)
+        train_test_splits = forward_walk_splitter(X, y, step_size)
         test_split = train_test_splits[1]
         train_test_seperation_idx = train_test_splits[2]
         length = len(test_split)
 
-        X_train = X_T[:train_test_seperation_idx].T
+        X_train = X[:train_test_seperation_idx].T
         y_train = y[:train_test_seperation_idx]
         [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
 
         y2 = self.target_vector(net_production)
         r2_sum, mse_sum = 0, 0
+
         for train, test in test_split:
-            X_train, X_test = X_T[train].T, X_T[test].T
-            y_train, y_test = y[train], y[test]
-            [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
-            q2_hat = self.q2(X_test, f1, f1, tau)
+            y_train, q2_hat = self.production_rate_step(X, y, train, test)
             q2 = np.concatenate((y_train, q2_hat))
-            X2 = np.array([net_production[:len(q2)], q2]).T
-            X2_train, X2_test = X2[train], X2[test]
-            y2_train, y2_test = y2[train], y2[test]
-            y2_hat = self.N2(X2_test.T)
+
+            y2_test, y2_hat = self.net_production_step(q2, y2, train, test)
+
             r2_i, mse_i = fit_statistics(y2_hat, y2_test)
             r2_sum += r2_i
             mse_sum += mse_i
+
         r2 = r2_sum / length
         mse = mse_sum / length
         return (r2, mse)
+
+
+    def production_rate_step(self, X, y, train, test):
+        X_train, X_test = X[train].T, X[test].T
+        y_train = y[train]
+        q2_hat = self.q2(X_test, f1, f1, tau)
+        [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
+        return (y_train, self.q2(X_test, f1, f1, tau))
+
+    
+    def net_production_step(self, q2, y2, train, test):
+        X2 = np.array([net_production[:len(q2)], q2]).T
+        X2_test = X2[test]
+        y2_test = y2[test]
+        y2_hat = self.N2(X2_test.T)
+        return (y2_test, y2_hat)
 
 
     @ignore_warnings(category=ConvergenceWarning)
