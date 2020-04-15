@@ -3,14 +3,6 @@ import pandas as pd
 import yaml
 
 
-with open('inputs.yml') as f:
-    inputs = yaml.load(f, Loader=yaml.Loader)
-INPUTS = inputs
-
-input_filename = INPUTS['files']['raw_data']
-output_filename = INPUTS['files']['data']
-
-
 def white_noise(column):
     length = len(column)
     mu, sigma = [column.mean(), column.std()]
@@ -32,6 +24,17 @@ def net_flow(production):
         else:
             net.append(net[-1] + prod)
     return net
+
+
+def read_inputs():
+    with open('inputs.yml') as f:
+        inputs = yaml.load(f, Loader=yaml.Loader)
+    return inputs
+
+INPUTS = read_inputs()
+
+input_filename = INPUTS['files']['raw_data']
+output_filename = INPUTS['files']['data']
 
 df = pd.read_excel(input_filename, 0, skiprows=9)
 df = df.drop(df.columns[[3, 4, 7, 8]], axis=1)
