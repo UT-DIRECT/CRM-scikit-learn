@@ -27,7 +27,11 @@ environment:
 # make a  `test_environment` command
 # run `conda activate $(PROJECT_NAME)` before running this command
 requirements:
-	conda install --file requirements.txt
+	conda env update --file environment.yml
+
+## Save Environment
+save-environment:
+	conda env export > environment.yml
 
 ## Make Dataset
 data:
@@ -42,6 +46,10 @@ model:
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
+
+## Delete all the figures
+clean-figures:
+	rm reports/figures/*
 
 ## Lint using flake8
 lint:
