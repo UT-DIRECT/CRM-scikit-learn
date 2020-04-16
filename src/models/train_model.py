@@ -1,5 +1,3 @@
-import sys
-
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
@@ -14,7 +12,8 @@ from ..data.process_dataset import INPUTS
 from ..helpers.analysis import fit_statistics
 from ..helpers.cross_validation import (forward_walk_and_ML,
         forward_walk_splitter)
-from ..helpers.figures import fig_saver, plot_helper
+from ..helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
+        plot_helper)
 
 
 class CRM():
@@ -195,7 +194,9 @@ class CRM():
             y_train, q2_hat = self.production_rate_step(X, y, train, test)
             q2 = np.concatenate((y_train, q2_hat))
 
-            y2_test, y2_hat = self.net_production_step(q2, y2, train, test)
+            y2_test, y2_hat = self.net_production_step(
+                net_production, q2, y2, train, test
+            )
 
             r2_i, mse_i = fit_statistics(y2_hat, y2_test)
             r2_sum += r2_i
@@ -209,12 +210,12 @@ class CRM():
     def production_rate_step(self, X, y, train, test):
         X_train, X_test = X[train].T, X[test].T
         y_train = y[train]
-        q2_hat = self.q2(X_test, f1, f1, tau)
         [f1, f2, tau] = self.fit_production_rate(X_train, y_train)
-        return (y_train, self.q2(X_test, f1, f1, tau))
+        q2_hat = self.q2(X_test, f1, f1, tau)
+        return (y_train, q2_hat)
 
     
-    def net_production_step(self, q2, y2, train, test):
+    def net_production_step(self, net_production, q2, y2, train, test):
         X2 = np.array([net_production[:len(q2)], q2]).T
         X2_test = X2[test]
         y2_test = y2[test]
@@ -248,18 +249,20 @@ class CRM():
                             *models_performance_parameters
                         )
                     )
-                sys.exit()
 
 
     def net_production_predictions_plot(self):
-        labels = [int(step_size) for step_size in self.step_sizes]
+        x_labels = [int(step_size) for step_size in self.step_sizes]
         prediction_results = np.genfromtxt(
             self.N_predictions_output_file, skip_header=1
         )
-        x = np.arange(len(labels))
+        x = np.arange(len(x_labels))
         width = 0.15
+        bar_labels = [
+            'CRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
+            'Lasso, mse', 'Elastic, mse'
+        ]
         for i in range(4):
-            plt.figure(figsize=[10, 4.8])
             producer = i + 1
             producer_rows = np.where(prediction_results[:,0] == producer)
             producer_results = prediction_results[producer_rows]
@@ -268,59 +271,40 @@ class CRM():
             bayesian_ridge_mse = producer_results[:, 7]
             lasso_mse = producer_results[:, 9]
             elastic_mse = producer_results[:, 11]
-            plt.bar(x - 2 * width, crm_mse, width, label='CRM, mse')
-            plt.bar(
-                x - width, linear_regression_mse, width,
-                label='Linear Regression, mse'
-            )
-            plt.bar(x, bayesian_ridge_mse, width, label='Bayesian Ridge, mse')
-            plt.bar(x + width, lasso_mse, width, label='Lasso, mse')
-            plt.bar(x + 2 * width, elastic_mse, width, label='Elastic, mse')
+            heights = [
+                crm_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
+                elastic_mse
+            ]
+
+            title = 'Producer {}'.format(producer)
             xlabel = 'Step Size'
             ylabel = 'Mean Squared Error'
-            title = 'Producer {}'.format(producer)
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-            plt.yscale('log')
-            plt.title(title)
-            plt.xticks(ticks=x, labels=labels)
-            plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-            plt.tight_layout()
-            fig_saver(title, xlabel, ylabel)
+            bar_plot_helper(width, x, x_labels, bar_labels, heights)
+            bar_plot_formater(x, x_labels, title, xlabel, ylabel)
 
 
     def net_production_good_estimators_plot(self):
-        labels = [int(step_size) for step_size in self.step_sizes]
+        x_labels = [int(step_size) for step_size in self.step_sizes]
         prediction_results = np.genfromtxt(
             self.N_predictions_output_file, skip_header=1
         )
-        x = np.arange(len(labels))
+        x = np.arange(len(x_labels))
         width = 0.3
+        bar_labels = ['CRM, mse', 'Linear Regression, mse', 'Elastic, mse']
         for i in range(4):
-            plt.figure(figsize=[10, 4.8])
             producer = i + 1
             producer_rows = np.where(prediction_results[:,0] == producer)
             producer_results = prediction_results[producer_rows]
             crm_mse = producer_results[:, 3]
             linear_regression_mse = producer_results[:, 5]
             elastic_mse = producer_results[:, 11]
-            plt.bar(x - width, crm_mse, width, label='CRM, mse')
-            plt.bar(
-                x, linear_regression_mse, width,
-                label='Linear Regression, mse'
-            )
-            plt.bar(x + width, elastic_mse, width, label='Elastic, mse')
+            heights = [crm_mse, linear_regression_mse, elastic_mse]
+
+            title = 'Good Estimator MSEs Producer {}'.format(producer)
             xlabel = 'Step Size'
             ylabel = 'Mean Squared Error'
-            title = 'Good Estimator MSEs Producer {}'.format(producer)
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-            plt.yscale('log')
-            plt.title(title)
-            plt.xticks(ticks=x, labels=labels)
-            plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-            plt.tight_layout()
-            fig_saver(title, xlabel, ylabel)
+            bar_plot_helper(width, x, x_labels, bar_labels, heights)
+            bar_plot_formater(x, x_labels, title, xlabel, ylabel)
 
 
     def predict_ML_net_production(self, producer, step_size, model):
@@ -371,6 +355,7 @@ class CRM():
                 legend=self.producer_names,
                 save=True
             )
+
 
 model = CRM()
 model.fit_producers()
