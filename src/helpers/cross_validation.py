@@ -44,6 +44,7 @@ def train_and_test_model(X, y, model, train_test_splits):
     test_split = train_test_splits[1]
     train_test_seperation_idx = train_test_splits[2]
     r2_sum, mse_sum = 0, 0
+    y2_hat_by_step = []
     length = len(test_split)
     if isinstance(model, LinearRegression) or isinstance(model, BayesianRidge): 
         model.fit(X[:train_test_seperation_idx], y[:train_test_seperation_idx])
@@ -53,13 +54,14 @@ def train_and_test_model(X, y, model, train_test_splits):
         x_train, x_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
         model.fit(x_train, y_train)
-        y_predict = model.predict(x_test)
-        r2_i, mse_i = fit_statistics(y_predict, y_test)
+        y_hat = model.predict(x_test)
+        r2_i, mse_i = fit_statistics(y_hat, y_test)
         r2_sum += r2_i
         mse_sum += mse_i
+        y2_hat_by_step.append(y_hat)
     r2 = r2_sum / length
     mse = mse_sum / length
-    return (r2, mse)
+    return (r2, mse, y2_hat_by_step)
 
 
 def train_model_with_cv(X, y, model, train_split):

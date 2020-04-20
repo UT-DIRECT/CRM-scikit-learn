@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
@@ -30,9 +32,12 @@ class CRM():
         self.net_productions = np.array([
             self.N_1, self.N_2, self.N_3, self.N_4
         ])
+        self.y2_hats_by_producer = [{}, {}, {}, {}]
+        self.test_splits = {}
 
         self.initialize_crm_functions()
-        self.step_sizes = np.linspace(2, 12, num=11).astype(int)
+        # self.step_sizes = np.linspace(2, 12, num=11).astype(int)
+        self.step_sizes = [8]
         self.N_predictions_output_file = INPUTS['files']['N_predictions']
 
 
@@ -180,6 +185,7 @@ class CRM():
 
         train_test_splits = forward_walk_splitter(X, y, step_size)
         test_split = train_test_splits[1]
+        self.test_splits[step_size] = test_split
         train_test_seperation_idx = train_test_splits[2]
         length = len(test_split)
 
@@ -189,6 +195,7 @@ class CRM():
 
         y2 = self.target_vector(net_production)
         r2_sum, mse_sum = 0, 0
+        y2_hat_by_step = []
 
         for train, test in test_split:
             y_train, q2_hat = self.production_rate_step(X, y, train, test)
@@ -197,6 +204,7 @@ class CRM():
             y2_test, y2_hat = self.net_production_step(
                 net_production, q2, y2, train, test
             )
+            y2_hat_by_step.append(y2_hat)
 
             r2_i, mse_i = fit_statistics(y2_hat, y2_test)
             r2_sum += r2_i
@@ -204,7 +212,7 @@ class CRM():
 
         r2 = r2_sum / length
         mse = mse_sum / length
-        return (r2, mse)
+        return (r2, mse, y2_hat_by_step)
 
 
     def production_rate_step(self, X, y, train, test):
@@ -234,14 +242,17 @@ class CRM():
                     BayesianRidge(), ElasticNetCV, LassoCV, LinearRegression()
                 ]
                 for step_size in self.step_sizes:
-                    CRM_r2, CRM_mse = self.crm_predict_net_production(
+                    self.y2_hats_by_producer[i][step_size] = []
+                    CRM_r2, CRM_mse, CRM_y2_hat = self.crm_predict_net_production(
                         i, step_size
                     )
+                    self.y2_hats_by_producer[i][step_size].append(CRM_y2_hat)
                     models_performance_parameters = []
                     for model in models:
-                        r2, mse = self.predict_ML_net_production(
+                        r2, mse, ML_y2_hat = self.predict_ML_net_production(
                             i, step_size, model
                         )
+                        self.y2_hats_by_producer[i][step_size].append(ML_y2_hat)
                         models_performance_parameters.append(r2)
                         models_performance_parameters.append(mse)
                     f.write('{} {} {} {} {} {} {} {} {} {} {} {}\n'.format(
@@ -249,6 +260,62 @@ class CRM():
                             *models_performance_parameters
                         )
                     )
+            #         print()
+            #         print('y2_hats_by_producer: ', self.y2_hats_by_producer)
+            #         print()
+            #         print()
+            # print('test_splits: ', self.test_splits)
+
+    def animated_net_production_plots(self):
+        print('animated_net_production_plots')
+        producers = self.producers
+        net_productions = self.net_productions
+        t_start = self.test_splits[8][0][1][0] + 1
+        prediction_times = []
+        for split in self.test_splits[8]:
+            prediction_times.append((split[1] + 2))
+        t = self.Time[t_start:]
+        for i in range(len(producers)):
+            y2_hat = self.y2_hats_by_producer[i][8]
+            # crm_y2_hat = []
+            # linear_y2_hat = []
+            # elastic_y2_hat = []
+            for k in range(len(y2_hat)):
+                if k % 5 == 0:
+                    # crm_y2_hat.append(y2_hat[k])
+                    crm_y2_hat = y2_hat[k]
+                elif k % 5 == 2:
+                    # linear_y2_hat.append(y2_hat[k])
+                    linear_y2_hat = y2_hat[k]
+                elif k % 5 == 4:
+                    # elastic_y2_hat.append(y2_hat[k])
+                    elastic_y2_hat = y2_hat[k]
+            # print('crm_y2_hat: ', crm_y2_hat)
+            # print('linear_y2_hat: ', linear_y2_hat)
+            # print('elastic_y2_hat: ', elastic_y2_hat)
+            # plt.figure()
+            plt.ion()
+            fig, ax = plt.subplots()
+            ax.plot(t, net_productions[i][t_start:], c='k', linewidth=5, alpha=0.5)
+            plt.draw()
+            for h in range(len(crm_y2_hat)):
+                # print('prediction_times: ', prediction_times[h])
+                # print('crm_y2_hat: ', crm_y2_hat[h])
+                if h > 0:
+                    p1.remove()
+                    p2.remove()
+                    p3.remove()
+                    ax.scatter(prediction_times[h - 1][0], crm_y2_hat[h - 1][0], s=50, c='r', alpha=0.6)
+                    ax.scatter(prediction_times[h - 1][0], linear_y2_hat[h - 1][0], s=50, c='b', alpha=0.6)
+                    ax.scatter(prediction_times[h - 1][0], elastic_y2_hat[h - 1][0], s=50, c='g', alpha=0.6)
+                p1 = ax.scatter(prediction_times[h], crm_y2_hat[h], s=50, c='r', alpha=0.3)
+                p2 = ax.scatter(prediction_times[h], linear_y2_hat[h], s=50, c='b', alpha=0.3)
+                p3 = ax.scatter(prediction_times[h], elastic_y2_hat[h], s=50, c='g', alpha=0.3)
+                fig.canvas.draw_idle()
+                plt.pause(0.1)
+            plt.waitforbuttonpress()
+            # plt.show()
+        sys.exit()
 
 
     def net_production_predictions_plot(self):
@@ -358,11 +425,12 @@ class CRM():
 
 
 model = CRM()
-model.fit_producers()
-model.fit_net_productions()
-model.plot_producers_vs_time()
-model.plot_net_production_vs_time()
-model.plot_producers_vs_injector()
+# model.fit_producers()
+# model.fit_net_productions()
+# model.plot_producers_vs_time()
+# model.plot_net_production_vs_time()
+# model.plot_producers_vs_injector()
 model.net_production_predictions()
-model.net_production_predictions_plot()
-model.net_production_good_estimators_plot()
+# model.net_production_predictions_plot()
+# model.net_production_good_estimators_plot()
+model.animated_net_production_plots()
