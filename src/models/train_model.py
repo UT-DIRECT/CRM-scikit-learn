@@ -14,8 +14,8 @@ from ..data.process_dataset import INPUTS
 from ..helpers.analysis import fit_statistics
 from ..helpers.cross_validation import (forward_walk_and_ML,
         forward_walk_splitter)
-from ..helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
-        plot_helper)
+from ..helpers.figures import (bar_plot_formater, bar_plot_helper, FIG_DIR,
+        fig_saver, fig_filename, plot_helper)
 
 
 class CRM():
@@ -37,7 +37,7 @@ class CRM():
 
         self.initialize_crm_functions()
         # self.step_sizes = np.linspace(2, 12, num=11).astype(int)
-        self.step_sizes = [8]
+        self.step_sizes = [10, 11, 12]
         self.N_predictions_output_file = INPUTS['files']['N_predictions']
 
 
@@ -260,62 +260,68 @@ class CRM():
                             *models_performance_parameters
                         )
                     )
-            #         print()
-            #         print('y2_hats_by_producer: ', self.y2_hats_by_producer)
-            #         print()
-            #         print()
-            # print('test_splits: ', self.test_splits)
 
     def animated_net_production_plots(self):
-        print('animated_net_production_plots')
         producers = self.producers
         net_productions = self.net_productions
-        t_start = self.test_splits[8][0][1][0] + 1
-        prediction_times = []
-        for split in self.test_splits[8]:
-            prediction_times.append((split[1] + 2))
-        t = self.Time[t_start:]
-        for i in range(len(producers)):
-            y2_hat = self.y2_hats_by_producer[i][8]
-            # crm_y2_hat = []
-            # linear_y2_hat = []
-            # elastic_y2_hat = []
-            for k in range(len(y2_hat)):
-                if k % 5 == 0:
-                    # crm_y2_hat.append(y2_hat[k])
-                    crm_y2_hat = y2_hat[k]
-                elif k % 5 == 2:
-                    # linear_y2_hat.append(y2_hat[k])
-                    linear_y2_hat = y2_hat[k]
-                elif k % 5 == 4:
-                    # elastic_y2_hat.append(y2_hat[k])
-                    elastic_y2_hat = y2_hat[k]
-            # print('crm_y2_hat: ', crm_y2_hat)
-            # print('linear_y2_hat: ', linear_y2_hat)
-            # print('elastic_y2_hat: ', elastic_y2_hat)
-            # plt.figure()
-            plt.ion()
-            fig, ax = plt.subplots()
-            ax.plot(t, net_productions[i][t_start:], c='k', linewidth=5, alpha=0.5)
-            plt.draw()
-            for h in range(len(crm_y2_hat)):
-                # print('prediction_times: ', prediction_times[h])
-                # print('crm_y2_hat: ', crm_y2_hat[h])
-                if h > 0:
-                    p1.remove()
-                    p2.remove()
-                    p3.remove()
-                    ax.scatter(prediction_times[h - 1][0], crm_y2_hat[h - 1][0], s=50, c='r', alpha=0.6)
-                    ax.scatter(prediction_times[h - 1][0], linear_y2_hat[h - 1][0], s=50, c='b', alpha=0.6)
-                    ax.scatter(prediction_times[h - 1][0], elastic_y2_hat[h - 1][0], s=50, c='g', alpha=0.6)
-                p1 = ax.scatter(prediction_times[h], crm_y2_hat[h], s=50, c='r', alpha=0.3)
-                p2 = ax.scatter(prediction_times[h], linear_y2_hat[h], s=50, c='b', alpha=0.3)
-                p3 = ax.scatter(prediction_times[h], elastic_y2_hat[h], s=50, c='g', alpha=0.3)
-                fig.canvas.draw_idle()
-                plt.pause(0.1)
-            plt.waitforbuttonpress()
-            # plt.show()
-        sys.exit()
+        for step_size in self.step_sizes:
+            t_start = self.test_splits[step_size][0][1][0] + 1
+            prediction_times = []
+            for split in self.test_splits[step_size]:
+                prediction_times.append((split[1] + 2))
+            t = self.Time[t_start:]
+            for i in range(len(producers)):
+                y2_hat = self.y2_hats_by_producer[i][step_size]
+                for k in range(len(y2_hat)):
+                    if k % 5 == 0:
+                        crm_y2_hat = y2_hat[k]
+                    elif k % 5 == 2:
+                        linear_y2_hat = y2_hat[k]
+                    elif k % 5 == 4:
+                        elastic_y2_hat = y2_hat[k]
+                plt.ion()
+                fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharex=True, sharey=True)
+                fig.subplots_adjust(wspace=0.025)
+                ax1, ax2, ax3 = ax
+                plt.draw()
+                title='Producer {}, Step Size: {}'.format((i + 1), step_size)
+                xlabel='Time'
+                ylabel='Net Production'
+                legend = ['True', 'CRM', 'Linear Regression', 'Elastic Net']
+                fig.suptitle(title, fontsize=20)
+                fig.text(0.5, 0.02, xlabel, ha='center', fontsize=12)
+                fig.text(
+                    0.07, 0.5, ylabel, va='center', rotation='vertical',
+                    fontsize=12
+                )
+                ax1.plot(t, net_productions[i][t_start:], c='k', linewidth=5, alpha=0.25)
+                ax2.plot(t, net_productions[i][t_start:], c='k', linewidth=5, alpha=0.25)
+                ax3.plot(t, net_productions[i][t_start:], c='k', linewidth=5, alpha=0.25)
+                alpha_1 = 0.8
+                alpha_2 = 0.3
+                crm_color = '#024249'
+                linear_color = '#16817a'
+                elastic_color = '#fa744f'
+                for h in range(len(crm_y2_hat)):
+                    if h > 0:
+                        p1.remove()
+                        p2.remove()
+                        p3.remove()
+                        ax1.scatter(prediction_times[h - 1][0], crm_y2_hat[h - 1][0], s=50, c=crm_color, alpha=alpha_1)
+                        ax2.scatter(prediction_times[h - 1][0], linear_y2_hat[h - 1][0], s=50, c=linear_color, alpha=alpha_1)
+                        ax3.scatter(prediction_times[h - 1][0], elastic_y2_hat[h - 1][0], s=50, c=elastic_color, alpha=alpha_1)
+                    p1 = ax1.scatter(prediction_times[h], crm_y2_hat[h], s=50, c=crm_color, alpha=alpha_2)
+                    p2 = ax2.scatter(prediction_times[h], linear_y2_hat[h], s=50, c=linear_color, alpha=alpha_2)
+                    p3 = ax3.scatter(prediction_times[h], elastic_y2_hat[h], s=50, c=elastic_color, alpha=alpha_2)
+                    ax1.legend(['_nolegend_', 'CRM'])
+                    ax2.legend(['_nolegend_', 'Linear Regression'])
+                    ax3.legend(['_nolegend_', 'Elastic Net'])
+                    fig.canvas.draw_idle()
+                    fig_file = "{}/producer_{}/step_size_{}/step{}".format(
+                        FIG_DIR, (i + 1), step_size, chr(65 + h)
+                    )
+                    plt.savefig(fig_file)
+                # plt.show()
 
 
     def net_production_predictions_plot(self):
@@ -425,12 +431,12 @@ class CRM():
 
 
 model = CRM()
-# model.fit_producers()
-# model.fit_net_productions()
-# model.plot_producers_vs_time()
-# model.plot_net_production_vs_time()
-# model.plot_producers_vs_injector()
+model.fit_producers()
+model.fit_net_productions()
+model.plot_producers_vs_time()
+model.plot_net_production_vs_time()
+model.plot_producers_vs_injector()
 model.net_production_predictions()
-# model.net_production_predictions_plot()
-# model.net_production_good_estimators_plot()
+model.net_production_predictions_plot()
+model.net_production_good_estimators_plot()
 model.animated_net_production_plots()
