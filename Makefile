@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements
+.PHONY: clean features lint requirements
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -29,10 +29,9 @@ requirements:
 save-environment:
 	conda env export > environment.yml
 
-## Make Dataset
-data:
-	# $(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
-	$(PYTHON_INTERPRETER) src/data/process_dataset.py
+## Make Features
+features:
+	$(PYTHON_INTERPRETER) -m src.features.build_features
 
 ## Run the model
 model:
