@@ -56,3 +56,14 @@ Project Organization
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 # crm_validation
+
+
+## Setting up environment
+
+In order to set up the environment for development run the following commands.
+
+```
+$ conda create --name crm_validation python3
+$ conda activate crm_validation
+$ make requirements
+```

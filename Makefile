@@ -20,11 +20,7 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-environment:
-	conda create --name $(PROJECT_NAME) python=3
-
 ## Install Python Dependencies
-# make a  `test_environment` command
 # run `conda activate $(PROJECT_NAME)` before running this command
 requirements:
 	conda env update --file environment.yml
