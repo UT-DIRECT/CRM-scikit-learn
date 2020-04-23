@@ -8,11 +8,11 @@ from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 from sklearn.utils.testing import ignore_warnings
 
-from .. import config
-from ..helpers.analysis import fit_statistics
-from ..helpers.cross_validation import (forward_walk_and_ML,
-        forward_walk_splitter)
-from ..helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
+from src.config import INPUTS
+from src.helpers.analysis import fit_statistics
+from src.helpers.cross_validation import (forward_walk_and_ML,
+     forward_walk_splitter)
+from src.helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
         plot_helper)
 
 
@@ -20,7 +20,6 @@ class CRM():
 
 
     def __init__(self):
-        INPUTS = config.INPUTS
         data_file = INPUTS['files']['data']
         self.read_data(data_file)
 

@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 
-from .. import config
+from src.config import INPUTS
 
 
-INPUTS = config.INPUTS
 FIG_DIR = INPUTS['files']['figures_dir']
 
 

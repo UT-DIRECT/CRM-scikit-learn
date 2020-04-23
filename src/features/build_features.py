@@ -1,10 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from .. import config
+from src.config import INPUTS
 
-
-INPUTS = config.INPUTS
 
 def white_noise(column):
     length = len(column)
