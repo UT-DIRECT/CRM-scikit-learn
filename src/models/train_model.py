@@ -16,7 +16,7 @@ from src.helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
         plot_helper)
 
 
-class CRM():
+class CRMOld():
 
 
     def __init__(self):
@@ -45,20 +45,18 @@ class CRM():
     def read_data(self, data_file):
         data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
         self.Time = data[0]
-        self.Random_inj1 = data[1]
-        self.Random_inj2 = data[2]
-        self.Fixed_inj1 = data[3]
-        self.Net_Fixed_inj1 = data[4]
-        self.Fixed_inj2 = data[5]
-        self.Net_Fixed_inj2 = data[6]
-        self.q_1 = data[7]
-        self.N_1 = data[8]
-        self.q_2 = data[9]
-        self.N_2 = data[10]
-        self.q_3 = data[11]
-        self.N_3 = data[12]
-        self.q_4 = data[13]
-        self.N_4 = data[14]
+        self.Fixed_inj1 = data[1]
+        self.Net_Fixed_inj1 = data[2]
+        self.Fixed_inj2 = data[3]
+        self.Net_Fixed_inj2 = data[4]
+        self.q_1 = data[5]
+        self.N_1 = data[6]
+        self.q_2 = data[7]
+        self.N_2 = data[8]
+        self.q_3 = data[9]
+        self.N_3 = data[10]
+        self.q_4 = data[11]
+        self.N_4 = data[12]
 
 
     def production_rate_features(self, producer):
@@ -214,7 +212,7 @@ class CRM():
         q2_hat = self.q2(X_test, f1, f1, tau)
         return (y_train, q2_hat)
 
-    
+
     def net_production_step(self, net_production, q2, y2, train, test):
         X2 = np.array([net_production[:len(q2)], q2]).T
         X2_test = X2[test]
@@ -357,7 +355,7 @@ class CRM():
             )
 
 
-model = CRM()
+model = CRMOld()
 model.fit_producers()
 model.fit_net_productions()
 model.plot_producers_vs_time()
