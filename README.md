@@ -61,7 +61,7 @@ Project Organization
 In order to set up the environment for development run the following commands.
 
 ```
-$ conda create --name crm_validation python3
+$ conda create --name crm_validation python=3
 $ conda activate crm_validation
 $ make requirements
 ```
