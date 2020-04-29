@@ -3,7 +3,7 @@ import numpy as np
 
 from lmfit import Model, Parameters
 from sklearn.base import BaseEstimator, RegressorMixin
-from sklearn.utils.validation import check_X_y, check_array
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
 
 class CRM(BaseEstimator, RegressorMixin):
@@ -20,15 +20,14 @@ class CRM(BaseEstimator, RegressorMixin):
         n_gains = len(X) - 1
         self._q2_constructor(n_gains)
         params = self.fit_production_rate(X, y)
-        self.tau = params[0]
-        self.gains = params[1:]
-        print('tau: ', self.tau)
-        print('gains: ', self.gains)
+        self.tau_ = params[0]
+        self.gains_ = params[1:]
         return self
 
 
-    def predict(self, X=None, y=None):
-        return self.q2(X, self.tau, *self.gains)
+    def predict(self, X):
+        check_is_fitted(self)
+        return self.q2(X, self.tau_, *self.gains_)
 
 
     def _q2_constructor(self, n_gains):
@@ -76,7 +75,3 @@ class CRM(BaseEstimator, RegressorMixin):
             pars.append(results.values[gain])
 
         return pars
-
-
-    def N2(self, N1, q2):
-        return N1 + q2
