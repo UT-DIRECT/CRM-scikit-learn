@@ -37,6 +37,10 @@ features:
 model:
 	$(PYTHON_INTERPRETER) -m src.models.train_model
 
+## Run tests
+test:
+	pytest -q tests/
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
