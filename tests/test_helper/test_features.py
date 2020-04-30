@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import numpy as np
 
 from src.helpers.features import *
@@ -34,3 +36,66 @@ class TestProductionRateFeatures():
         inj2 = np.array([2, 3, 4, 5, 6, 7, 8])
         X = production_rate_features(q, inj1, inj2)
         assert(X.shape == (3,))
+
+
+class TestNetProductionFeatures():
+
+
+    def test_net_production_and_production_rate_same_size(self):
+        N = np.array([2, 3, 4, 5, 6])
+        q = np.array([2, 3, 4, 5, 6])
+        X = net_production_features(N, q)
+        assert(X.shape == (2, 4))
+
+
+    def test_net_production_and_smaller_production_rate(self):
+        N = np.array([2, 3, 4, 5, 6])
+        q = np.array([2, 3, 4])
+        X = net_production_features(N, q)
+        assert(X.shape == (2,))
+
+
+    def test_net_production_and_larger_production_rate(self):
+        N = np.array([2, 3, 4, 5, 6])
+        q = np.array([2, 3, 4, 5, 6, 7, 8])
+        X = net_production_features(N, q)
+        assert(X.shape == (2, 4))
+
+
+class TestTargetVector():
+
+
+    def test_target_vector(self):
+        y = np.array([2, 3, 4, 5])
+        y = target_vector(y)
+        assert(y.shape == (3,))
+
+
+class TestProductionRateDataset():
+
+
+    @patch('src.helpers.features.target_vector')
+    @patch('src.helpers.features.production_rate_features')
+    def test_production_rate_dataset(
+        self, production_rate_features, target_vector
+    ):
+        q = np.array([2, 3, 4, 5, 6])
+        inj1 = 2 * q
+        production_rate_dataset(q, inj1)
+        assert production_rate_features.called
+        assert target_vector.called
+
+
+class TestNetProductionDataset():
+
+
+    @patch('src.helpers.features.target_vector')
+    @patch('src.helpers.features.net_production_features')
+    def test_net_production_dataset(
+            self, net_production_features, target_vector
+    ):
+        q = np.array([2, 3, 4, 5, 6])
+        N = 2 * q
+        net_production_dataset(N, q)
+        assert net_production_features.called
+        assert target_vector.called
