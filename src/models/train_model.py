@@ -6,12 +6,12 @@ from lmfit import Model, Parameters
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
-from sklearn.utils.testing import ignore_warnings
 
 from src.config import INPUTS
 from src.helpers.analysis import fit_statistics
 from src.helpers.cross_validation import (forward_walk_and_ML,
      forward_walk_splitter)
+from src.helpers.features import production_rate_dataset
 from src.helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
         plot_helper)
 from src.models.crm import CRM
@@ -62,10 +62,8 @@ net_productions = np.array([
 step_sizes = np.linspace(2, 12, num=11).astype(int)
 N_predictions_output_file = INPUTS['files']['N_predictions']
 
-X = np.array([q_1[:-1], Fixed_inj1[:-1], Fixed_inj2[:-1]])
-y = np.array(q_1[1:])
-
+X, y = production_rate_dataset(q_1, Fixed_inj1, Fixed_inj2)
 
 crm = CRM()
 params = crm.fit(X, y)
-print(crm.predict(X))
+y_hat = crm.predict(X)
