@@ -62,8 +62,17 @@ net_productions = np.array([
 step_sizes = np.linspace(2, 12, num=11).astype(int)
 N_predictions_output_file = INPUTS['files']['N_predictions']
 
-X, y = production_rate_dataset(q_1, Fixed_inj1, Fixed_inj2)
+for i in range(len(producers)):
+    models = [
+        BayesianRidge(), ElasticNetCV, LassoCV, LinearRegression()
+    ]
+    X, y = production_rate_dataset(producers[i], Fixed_inj1, Fixed_inj2)
 
-crm = CRM()
-params = crm.fit(X, y)
-y_hat = crm.predict(X)
+    print(producer_names[i])
+    crm = CRM()
+    crm = crm.fit(X, y)
+    print('tau: ', crm.tau_)
+    print('gains_: ', crm.gains_)
+    y_hat = crm.predict(X)
+    r2, mse = fit_statistics(y_hat, y)
+    print('r2: ', r2)

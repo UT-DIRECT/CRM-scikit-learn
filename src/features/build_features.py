@@ -10,9 +10,7 @@ def white_noise(column):
     gaussian_noise = np.random.normal(loc=0, scale=sigma, size=length)
     exponential_decline_scaling = np.linspace(0.1, 2, num=length)
     for i in range(length):
-        column[i] += gaussian_noise[i]
-        if column[i] < 0:
-            column[i] = 0
+        column[i] += abs(gaussian_noise[i])
         column[i] *= 1/exponential_decline_scaling[i]
         # Multiplying by 1/exponential_decline_scaling increases the value of
         # the dataset by 3; therefore we multiply by 1/3 below.
