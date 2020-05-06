@@ -82,7 +82,7 @@ class CRM(BaseEstimator, RegressorMixin):
     def _sum_residuals(self, params):
         tau = params[0]
         gains = params[1:]
-        return sum((self.y_ - self.q2(self.X_, tau, *gains)))
+        return sum((self.y_ - self.q2(self.X_, tau, *gains)) ** 2)
 
 
     def _constraints(self, params):
@@ -112,18 +112,16 @@ class CRM(BaseEstimator, RegressorMixin):
     #     expr = '1'
     #     for i in range(n_gains):
     #         name = gains[i]
-    #         if i == 0:
-    #             params.add(name, value=value, min=0, max=1)
-    #         else:
-    #             params.add(name, min=0, max=1, expr='1-{}'.format(gains[i-1]))
+    #         params.add(name, value=value, min=0, max=1)
+    #         expr += '-{}'.format(name)
     #         # if i == n_gains - 1:
     #         #     params.add(name, min=0, expr=expr)
     #         # else:
     #         #     expr += '-{}'.format(name)
     #         #     params.add(name, value=value, min=0, max=1)
     #     # print('expr: ', expr)
-    #     # params.add('formation_loss', value=0, vary=False, expr=expr)
-    #     print('params: ', params)
+    #     params.add('formation_loss', value=0, vary=False, expr=expr)
+    #     # print('params: ', params)
 
     #     results = model.fit(y, X=X, params=params)
 
