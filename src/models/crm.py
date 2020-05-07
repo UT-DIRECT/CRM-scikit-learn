@@ -40,28 +40,6 @@ class CRM(BaseEstimator, RegressorMixin):
         return self.q2(X, self.tau_, *self.gains_)
 
 
-    def _fitting_prior(self, theta):
-        # theta[0] = tau
-        # theta[1+] = gains, ie: f1, f2, etc
-        gains = None
-        if len(theta) > 1:
-            gains = theta[1:]
-        if theta[0] < 1 or theta > 30:
-            return 0
-        if gains is not None:
-            for gain in gains:
-                if gain > 1 or gain < 0:
-                    return 0
-            sum_of_gains = sum(gains)
-            if sum_of_gains > 1 or sum_of_gains < 0:
-                return 0
-        return 1
-
-
-    def _transition_model(self):
-        pass
-
-
     def _q2_constructor(self, n_gains):
         gains = ['f{}'.format(i + 1) for i in range(n_gains)]
         _q2 = 'lambda X, tau'
@@ -97,39 +75,3 @@ class CRM(BaseEstimator, RegressorMixin):
             bounds=self.bounds, iter=1000
         )
         return params
-
-
-    # def _fit_production_rate(self, X, y):
-    #     model = Model(self.q2, independent_vars=['X'])
-    #     params = Parameters()
-
-    #     params.add('tau', value=5, min=1, max=30)
-
-    #     n_gains = len(X) - 1
-    #     print(n_gains)
-    #     gains = ['f{}'.format(i + 1) for i in range(n_gains)]
-    #     value = 1 / n_gains
-    #     expr = '1'
-    #     for i in range(n_gains):
-    #         name = gains[i]
-    #         params.add(name, value=value, min=0, max=1)
-    #         expr += '-{}'.format(name)
-    #         # if i == n_gains - 1:
-    #         #     params.add(name, min=0, expr=expr)
-    #         # else:
-    #         #     expr += '-{}'.format(name)
-    #         #     params.add(name, value=value, min=0, max=1)
-    #     # print('expr: ', expr)
-    #     params.add('formation_loss', value=0, vary=False, expr=expr)
-    #     # print('params: ', params)
-
-    #     results = model.fit(y, X=X, params=params)
-
-    #     pars = []
-
-    #     # print('formation_loss: ', results.values['formation_loss'])
-    #     pars.append(results.values['tau'])
-    #     for gain in gains:
-    #         pars.append(results.values[gain])
-
-    #     return pars
