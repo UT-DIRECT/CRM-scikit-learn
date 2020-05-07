@@ -18,6 +18,7 @@ dependencies:
   - coverage=5.0.3=py38h0b31af3_0
   - cryptography=2.8=py38hafa8578_1
   - cycler=0.10.0=py_2
+  - dill=0.3.1.1=py38h32f6830_1
   - docutils=0.15.2=py38_0
   - entrypoints=0.3=py38_1000
   - flake8=3.7.9=py38_0
