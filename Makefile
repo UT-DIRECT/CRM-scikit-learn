@@ -29,13 +29,23 @@ requirements:
 save-environment:
 	conda env export > environment.yml
 
+## Default commands
+default: features models
+
 ## Make Features
 features:
 	$(PYTHON_INTERPRETER) -m src.features.build_features
 
 ## Run the model
-model:
+models: models-train models-predict
+
+## Run and train the model
+models-train:
 	$(PYTHON_INTERPRETER) -m src.models.train_model
+
+## Run and train the model
+models-predict:
+	$(PYTHON_INTERPRETER) -m src.models.predict_model
 
 ## Run tests
 test:
