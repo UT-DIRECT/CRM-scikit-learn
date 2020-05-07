@@ -23,7 +23,7 @@ def target_vector(y):
 
 def production_rate_dataset(q, *I):
     return [
-        production_rate_features(q, *I),
+        production_rate_features(q, *I).T,
         target_vector(q)
     ]
 

@@ -52,9 +52,7 @@ class TestCRM():
 
     def test_fit_X_y_different_shape(self):
         X, y = production_rate_dataset(q, inj1, inj2, inj3)
-        X = X.T
         X = X[:-2]
-        X = X.T
         with pytest.raises(ValueError):
             crm = CRM().fit(X, y)
 
@@ -71,7 +69,7 @@ class TestCRM():
         crm = CRM().fit(X, y)
         # There is no helper to construct the prediction matrix
         # since the prediction matrix is constructed by the cross validator
-        X = [q[1:], inj1[1:], inj2[1:]]
+        X = np.array([q[1:], inj1[1:], inj2[1:]]).T
         y_hat = crm.predict(X)
         assert(y_hat is not None)
         assert(len(y_hat) == 4)
@@ -82,7 +80,7 @@ class TestCRM():
         crm = CRM().fit(X, y)
         # There is no helper to construct the prediction matrix
         # since the prediction matrix is constructed by the cross validator
-        X = [q[1:], inj1[1:], inj2[1:], inj3[1:]]
+        X = np.array([q[1:], inj1[1:], inj2[1:], inj3[1:]]).T
         y_hat = crm.predict(X)
         assert(y_hat is not None)
         assert(len(y_hat) == 4)

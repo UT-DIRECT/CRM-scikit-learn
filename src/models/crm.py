@@ -15,7 +15,6 @@ class CRM(BaseEstimator, RegressorMixin):
 
 
     def fit(self, X=None, y=None):
-        X = X.T
         X, y = check_X_y(X, y)
         X = X.T
         self.X_ = X
@@ -36,6 +35,7 @@ class CRM(BaseEstimator, RegressorMixin):
 
 
     def predict(self, X):
+        X = X.T
         check_is_fitted(self)
         return self.q2(X, self.tau_, *self.gains_)
 
