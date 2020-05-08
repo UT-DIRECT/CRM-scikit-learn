@@ -1,19 +1,20 @@
+import pickle
+import dill as pickle
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
 
 from lmfit import Model, Parameters
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
+from sklearn.linear_model import (BayesianRidge, ElasticNet, Lasso,
         LinearRegression)
 
 from src.config import INPUTS
 from src.helpers.analysis import fit_statistics
-from src.helpers.cross_validation import (forward_walk_and_ML,
-     forward_walk_splitter)
+from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import production_rate_dataset
-from src.helpers.figures import (bar_plot_formater, bar_plot_helper, fig_saver,
-        plot_helper)
+from src.helpers.models import serialized_model_file
 from src.models.crm import CRM
 
 
@@ -64,15 +65,15 @@ N_predictions_output_file = INPUTS['files']['N_predictions']
 
 for i in range(len(producers)):
     models = [
-        BayesianRidge(), ElasticNetCV, LassoCV, LinearRegression()
+        BayesianRidge(), CRM(), ElasticNet(), Lasso(), LinearRegression()
     ]
     X, y = production_rate_dataset(producers[i], Fixed_inj1, Fixed_inj2)
+    train_test_seperation_idx = forward_walk_splitter(X, y, 2)[2]
+    X_train = X[:train_test_seperation_idx]
+    y_train = y[:train_test_seperation_idx]
 
-    print(producer_names[i])
-    crm = CRM()
-    crm = crm.fit(X, y)
-    print('tau: ', crm.tau_)
-    print('gains_: ', crm.gains_)
-    y_hat = crm.predict(X)
-    r2, mse = fit_statistics(y_hat, y)
-    print('r2: ', r2)
+    for model in models:
+        model = model.fit(X_train, y_train)
+        pickled_model = serialized_model_file(producer_names[i], model)
+        with open(pickled_model, 'wb') as f:
+            pickle.dump(model, f)
