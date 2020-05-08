@@ -37,14 +37,14 @@ features:
 	$(PYTHON_INTERPRETER) -m src.features.build_features
 
 ## Run the model
-models: models-train models-predict
+models: train-models predict-models
 
 ## Run and train the model
-models-train:
+train-models:
 	$(PYTHON_INTERPRETER) -m src.models.train_model
 
 ## Run and train the model
-models-predict:
+predict-models:
 	$(PYTHON_INTERPRETER) -m src.models.predict_model
 
 ## Run tests
