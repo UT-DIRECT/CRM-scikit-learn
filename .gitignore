@@ -81,6 +81,9 @@ target/
 # exclude figures by default
 reports/figures/
 
+# exclude serialized models
+models/*
+
 # Mac OS-specific storage files
 .DS_Store
 
