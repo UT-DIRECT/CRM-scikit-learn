@@ -27,7 +27,7 @@ def forward_walk_splitter(X, y, step_size):
             else length - 1)
         train = np.linspace(0, train_end, num=(train_end + 1)).astype(int)
         # Sometimes the testing set is smaller than the step_size.
-        # This is to ensure that there are the same number of splits for 
+        # This is to ensure that there are the same number of splits for
         # all step_sizes.
         test = np.linspace(
             test_start, test_end, num=(test_end - test_start + 1)
@@ -45,7 +45,7 @@ def train_and_test_model(X, y, model, train_test_splits):
     train_test_seperation_idx = train_test_splits[2]
     r2_sum, mse_sum = 0, 0
     length = len(test_split)
-    if isinstance(model, LinearRegression) or isinstance(model, BayesianRidge): 
+    if isinstance(model, LinearRegression) or isinstance(model, BayesianRidge):
         model.fit(X[:train_test_seperation_idx], y[:train_test_seperation_idx])
     else:
         model = train_model_with_cv(X, y, model, train_split)
