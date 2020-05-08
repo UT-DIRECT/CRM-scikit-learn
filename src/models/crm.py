@@ -72,6 +72,6 @@ class CRM(BaseEstimator, RegressorMixin):
     def _fit_production_rate(self, X, y):
         params = fmin_slsqp(
             self._sum_residuals, self.p0, f_eqcons=self._constraints,
-            bounds=self.bounds, iter=1000
+            bounds=self.bounds, iter=1000, iprint=0
         )
         return params
