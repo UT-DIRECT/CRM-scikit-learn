@@ -37,6 +37,7 @@ producers = np.array([q_1, q_2, q_3, q_4])
 producer_names = [
     'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
 ]
+injectors = np.array([Fixed_inj1, Fixed_inj2])
 net_productions = np.array([
     N_1, N_2, N_3, N_4
 ])
