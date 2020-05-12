@@ -21,6 +21,9 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
+## Default commands
+default: features models
+
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
 requirements:
@@ -29,9 +32,6 @@ requirements:
 ## Save Environment
 save-environment:
 	conda env export > environment.yml
-
-## Default commands
-default: features models
 
 ## Make Features
 features:
