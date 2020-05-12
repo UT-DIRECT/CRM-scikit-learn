@@ -9,6 +9,7 @@ BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
 PROJECT_NAME = crm_validation
 PYTHON_INTERPRETER = python3
+PYTHON = $(PYTHON_INTERPRETER) -m
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -34,18 +35,22 @@ default: features models
 
 ## Make Features
 features:
-	$(PYTHON_INTERPRETER) -m src.features.build_features
+	$(PYTHON) src.features.build_features
 
-## Run the model
+## Run the models
 models: train-models predict-models
 
-## Run and train the model
+## Run and train the models
 train-models:
-	$(PYTHON_INTERPRETER) -m src.models.train_model
+	$(PYTHON) src.models.train_model
 
-## Run and train the model
+## Run the models to make predictions
 predict-models:
-	$(PYTHON_INTERPRETER) -m src.models.predict_model
+	$(PYTHON) src.models.predict_model
+
+## Make all the plots
+plots:
+	$(PYTHON) src.visualization.visualize
 
 ## Run tests
 test:
