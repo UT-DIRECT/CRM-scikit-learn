@@ -22,7 +22,7 @@ endif
 #################################################################################
 
 ## Default commands
-default: features models
+default: features models plots
 
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
@@ -62,8 +62,9 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 ## Delete all the figures
+# TODO: There has to be a better way to do this
 clean-figures:
-	rm reports/figures/*
+	find ./reports/figures/ ! -type d -delete && git checkout reports/figures/.gitkeep
 
 ## Lint using flake8
 lint:
