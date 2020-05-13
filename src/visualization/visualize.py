@@ -82,7 +82,34 @@ def net_production_estimators_and_time_steps():
 
 
 def net_production_good_estimators_and_time_steps():
-    pass
+    x_labels = [int(step_size) for step_size in step_sizes]
+    predictions_metrics_df = pd.read_csv(N_predictions_metrics_file)
+    x = np.arange(len(x_labels))
+    width = 0.23
+    bar_labels = [
+        'CRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
+    ]
+    for i in range(len(producers)):
+        producer = i + 1
+        producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
+        crm_mse = []
+        linear_regression_mse = []
+        bayesian_ridge_mse = []
+        heights = [
+            crm_mse, linear_regression_mse, bayesian_ridge_mse
+        ]
+        models = ['CRM', 'LinearRegression', 'BayesianRidge']
+        for i in range(len(models)):
+            mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
+            for step_size in step_sizes:
+                mse = mses.loc[mses['Step size'] == step_size]['MSE']
+                heights[i].append(float(mse))
+
+        title = 'Good Estimator MSEs Producer {}'.format(producer)
+        xlabel = 'Step Size'
+        ylabel = 'Mean Squared Error'
+        bar_plot_helper(width, x, x_labels, bar_labels, heights)
+        bar_plot_formater(x, x_labels, title, xlabel, ylabel)
 
 
 def animated_net_production_predictions():
@@ -93,3 +120,4 @@ producers_vs_time()
 net_production_vs_time()
 producers_vs_injector()
 net_production_estimators_and_time_steps()
+net_production_good_estimators_and_time_steps()
