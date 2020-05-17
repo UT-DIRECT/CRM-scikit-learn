@@ -41,25 +41,38 @@ class TestProductionRateFeatures():
 class TestNetProductionFeatures():
 
 
-    def test_net_production_and_production_rate_same_size(self):
-        N = np.array([2, 3, 4, 5, 6])
+    def test_net_production_and_production_rate_with_injector(self):
+        N = np.array([2, 5, 9, 14, 20])
+        q = np.array([2, 3, 4, 5, 6])
+        inj1 = np.array([2, 3, 4, 5, 6])
+        inj2 = np.array([2, 3, 4, 5, 6])
+        X = net_production_features(N, q, inj1, inj2)
+        assert(X.shape == (4, 4))
+
+
+    def test_net_production_and_production_rate_without_injectors(self):
+        N = np.array([2, 5, 9, 14, 20])
         q = np.array([2, 3, 4, 5, 6])
         X = net_production_features(N, q)
         assert(X.shape == (2, 4))
 
 
     def test_net_production_and_smaller_production_rate(self):
-        N = np.array([2, 3, 4, 5, 6])
+        N = np.array([2, 5, 9, 14, 20])
         q = np.array([2, 3, 4])
-        X = net_production_features(N, q)
-        assert(X.shape == (2,))
+        inj1 = np.array([2, 3, 4, 5])
+        inj2 = np.array([2, 3, 4, 5, 6, 7, 8])
+        X = net_production_features(N, q, inj1, inj2)
+        assert(X.shape == (4,))
 
 
     def test_net_production_and_larger_production_rate(self):
-        N = np.array([2, 3, 4, 5, 6])
+        N = np.array([2, 5, 9, 14, 20])
         q = np.array([2, 3, 4, 5, 6, 7, 8])
-        X = net_production_features(N, q)
-        assert(X.shape == (2, 4))
+        inj1 = np.array([2, 3, 4, 5, 6])
+        inj2 = np.array([2, 3, 4, 5, 6])
+        X = net_production_features(N, q, inj1, inj2)
+        assert(X.shape == (4, 4))
 
 
 class TestTargetVector():

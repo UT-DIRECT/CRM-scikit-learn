@@ -12,9 +12,15 @@ def production_rate_features(q, *I):
         ]).T
 
 
-def net_production_features(N, q):
+def net_production_features(N, q, *I):
     size = N.size - 1
-    return np.array([N[:size], q[:size]])
+    if len(I) == 0:
+        return np.array([N[:size], q[:size]])
+    else:
+        injectors = [i[:size] for i in I]
+        return np.array([
+            N[:size], q[:size], *injectors
+        ]).T
 
 
 def target_vector(y):
@@ -28,8 +34,8 @@ def production_rate_dataset(q, *I):
     ]
 
 
-def net_production_dataset(N, q):
+def net_production_dataset(N, q, *I):
     return [
-        net_production_features(N, q),
+        net_production_features(N, q, *I),
         target_vector(N)
     ]
