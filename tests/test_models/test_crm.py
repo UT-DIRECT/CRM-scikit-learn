@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import numpy as np
 import pytest
 from sklearn.utils.validation import check_is_fitted, NotFittedError
