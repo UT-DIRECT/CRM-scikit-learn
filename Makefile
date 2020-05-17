@@ -38,14 +38,14 @@ features:
 	$(PYTHON) src.features.build_features
 
 ## Run the models
-models: train-models predict-models
+models: train predict
 
 ## Run and train the models
-train-models:
+train:
 	$(PYTHON) src.models.train_model
 
 ## Run the models to make predictions
-predict-models:
+predict:
 	$(PYTHON) src.models.predict_model
 
 ## Make all the plots
