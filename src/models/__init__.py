@@ -43,4 +43,4 @@ net_productions = np.array([
 ])
 
 step_sizes = np.linspace(2, 12, num=11).astype(int)
-N_predictions_output_file = INPUTS['files']['N_predictions']
+q_predictions_output_file = INPUTS['files']['q_predictions']

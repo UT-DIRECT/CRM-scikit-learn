@@ -23,8 +23,8 @@ for producer in producer_names:
     models_by_producer[producer] = [models[key] for key in keys_for_producer]
 
 # Predict each producer with each model
-N_predictions_file = INPUTS['files']['N_predictions']
-N_predictions_metrics_file = INPUTS['files']['N_predictions_metrics']
+q_predictions_file = INPUTS['files']['q_predictions']
+q_predictions_metrics_file = INPUTS['files']['q_predictions_metrics']
 predictions_data = {
     'Producer': [], 'Model': [], 'Step size': [], 't_start': [], 't_end': [],
     't_i': [], 'Prediction': []
@@ -64,6 +64,6 @@ for i in range(len(producers)):
                     predictions_data['Prediction'].append(y_i)
 
 metrics_df = pd.DataFrame(metrics_data)
-metrics_df.to_csv(N_predictions_metrics_file)
+metrics_df.to_csv(q_predictions_metrics_file)
 predictions_df = pd.DataFrame(predictions_data)
-predictions_df.to_csv(N_predictions_file)
+predictions_df.to_csv(q_predictions_file)

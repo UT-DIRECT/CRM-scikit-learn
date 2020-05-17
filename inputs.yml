@@ -2,5 +2,5 @@
     'raw_data': './data/raw/CRMP_Corrected_July16_2018.xlsx'
     'data': './data/processed/CRMP_Corrected_July16_2018.csv'
     'figures_dir': './reports/figures/'
-    'N_predictions': './data/processed/N_predictions.csv'
-    'N_predictions_metrics': './data/processed/N_predictions_metrics.csv'
+    'q_predictions': './data/processed/q_predictions.csv'
+    'q_predictions_metrics': './data/processed/q_predictions_metrics.csv'

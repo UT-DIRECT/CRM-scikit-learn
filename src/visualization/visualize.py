@@ -5,7 +5,7 @@ import pandas as pd
 from src.models import (injectors, net_productions,
     producers, producer_names, step_sizes, Time)
 from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
-from src.visualization import N_predictions_metrics_file
+from src.visualization import q_predictions_metrics_file
 
 
 def producers_vs_time():
@@ -48,7 +48,7 @@ def producers_vs_injector():
 
 def net_production_estimators_and_time_steps():
     x_labels = [int(step_size) for step_size in step_sizes]
-    predictions_metrics_df = pd.read_csv(N_predictions_metrics_file)
+    predictions_metrics_df = pd.read_csv(q_predictions_metrics_file)
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
@@ -74,7 +74,7 @@ def net_production_estimators_and_time_steps():
                 mse = mses.loc[mses['Step size'] == step_size]['MSE']
                 heights[i].append(float(mse))
 
-        title = 'Producer {}'.format(producer)
+        title = 'Production Rate Estimators Producer {}'.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
         bar_plot_helper(width, x, x_labels, bar_labels, heights)
@@ -83,7 +83,7 @@ def net_production_estimators_and_time_steps():
 
 def net_production_good_estimators_and_time_steps():
     x_labels = [int(step_size) for step_size in step_sizes]
-    predictions_metrics_df = pd.read_csv(N_predictions_metrics_file)
+    predictions_metrics_df = pd.read_csv(q_predictions_metrics_file)
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
@@ -105,7 +105,7 @@ def net_production_good_estimators_and_time_steps():
                 mse = mses.loc[mses['Step size'] == step_size]['MSE']
                 heights[i].append(float(mse))
 
-        title = 'Good Estimator MSEs Producer {}'.format(producer)
+        title = 'Production Rate Estimators Good Estimator MSEs Producer {}'.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
         bar_plot_helper(width, x, x_labels, bar_labels, heights)
