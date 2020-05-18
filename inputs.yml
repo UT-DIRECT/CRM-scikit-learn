@@ -4,3 +4,5 @@
     'figures_dir': './reports/figures/'
     'q_predictions': './data/processed/q_predictions.csv'
     'q_predictions_metrics': './data/processed/q_predictions_metrics.csv'
+    'N_predictions': './data/processed/N_predictions.csv'
+    'N_predictions_metrics': './data/processed/N_predictions_metrics.csv'
