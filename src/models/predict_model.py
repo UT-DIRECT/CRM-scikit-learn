@@ -16,11 +16,15 @@ from src.models.crm import CRM
 models = load_models()
 
 # Splitting the models up by producer
-models_by_producer = {}
+production_rate_models_by_producer = {}
 for producer in producer_names:
     producer_label = producer.lower().replace(' ', '_')
-    keys_for_producer = [key for key in models.keys() if producer_label in key]
-    models_by_producer[producer] = [models[key] for key in keys_for_producer]
+    keys_for_producer = []
+    for key in models.keys():
+        if producer_label in key and 'net' not in key:
+            keys_for_producer.append(key)
+            print(key)
+    production_rate_models_by_producer[producer] = [models[key] for key in keys_for_producer]
 
 # Predict each producer with each model
 q_predictions_file = INPUTS['files']['q_predictions']
@@ -35,7 +39,7 @@ metrics_data = {
 for i in range(len(producers)):
     producer_name = producer_names[i]
     producer_number = i + 1
-    models = models_by_producer[producer_name]
+    models = production_rate_models_by_producer[producer_name]
     X, y = production_rate_dataset(producers[i], *injectors)
 
     for model in models:
