@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from ..data.process_dataset import INPUTS
+from src.config import INPUTS
 
 
 FIG_DIR = INPUTS['files']['figures_dir']

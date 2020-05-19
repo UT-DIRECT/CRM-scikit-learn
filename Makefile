@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements
+.PHONY: clean features lint requirements
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -9,6 +9,7 @@ BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
 PROJECT_NAME = crm_validation
 PYTHON_INTERPRETER = python3
+PYTHON = $(PYTHON_INTERPRETER) -m
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -20,11 +21,10 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-environment:
-	conda create --name $(PROJECT_NAME) python=3
+## Default commands
+default: features models plots
 
 ## Install Python Dependencies
-# make a  `test_environment` command
 # run `conda activate $(PROJECT_NAME)` before running this command
 requirements:
 	conda env update --file environment.yml
@@ -33,14 +33,28 @@ requirements:
 save-environment:
 	conda env export > environment.yml
 
-## Make Dataset
-data:
-	# $(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
-	$(PYTHON_INTERPRETER) src/data/process_dataset.py
+## Make Features
+features:
+	$(PYTHON) src.features.build_features
 
-## Run the model
-model:
-	$(PYTHON_INTERPRETER) -m src.models.train_model
+## Run the models
+models: train predict
+
+## Run and train the models
+train:
+	$(PYTHON) src.models.train_model
+
+## Run the models to make predictions
+predict:
+	$(PYTHON) src.models.predict_model
+
+## Make all the plots
+plots:
+	$(PYTHON) src.visualization.visualize
+
+## Run tests
+test:
+	pytest -q tests/
 
 ## Delete all compiled Python files
 clean:
@@ -48,8 +62,9 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 ## Delete all the figures
+# TODO: There has to be a better way to do this
 clean-figures:
-	rm reports/figures/*
+	find ./reports/figures/ ! -type d -delete && git checkout reports/figures/.gitkeep
 
 ## Lint using flake8
 lint:

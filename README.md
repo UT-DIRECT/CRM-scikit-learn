@@ -55,4 +55,25 @@ Project Organization
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
-# crm_validation
+
+## Setting up environment
+
+In order to set up the environment for development, run the following commands.
+
+```
+$ conda create --name crm_validation python=3
+$ conda activate crm_validation
+$ make requirements
+```
+
+## Running the models
+
+1. Add data to the `data/raw/` directory and modify the `inputs.yml` file.
+2. Modify `src/models/__init__.py` to read in the data appropriately. (Might need to make changes in `src/features/build_features.py`).
+3. Run `make`.
+
+## Unit Tests
+
+Unit tests are in the `tests/` directory, and the `tests/` directory mirrors the `src/` directory, though not everything is tested.
+
+In order to run unit tests, run `make tets`.
