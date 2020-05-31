@@ -69,7 +69,7 @@ class CRM(BaseEstimator, RegressorMixin):
 
 
     def _fit_production_rate(self, X, y):
-        # The Net CRM function is part of the _sum_residuals function
+        # The CRM function is part of the _sum_residuals function
         params = fmin_slsqp(
             self._sum_residuals, self.p0, f_eqcons=self._constraints,
             bounds=self.bounds, iter=1000, iprint=0
