@@ -53,3 +53,37 @@ class TestInjectionRateCRM():
         X = X[:-2]
         with pytest.raises(ValueError):
             ircrm = InjectionRateCRM().fit(X, y)
+
+
+    def test_predict_with_unfitted_estimator_raises_error(self):
+        X, y = production_rate_dataset(q, inj1, inj2, inj3)
+        ircrm = InjectionRateCRM()
+        with pytest.raises(NotFittedError):
+            ircrm.predict(X)
+
+
+    def test_predict_two_injectors(self):
+        X, y = production_rate_dataset(q, inj1, inj2)
+        ircrm = InjectionRateCRM().fit(X, y)
+        # There is no helper to construct the prediction matrix
+        # since the prediction matrix is constructed by the cross validator
+        X = np.array([q[1:], inj1[1:], inj2[1:]]).T
+        y_hat, injection_rates = ircrm.predict(X)
+        assert(y_hat is not None)
+        assert(len(y_hat) == 4)
+        assert(injection_rates is not None)
+        assert(len(injection_rates) == 8)
+
+
+    def test_predict_three_injectors(self):
+        X, y = production_rate_dataset(q, inj1, inj2, inj3)
+        ircrm = InjectionRateCRM().fit(X, y)
+        # There is no helper to construct the prediction matrix
+        # since the prediction matrix is constructed by the cross validator
+        X = np.array([q[1:], inj1[1:], inj2[1:], inj3[1:]]).T
+        y_hat = ircrm.predict(X)
+        y_hat, injection_rates = ircrm.predict(X)
+        assert(y_hat is not None)
+        assert(len(y_hat) == 4)
+        assert(injection_rates is not None)
+        assert(len(injection_rates) == 12)

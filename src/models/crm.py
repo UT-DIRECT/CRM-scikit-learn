@@ -34,8 +34,8 @@ class CRM(BaseEstimator, RegressorMixin):
 
 
     def predict(self, X):
-        X = X.T
         check_is_fitted(self)
+        X = X.T
         return self.q2(X, self.tau_, *self.gains_)
 
 
