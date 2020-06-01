@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from scipy.optimize import fmin_slsqp
-from sklearn.base import BaseEstimator, RegressorMixin
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+from sklearn.utils.validation import check_is_fitted
 
 from src.models.crm import CRM
 
