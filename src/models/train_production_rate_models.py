@@ -1,15 +1,11 @@
 import pickle
 import dill as pickle
 
-import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
-from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 
-from src.helpers.analysis import fit_statistics
 from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
 from src.helpers.features import net_production_dataset, production_rate_dataset
