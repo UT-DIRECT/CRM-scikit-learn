@@ -15,12 +15,17 @@ class InjectionRateCRM(CRM):
         X = X.T
         self.X_predict_ = X
         params = self._fit_injection_rate(X)
-        return (self.q2(X, self.tau_, *self.gains_), params)
+        self.n_gains = len(self.X_predict_) - 1
+        injection_rates = np.reshape(params, (self.n_gains, -1)).tolist()
+        X = injection_rates
+        X.insert(0, self.X_predict_[0].tolist())
+        X = np.array(X)
+        production_rates = self.q2(X, self.tau_, *self.gains_)
+        return (production_rates, params)
 
 
     def _objective_function(self, params):
         injection_rates = params
-        self.n_gains = len(self.X_predict_) - 1
         params = np.reshape(params, (self.n_gains, -1)).tolist()
         X = params
         X.insert(0, self.X_predict_[0].tolist())
@@ -30,7 +35,6 @@ class InjectionRateCRM(CRM):
 
     def _fit_injection_rate(self, X):
         # The CRM function is part of the _sum_residuals function
-        self.n_gains = len(X) - 1
         time_steps = len(X[0])
         lower_bounds = np.ones(self.n_gains * time_steps) * np.min(X[1:]) * 0.8
         upper_bounds = np.ones(self.n_gains * time_steps) * np.max(X[1:]) * 1.2
