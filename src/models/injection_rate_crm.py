@@ -1,3 +1,5 @@
+import copy
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -17,11 +19,11 @@ class InjectionRateCRM(CRM):
         params = self._fit_injection_rate(X)
         self.n_gains = len(self.X_predict_) - 1
         injection_rates = np.reshape(params, (self.n_gains, -1)).tolist()
-        X = injection_rates
+        X = copy.copy(injection_rates)
         X.insert(0, self.X_predict_[0].tolist())
         X = np.array(X)
         production_rates = self.q2(X, self.tau_, *self.gains_)
-        return (production_rates, params)
+        return (production_rates, injection_rates)
 
 
     def _objective_function(self, params):

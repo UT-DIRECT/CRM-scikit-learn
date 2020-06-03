@@ -72,7 +72,8 @@ class TestInjectionRateCRM():
         assert(y_hat is not None)
         assert(len(y_hat) == 4)
         assert(injection_rates is not None)
-        assert(len(injection_rates) == 8)
+        assert(len(injection_rates) == 2)
+        assert(len(injection_rates[0]) == 4)
 
 
     def test_predict_three_injectors(self):
@@ -86,4 +87,5 @@ class TestInjectionRateCRM():
         assert(y_hat is not None)
         assert(len(y_hat) == 4)
         assert(injection_rates is not None)
-        assert(len(injection_rates) == 12)
+        assert(len(injection_rates) == 3)
+        assert(len(injection_rates[0]) == 4)
