@@ -44,6 +44,6 @@ class InjectionRateCRM(CRM):
         p0 = np.ones(self.n_gains * time_steps) * np.average(X[1:])
         params = fmin_slsqp(
             self._objective_function, p0, f_eqcons=self._constraints,
-            bounds=bounds, iter=1000, iprint=0
+            bounds=bounds, iter=10000, iprint=0
         )
         return params
