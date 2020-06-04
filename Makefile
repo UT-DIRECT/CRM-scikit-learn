@@ -80,6 +80,10 @@ clean:
 clean-figures:
 	find ./reports/figures/ ! -type d -delete && git checkout reports/figures/.gitkeep
 
+## Delete all the pickled models
+clean-models:
+	rm models/*
+
 ## Lint using flake8
 lint:
 	flake8 src
