@@ -46,17 +46,20 @@ for i in range(len(producers)):
         I_predictions_data['t_i'].append(train_test_seperation_idx + k + 1)
         I_predictions_data['q'].append(y_hat[i])
 
-    for j in range(len(injection_rates)):
-        column_name = 'injector_{}'.format(j + 1)
-        if column_name not in I_predictions_data:
-            I_predictions_data[column_name] = injection_rates[j]
-        else:
-            for l in range(len(injection_rates[j])):
-                I_predictions_data[column_name].append(injection_rates[j][l])
-
     net_I_predictions_data['Producer'].append(producer_number)
     net_I_predictions_data['Model'].append(model_namer(ircrm))
     net_I_predictions_data['N'].append(sum(y_hat))
+
+    for j in range(len(injection_rates)):
+        column_name = 'injector_{}'.format(j + 1)
+        if column_name not in I_predictions_data:
+            I_predictions_data[column_name] = injection_rates[j].tolist()
+            net_I_predictions_data['Net_{}'.format(column_name)] = [sum(injection_rates[j])]
+        else:
+            for l in range(len(injection_rates[j])):
+                I_predictions_data[column_name].append(injection_rates[j][l])
+            net_I_predictions_data['Net_{}'.format(column_name)].append(sum(injection_rates[j]))
+
 
 I_predictions_df = pd.DataFrame(I_predictions_data)
 I_predictions_df.to_csv(I_predictions_file)
