@@ -63,8 +63,13 @@ predict-injection-rate:
 	$(PYTHON) src.models.predict_injection_rate_models
 
 ## Make all the plots
-plots:
-	$(PYTHON) src.visualization.visualize
+plots: production-rate-plots injection-rate-plots
+
+production-rate-plots:
+	$(PYTHON) src.visualization.visualize_production_rate
+
+injection-rate-plots:
+	$(PYTHON) src.visualization.visualize_injection_rate
 
 ## Run tests
 test:
