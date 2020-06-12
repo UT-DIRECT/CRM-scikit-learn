@@ -66,13 +66,18 @@ data science project template</a>. #cookiecutterdatascience</small></p>
 In order to set up the environment for development, run the following commands.
 
 ```
-$ conda create --name crm_validation python=3
+$ conda env create -f environment.yml
 $ conda activate crm_validation
-$ make requirements
 ```
 
 If you do make changes to the dependencies of the project, and you would like
-to save them run `make save-environment`.
+to save them run `make save-environment`.*
+
+*Important note: When exporting the environment to a file with `conda env
+export` (and in this case `make save-enironment`), the resulting
+`environment.yml` will have elements that only work on the host file. You must
+see the results of the unit tests on Travis and remove everything after the
+first "=" on that dependency's line.
 
 ## Running the models
 

@@ -27,7 +27,7 @@ default: features models plots
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
 requirements:
-	conda install --file environment.yml
+	conda env create -f environment.yml
 
 ## Save Environment
 save-environment:
