@@ -1,0 +1,7 @@
+langauge: python
+install:
+  - conda create  --name crm_validation python=3
+  - conda activate crm_validation
+  - make requirements
+script:
+  - pytest
