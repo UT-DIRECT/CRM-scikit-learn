@@ -10,6 +10,6 @@ before-install:
     # Useful for debugging any issues with conda
   - conda info -a
 install:
-  - make requirements
+  - conda env create -f environment.yml
 script:
   - pytest
