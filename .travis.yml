@@ -13,5 +13,6 @@ before-install:
   - conda info -a
 install:
   - conda env create -f environment.yml
+  - conda activate crm_validation
 script:
   - pytest
