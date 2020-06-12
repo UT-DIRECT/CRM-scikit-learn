@@ -10,6 +10,8 @@ before-install:
     # Useful for debugging any issues with conda
   - conda info -a
 install:
+  - conda create --name crm_validation python=3
+  - conda activate crm_validation
   - conda env export --no-builds > environment.yml
   - conda env create -f environment.yml
 script:
