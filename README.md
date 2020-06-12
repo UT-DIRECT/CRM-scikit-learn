@@ -77,7 +77,7 @@ to save them run `make save-environment`.*
 export` (and in this case `make save-enironment`), the resulting
 `environment.yml` will have elements that only work on the host file. You must
 see the results of the unit tests on Travis and remove everything after the
-first "=" on that dependency's line.
+first "=" on that dependency's line. [Further Reading](https://github.com/datitran/object_detector_app/issues/41)
 
 ## Running the models
 
