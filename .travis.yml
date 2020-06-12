@@ -1,4 +1,6 @@
 langauge: python
+python:
+  - "3.8"
 before-install:
   - sudo apt-get update -y
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -10,9 +12,6 @@ before-install:
     # Useful for debugging any issues with conda
   - conda info -a
 install:
-  - conda create --name crm_validation python=3
-  - conda activate crm_validation
-  - conda env export --no-builds > environment.yml
   - conda env create -f environment.yml
 script:
   - pytest
