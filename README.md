@@ -1,10 +1,18 @@
 crm_validation
 ==============================
 
-This repository is going to evaluate how well the CRM model predicts reservoir production.
+This repository is going to evaluate how well the CRM model predicts reservoir
+production.
+
 
 Project Organization
 ------------
+
+The Project is organized along the lines of [Cookie Cutter Data
+Science](https://drivendata.github.io/cookiecutter-data-science/). There are
+some modifications to the naming of certain files in the project, though
+I believe that these will be self explanatory and will not hamper the intuitive
+structure oft he project.
 
     ├── LICENSE
     ├── Makefile           <- Makefile with commands like `make data` or `make train`
@@ -36,25 +44,22 @@ Project Organization
     │   ├── __init__.py    <- Makes src a Python module
     │   │
     │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
     │   │
     │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
     │   │
     │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
+    │   │                     predictions
     │   │
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 
 
 --------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+<p><small>Project based on the <a target="_blank"
+href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter
+data science project template</a>. #cookiecutterdatascience</small></p>
 
 ## Setting up environment
 
@@ -66,14 +71,20 @@ $ conda activate crm_validation
 $ make requirements
 ```
 
+If you do make changes to the dependencies of the project, and you would like
+to save them run `make save-environment`.
+
 ## Running the models
 
 1. Add data to the `data/raw/` directory and modify the `inputs.yml` file.
-2. Modify `src/models/__init__.py` to read in the data appropriately. (Might need to make changes in `src/features/build_features.py`).
+2. Modify `src/models/__init__.py` to read in the data appropriately. (Might
+   need to make changes in `src/features/build_features.py`).
 3. Run `make`.
 
 ## Unit Tests
 
-Unit tests are in the `tests/` directory, and the `tests/` directory mirrors the `src/` directory, though not everything is tested.
+Unit tests are in the `tests/` directory, and the structure of the `tests/`
+directory mirrors the structure of the `src/` directory. Not everything
+is tested.
 
-In order to run unit tests, run `make tets`.
+In order to run unit tests, run `make tests`.
