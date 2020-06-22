@@ -1,12 +1,10 @@
-crm_validation
-==============================
+# Capacitive Resistive Model (CRM) as a scikit-learn estimator
 
 This repository is going to evaluate how well the CRM model predicts reservoir
 production.
 
 
-Project Organization
-------------
+## Project Organization
 
 The Project is organized along the lines of [Cookie Cutter Data
 Science](https://drivendata.github.io/cookiecutter-data-science/). There are
