@@ -1,4 +1,4 @@
-name: crm_validation
+name: crm
 channels:
   - conda-forge
   - defaults
@@ -98,5 +98,3 @@ dependencies:
   - yaml
   - zipp=3.1.0=py_0
   - zlib
-prefix: /Users/akhilpotla/anaconda3/envs/crm_validation
-
