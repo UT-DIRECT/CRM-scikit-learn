@@ -7,7 +7,7 @@ from .analysis import fit_statistics
 from .models import test_model
 
 
-TRAINING_SPLIT = 0.8
+TRAINING_SPLIT = 0.67
 
 
 def forward_walk_and_ML(X, y, step_size, model):
@@ -15,7 +15,7 @@ def forward_walk_and_ML(X, y, step_size, model):
     return train_and_test_model(X, y, model, train_test_splits)
 
 
-def forward_walk_splitter(X, y, step_size):
+def forward_walk_splitter(X, y, step_size=2):
     length = len(X)
     split = []
     for i in range(length - 1):

@@ -40,17 +40,36 @@ features:
 ## Run the models
 models: train predict
 
+production-rate-models: train-production-rate predict-production-rate
+
+injection-rate-models: train-injection-rate predict-injection-rate
+
 ## Run and train the models
-train:
-	$(PYTHON) src.models.train_model
+train: train-production-rate train-injection-rate
+
+train-production-rate:
+	$(PYTHON) src.models.train_production_rate_models
+
+train-injection-rate:
+	$(PYTHON) src.models.train_injection_rate_models
 
 ## Run the models to make predictions
-predict:
-	$(PYTHON) src.models.predict_model
+predict: predict-production-rate predict-injection-rate
+
+predict-production-rate:
+	$(PYTHON) src.models.predict_production_rate_models
+
+predict-injection-rate:
+	$(PYTHON) src.models.predict_injection_rate_models
 
 ## Make all the plots
-plots:
-	$(PYTHON) src.visualization.visualize
+plots: production-rate-plots injection-rate-plots
+
+production-rate-plots:
+	$(PYTHON) src.visualization.visualize_production_rate
+
+injection-rate-plots:
+	$(PYTHON) src.visualization.visualize_injection_rate
 
 ## Run tests
 test:
@@ -65,6 +84,10 @@ clean:
 # TODO: There has to be a better way to do this
 clean-figures:
 	find ./reports/figures/ ! -type d -delete && git checkout reports/figures/.gitkeep
+
+## Delete all the pickled models
+clean-models:
+	rm models/*
 
 ## Lint using flake8
 lint:

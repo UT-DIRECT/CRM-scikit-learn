@@ -1,15 +1,11 @@
 import pickle
 import dill as pickle
 
-import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
-from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 
-from src.helpers.analysis import fit_statistics
 from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
 from src.helpers.features import net_production_dataset, production_rate_dataset
@@ -28,7 +24,7 @@ for i in range(len(producers)):
         BayesianRidge(), CRM(), ElasticNetCV, LassoCV, LinearRegression()
     ]
     X, y = production_rate_dataset(producers[i], *injectors)
-    train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y, 2)
+    train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y)
     X_train = X[:train_test_seperation_idx]
     y_train = y[:train_test_seperation_idx]
 
@@ -36,8 +32,8 @@ for i in range(len(producers)):
         if is_CV_model(model):
             model = train_model_with_cv(X, y, model, train_split)
         model = model.fit(X_train, y_train)
-        pickled_model = serialized_model_path(producer_names[i], model)
-        with open(pickled_model, 'wb') as f:
+        pickle_file = serialized_model_path(producer_names[i], model)
+        with open(pickle_file, 'wb') as f:
             pickle.dump(model, f)
 
 
@@ -47,7 +43,7 @@ for i in range(len(producers)):
         BayesianRidge(), CRM(), ElasticNetCV, LassoCV, LinearRegression()
     ]
     X, y = net_production_dataset(net_productions[i], producers[i], *injectors)
-    train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y, 2)
+    train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y)
     X_train = X[:train_test_seperation_idx]
     y_train = y[:train_test_seperation_idx]
 
@@ -55,9 +51,9 @@ for i in range(len(producers)):
         if is_CV_model(model):
             model = train_model_with_cv(X, y, model, train_split)
         model = model.fit(X_train, y_train)
-        pickled_model = serialized_model_path(
+        pickle_file = serialized_model_path(
             'Net {}'.format(producer_names[i]),
             model
         )
-        with open(pickled_model, 'wb') as f:
+        with open(pickle_file, 'wb') as f:
             pickle.dump(model, f)

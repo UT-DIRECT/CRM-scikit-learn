@@ -1,16 +1,11 @@
-import pickle
-import dill as pickle
-
 import pandas as pd
 
 from src.config import INPUTS
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset, production_rate_dataset
-from src.helpers.models import (load_models, model_namer,
-    serialized_model_path, test_model)
+from src.helpers.models import load_models, model_namer, test_model
 from src.models import (injectors, net_productions, producers, producer_names,
     step_sizes)
-from src.models.crm import CRM
 
 
 # Loading the previously serialized models
@@ -44,7 +39,7 @@ for i in range(len(producers)):
 
     for model in models:
         for step_size in step_sizes:
-            test_split = forward_walk_splitter(X, y, step_size)[1]
+            test_split = forward_walk_splitter(X, y, step_size=step_size)[1]
             r2, mse, y_hat, time_step = test_model(X, y, model, test_split)
             metrics_data['Producer'].append(producer_number)
             metrics_data['Model'].append(model_namer(model))
@@ -102,7 +97,7 @@ for i in range(len(producers)):
 
     for model in models:
         for step_size in step_sizes:
-            test_split = forward_walk_splitter(X, y, step_size)[1]
+            test_split = forward_walk_splitter(X, y, step_size=step_size)[1]
             r2, mse, y_hat, time_step = test_model(X, y, model, test_split)
             N_metrics_data['Producer'].append(producer_number)
             N_metrics_data['Model'].append(model_namer(model))

@@ -18,29 +18,22 @@ class CRM(BaseEstimator, RegressorMixin):
         X = X.T
         self.X_ = X
         self.y_ = y
-        n_gains = len(X) - 1
-        self.p0 = (1. / n_gains * np.ones(n_gains + 1))
-        self.p0[0] = 5
-        self._q2_constructor(n_gains)
-        lower_bounds = np.zeros(n_gains + 1)
-        lower_bounds[0] = 1
-        upper_bounds = np.ones(n_gains + 1)
-        upper_bounds[0] = 30
-        self.bounds = np.array([lower_bounds, upper_bounds]).T.tolist()
-        params = self._fit_production_rate(X, y)
+        self.n_gains = len(X) - 1
+        self._q2_constructor(self.n_gains)
+        params = self._fit_production_rate()
         self.tau_ = params[0]
         self.gains_ = params[1:]
         return self
 
 
     def predict(self, X):
-        X = X.T
         check_is_fitted(self)
+        X = X.T
         return self.q2(X, self.tau_, *self.gains_)
 
 
     def _q2_constructor(self, n_gains):
-        gains = ['f{}'.format(i + 1) for i in range(n_gains)]
+        gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         _q2 = 'lambda X, tau'
 
         for gain in gains:
@@ -68,10 +61,17 @@ class CRM(BaseEstimator, RegressorMixin):
         return 1 - sum(gains)
 
 
-    def _fit_production_rate(self, X, y):
+    def _fit_production_rate(self):
         # The CRM function is part of the _sum_residuals function
+        p0 = (1. / self.n_gains * np.ones(self.n_gains + 1))
+        p0[0] = 5
+        lower_bounds = np.zeros(self.n_gains + 1)
+        lower_bounds[0] = 1
+        upper_bounds = np.ones(self.n_gains + 1)
+        upper_bounds[0] = 30
+        bounds = np.array([lower_bounds, upper_bounds]).T.tolist()
         params = fmin_slsqp(
-            self._sum_residuals, self.p0, f_eqcons=self._constraints,
-            bounds=self.bounds, iter=1000, iprint=0
+            self._sum_residuals, p0, f_eqcons=self._constraints,
+            bounds=bounds, iter=1000, iprint=0
         )
         return params
