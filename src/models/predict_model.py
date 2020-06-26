@@ -10,7 +10,6 @@ from src.helpers.models import (load_models, model_namer,
     serialized_model_path, test_model)
 from src.models import (injectors, net_productions, producers, producer_names,
     step_sizes)
-from src.models.crm import CRM
 
 
 # Loading the previously serialized models

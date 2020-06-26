@@ -53,22 +53,22 @@ def production_rate_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
-        'CRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
+        'CRMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
         'Lasso, mse', 'Elastic, mse'
     ]
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
-        crm_mse = []
+        crmp_mse = []
         linear_regression_mse = []
         bayesian_ridge_mse = []
         lasso_mse = []
         elastic_mse = []
         heights = [
-            crm_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
+            crmp_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
             elastic_mse
         ]
-        models = ['CRM', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
+        models = ['CRMP', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -88,18 +88,18 @@ def production_rate_good_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
-        'CRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
+        'CRMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
     ]
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
-        crm_mse = []
+        crmp_mse = []
         linear_regression_mse = []
         bayesian_ridge_mse = []
         heights = [
-            crm_mse, linear_regression_mse, bayesian_ridge_mse
+            crmp_mse, linear_regression_mse, bayesian_ridge_mse
         ]
-        models = ['CRM', 'LinearRegression', 'BayesianRidge']
+        models = ['CRMP', 'LinearRegression', 'BayesianRidge']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -119,22 +119,22 @@ def net_production_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
-        'CRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
+        'CRMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
         'Lasso, mse', 'Elastic, mse'
     ]
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
-        crm_mse = []
+        crmp_mse = []
         linear_regression_mse = []
         bayesian_ridge_mse = []
         lasso_mse = []
         elastic_mse = []
         heights = [
-            crm_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
+            crmp_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
             elastic_mse
         ]
-        models = ['CRM', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
+        models = ['CRMP', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -154,18 +154,18 @@ def net_production_good_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
-        'CRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
+        'CRMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
     ]
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
-        crm_mse = []
+        crmp_mse = []
         linear_regression_mse = []
         bayesian_ridge_mse = []
         heights = [
-            crm_mse, linear_regression_mse, bayesian_ridge_mse
+            crmp_mse, linear_regression_mse, bayesian_ridge_mse
         ]
-        models = ['CRM', 'LinearRegression', 'BayesianRidge']
+        models = ['CRMP', 'LinearRegression', 'BayesianRidge']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:

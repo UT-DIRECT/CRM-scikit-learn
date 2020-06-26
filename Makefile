@@ -22,7 +22,7 @@ endif
 #################################################################################
 
 ## Default commands
-default: features models plots
+default: models plots
 
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
