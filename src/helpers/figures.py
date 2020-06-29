@@ -8,8 +8,8 @@ FIG_DIR = INPUTS['files']['figures_dir']
 
 def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):
     plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    plt.xlabel(xlabel, fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
     plt.legend(legend)
     if save:
         fig_saver(title, xlabel, ylabel)
@@ -36,7 +36,11 @@ def bar_plot_helper(width, x, x_labels, bar_labels, heights):
     plt.figure(figsize=[10, 4.8])
     center_x_location = int(len(heights) / 2)
     for i in range(len(heights)):
-        plt.bar(x + (i - center_x_location) * width, heights[i], width, label=bar_labels[i])
+        if i == 0:
+            alpha = 1
+        else:
+            alpha = 0.5
+        plt.bar(x + (i - center_x_location) * width, heights[i], width, label=bar_labels[i], alpha=alpha)
 
 
 def bar_plot_formater(x, x_labels, title, xlabel, ylabel):
