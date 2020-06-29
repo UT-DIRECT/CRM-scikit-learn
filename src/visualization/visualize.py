@@ -13,7 +13,6 @@ def producers_vs_time():
     plt.figure()
     plt.plot(Time, producers.T)
     plot_helper(
-        title='Production Rate vs Time',
         xlabel='Time',
         ylabel='Production Rate',
         legend=producer_names,
@@ -25,7 +24,6 @@ def net_production_vs_time():
     plt.figure()
     plt.plot(Time, net_productions.T)
     plot_helper(
-        title='Total Production vs Time',
         xlabel='Time',
         ylabel='Net Production',
         legend=producer_names,
@@ -75,7 +73,7 @@ def production_rate_estimators_and_time_steps():
                 mse = mses.loc[mses['Step size'] == step_size]['MSE']
                 heights[i].append(float(mse))
 
-        title = 'Production Rate Estimators Producer {}'.format(producer)
+        title = 'Producer {} '.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
         bar_plot_helper(width, x, x_labels, bar_labels, heights)
@@ -106,7 +104,7 @@ def production_rate_good_estimators_and_time_steps():
                 mse = mses.loc[mses['Step size'] == step_size]['MSE']
                 heights[i].append(float(mse))
 
-        title = 'Production Rate Estimators Good Estimator MSEs Producer {}'.format(producer)
+        title = 'Producer {}'.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
         bar_plot_helper(width, x, x_labels, bar_labels, heights)
