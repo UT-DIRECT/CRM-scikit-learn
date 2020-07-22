@@ -22,7 +22,7 @@ endif
 #################################################################################
 
 ## Default commands
-default: models plots
+default: simulate-crmp plots
 
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
@@ -38,15 +38,15 @@ features:
 	$(PYTHON) src.features.build_features
 
 ## Run the models
-crmp-models: train-crmp predict-crmp
+simulate-crmp: train-crmp predict-crmp
 
 ## Run and train the models
 train-crmp:
-	$(PYTHON) src.models.train_crmp
+	$(PYTHON) src.simulations.train_crmp
 
 ## Run the models to make predictions
 predict-crmp:
-	$(PYTHON) src.models.predict_crmp
+	$(PYTHON) src.simulations.predict_crmp
 
 ## Make all the plots
 plots:

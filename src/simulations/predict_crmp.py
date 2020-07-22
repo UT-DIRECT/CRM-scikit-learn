@@ -4,12 +4,12 @@ import dill as pickle
 import pandas as pd
 
 from src.config import INPUTS
+from src.data.read_data_crmp import (injectors, net_productions, producers,
+     producer_names, step_sizes)
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset, production_rate_dataset
 from src.helpers.models import (load_models, model_namer,
     serialized_model_path, test_model)
-from src.models import (injectors, net_productions, producers, producer_names,
-    step_sizes)
 
 
 # Loading the previously serialized models
