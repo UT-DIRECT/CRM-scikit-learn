@@ -38,15 +38,15 @@ features:
 	$(PYTHON) src.features.build_features
 
 ## Run the models
-models: train predict
+crmp-models: train-crmp predict-crmp
 
 ## Run and train the models
-train:
-	$(PYTHON) src.models.train_model
+train-crmp:
+	$(PYTHON) src.models.train_crmp
 
 ## Run the models to make predictions
-predict:
-	$(PYTHON) src.models.predict_model
+predict-crmp:
+	$(PYTHON) src.models.predict_crmp
 
 ## Make all the plots
 plots:
