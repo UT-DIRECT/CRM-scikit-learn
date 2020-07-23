@@ -34,8 +34,14 @@ save-environment:
 	conda env export > environment.yml
 
 ## Make Features
-features:
-	$(PYTHON) src.features.build_features
+
+features: crmp-features wfsim-features
+
+crmp-features:
+	$(PYTHON) src.features.build_crmp_features
+
+wfsim-features:
+	$(PYTHON) src.features.build_wfsim_features
 
 ## Run the models
 simulate-crmp: train-crmp predict-crmp
