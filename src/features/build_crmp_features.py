@@ -1,35 +1,13 @@
-import numpy as np
 import pandas as pd
 
 from src.config import INPUTS
+from src.helpers.features import net_flow, white_noise
 
 
-def white_noise(column):
-    length = len(column)
-    sigma = column.std()
-    gaussian_noise = np.random.normal(loc=0, scale=sigma, size=length)
-    exponential_decline_scaling = np.linspace(0.1, 2, num=length)
-    for i in range(length):
-        column[i] += abs(gaussian_noise[i])
-        column[i] *= 1/exponential_decline_scaling[i]
-        # Multiplying by 1/exponential_decline_scaling increases the value of
-        # the dataset by 3; therefore we multiply by 1/3 below.
-    return column * 1 / 3
+raw_data_file = INPUTS['crmp']['raw_data']
+processed_data_file = INPUTS['crmp']['data']
 
-
-def net_flow(production):
-    net = []
-    for prod in production:
-        if len(net) == 0:
-            net.append(prod)
-        else:
-            net.append(net[-1] + prod)
-    return net
-
-input_filename = INPUTS['crmp']['raw_data']
-output_filename = INPUTS['crmp']['data']
-
-df = pd.read_excel(input_filename, 0, skiprows=9)
+df = pd.read_excel(raw_data_file, 0, skiprows=9)
 df = df.drop(df.columns[[1, 2, 3, 4, 7, 8]], axis=1)
 df.columns = [
     'Time', 'Fixed_inj1', 'Fixed_inj2',
@@ -45,4 +23,4 @@ df.insert(6, 'Net_Prod1', net_flow(df['Prod1']))
 df.insert(8, 'Net_Prod2', net_flow(df['Prod2']))
 df.insert(10, 'Net_Prod3', net_flow(df['Prod3']))
 df.insert(12, 'Net_Prod4', net_flow(df['Prod4']))
-df.to_csv(output_filename, index=False)
+df.to_csv(processed_data_file, index=False)
