@@ -4,8 +4,8 @@ import yaml
 from src.config import INPUTS
 
 
-def read_crmp(raw_data_file):
-    data = np.loadtxt(raw_data_file, delimiter=',', skiprows=1).T
+def read_crmp(data_file):
+    data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
     Time = data[0]
     Fixed_inj1 = data[1]
     Net_Fixed_inj1 = data[2]
@@ -26,8 +26,8 @@ def read_crmp(raw_data_file):
     return features
 
 
-raw_data_file = INPUTS['crmp']['data']
-features = read_crmp(raw_data_file)
+data_file = INPUTS['crmp']['data']
+features = read_crmp(data_file)
 [
     Time, Fixed_inj1, Net_Fixed_inj1, Fixed_inj2, Net_Fixed_inj2, q_1, N_1,
     q_2, N_2, q_3, N_3, q_4, N_4
