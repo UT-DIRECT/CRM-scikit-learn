@@ -26,8 +26,8 @@ def net_flow(production):
             net.append(net[-1] + prod)
     return net
 
-input_filename = INPUTS['files']['raw_data']
-output_filename = INPUTS['files']['data']
+input_filename = INPUTS['crmp']['raw_data']
+output_filename = INPUTS['crmp']['data']
 
 df = pd.read_excel(input_filename, 0, skiprows=9)
 df = df.drop(df.columns[[1, 2, 3, 4, 7, 8]], axis=1)

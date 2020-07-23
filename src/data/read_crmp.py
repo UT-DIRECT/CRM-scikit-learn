@@ -26,7 +26,7 @@ def read_data( data_file):
     return features
 
 
-data_file = INPUTS['files']['data']
+data_file = INPUTS['crmp']['data']
 features = read_data(data_file)
 [
     Time, Fixed_inj1, Net_Fixed_inj1, Fixed_inj2, Net_Fixed_inj2, q_1, N_1,
@@ -43,5 +43,4 @@ net_productions = np.array([
 ])
 
 step_sizes = np.linspace(2, 12, num=11).astype(int)
-q_predictions_output_file = INPUTS['files']['q_predictions']
-
+q_predictions_output_file = INPUTS['crmp']['q_predictions']

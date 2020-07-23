@@ -49,8 +49,8 @@ predict-crmp:
 	$(PYTHON) src.simulations.predict_crmp
 
 ## Make all the plots
-plots:
-	$(PYTHON) src.visualization.visualize
+crmp-plots:
+	$(PYTHON) src.visualization.visualize_crmp
 
 ## Run tests
 test:

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from src.config import INPUTS
 
 
-FIG_DIR = INPUTS['files']['figures_dir']
+FIG_DIR = INPUTS['crmp']['figures_dir']
 
 
 def plot_helper(title='', xlabel='', ylabel='', legend=[], save=False):

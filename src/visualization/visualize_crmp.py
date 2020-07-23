@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_data_crmp import (injectors, net_productions,
+from src.data.read_crmp import (injectors, net_productions,
     producers, producer_names, step_sizes, Time)
 from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
 from src.visualization import (N_predictions_metrics_file,

@@ -1,8 +1,12 @@
-'files':
+'crmp':
     'raw_data': './data/raw/CRMP_Corrected_July16_2018.xlsx'
     'data': './data/processed/CRMP_Corrected_July16_2018.csv'
-    'figures_dir': './reports/figures/'
+    'figures_dir': './reports/figures/crmp/'
     'q_predictions': './data/processed/q_predictions.csv'
     'q_predictions_metrics': './data/processed/q_predictions_metrics.csv'
     'N_predictions': './data/processed/N_predictions.csv'
     'N_predictions_metrics': './data/processed/N_predictions_metrics.csv'
+'wfsim':
+    'raw_data': './data/raw/WFSim.xlsx'
+    'data': './data/processed/WFSim.csv'
+    'figures_dir': './reports/figures/wfsim/'

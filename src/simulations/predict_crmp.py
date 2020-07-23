@@ -4,7 +4,7 @@ import dill as pickle
 import pandas as pd
 
 from src.config import INPUTS
-from src.data.read_data_crmp import (injectors, net_productions, producers,
+from src.data.read_crmp import (injectors, net_productions, producers,
      producer_names, step_sizes)
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset, production_rate_dataset
@@ -26,8 +26,8 @@ for producer in producer_names:
     production_rate_models_by_producer[producer] = [trained_models[key] for key in keys_for_producer]
 
 # Predict each producer with each model
-q_predictions_file = INPUTS['files']['q_predictions']
-q_predictions_metrics_file = INPUTS['files']['q_predictions_metrics']
+q_predictions_file = INPUTS['crmp']['q_predictions']
+q_predictions_metrics_file = INPUTS['crmp']['q_predictions_metrics']
 predictions_data = {
     'Producer': [], 'Model': [], 'Step size': [], 't_start': [], 't_end': [],
     't_i': [], 'Prediction': []
@@ -84,8 +84,8 @@ for producer in producer_names:
             keys_for_producer.append(key)
     net_production_models_by_producer[producer] = [trained_models[key] for key in keys_for_producer]
 
-N_predictions_file = INPUTS['files']['N_predictions']
-N_predictions_metrics_file = INPUTS['files']['N_predictions_metrics']
+N_predictions_file = INPUTS['crmp']['N_predictions']
+N_predictions_metrics_file = INPUTS['crmp']['N_predictions_metrics']
 N_predictions_data = {
     'Producer': [], 'Model': [], 'Step size': [], 't_start': [], 't_end': [],
     't_i': [], 'Prediction': []
