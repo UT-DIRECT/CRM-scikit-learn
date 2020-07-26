@@ -10,12 +10,10 @@ from src.helpers.analysis import fit_statistics
 TRAINED_MODEL_DIR = './models'
 
 
-def serialized_model_path(producer_name, model):
+def serialized_model_path(subdir, producer_name, model):
     model_name = model_namer(model)
-    return '{}/{}_{}.pkl'.format(
-        TRAINED_MODEL_DIR,
-        producer_name,
-        model_name
+    return '{}/{}/{}_{}.pkl'.format(
+        TRAINED_MODEL_DIR, subdir, producer_name, model_name
     ).lower().replace(' ', '_')
 
 
@@ -24,8 +22,8 @@ def model_namer(model):
     return str(model)[:str(model).index('(')]
 
 
-def load_models():
-    dir_contents = listdir(TRAINED_MODEL_DIR)
+def load_models(subdir):
+    dir_contents = listdir('{}/{}'.format(TRAINED_MODEL_DIR, subdir))
     dir_files = []
     for f in dir_contents:
         if isfile(join(TRAINED_MODEL_DIR, f)) and f != '.gitkeep':
