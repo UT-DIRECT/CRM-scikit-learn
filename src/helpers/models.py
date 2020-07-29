@@ -28,20 +28,21 @@ def model_namer(model):
     return str(model)[:str(model).index('(')]
 
 
-def load_models(subdir):
-    dir_contents = listdir('{}/{}'.format(TRAINED_MODEL_DIR, subdir))
+def load_models(subdir=''):
+    dir_name = '{}/{}'.format(TRAINED_MODEL_DIR, subdir)
+    dir_contents = listdir(dir_name)
     dir_files = []
     for f in dir_contents:
-        if isfile(join(TRAINED_MODEL_DIR, f)) and f != '.gitkeep':
+        if isfile(join(dir_name, f)) and f != '.gitkeep':
             dir_files.append(f)
     models = {}
     for f in dir_files:
-        models[f[:-4]] = _load_model(f)
+        models[f[:-4]] = _load_model(dir_name, f)
     return models
 
 
-def _load_model(f):
-    with open(join(TRAINED_MODEL_DIR, f), 'rb') as f:
+def _load_model(dir_name, f):
+    with open(join(dir_name, f), 'rb') as f:
         model = pickle.load(f)
     return model
 

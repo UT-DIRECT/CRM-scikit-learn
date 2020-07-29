@@ -25,6 +25,7 @@ class CRMT(BaseEstimator, RegressorMixin):
 
     def predict(self, X):
         check_is_fitted(self)
+        X = X.T
         return self._crmt(X, self.tau_, self.f_r_)
 
 
