@@ -1,6 +1,3 @@
-import pickle
-import dill as pickle
-
 import pandas as pd
 
 from src.config import INPUTS
