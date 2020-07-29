@@ -13,8 +13,6 @@ class CRMT(BaseEstimator, RegressorMixin):
 
 
     def fit(self, X=None, y=None):
-        print('X: ', X)
-        print('y: ', y)
         X, y = check_X_y(X, y)
         X = X.T
         tau, f_r = curve_fit(
@@ -31,4 +29,7 @@ class CRMT(BaseEstimator, RegressorMixin):
 
 
     def _crmt(self, X, tau, f_r):
+        # X[0] = N^k-1
+        # X[1] = delta_t
+        # X[2] = W_i
         return X[0] * np.exp(-X[1] / tau) + (1 - np.exp(-X[1] / tau)) * (X[2] * f_r)

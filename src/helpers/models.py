@@ -10,11 +10,17 @@ from src.helpers.analysis import fit_statistics
 TRAINED_MODEL_DIR = './models'
 
 
-def serialized_model_path(subdir, producer_name, model):
+def serialized_model_path(subdir, model, producer_name=''):
     model_name = model_namer(model)
-    return '{}/{}/{}_{}.pkl'.format(
+    if len(producer_name) > 0:
+        path = '{}/{}/{}_{}.pkl'.format(
         TRAINED_MODEL_DIR, subdir, producer_name, model_name
-    ).lower().replace(' ', '_')
+    )
+    else:
+        path = '{}/{}/{}.pkl'.format(
+        TRAINED_MODEL_DIR, subdir, model_name
+    )
+    return path.lower().replace(' ', '_')
 
 
 def model_namer(model):

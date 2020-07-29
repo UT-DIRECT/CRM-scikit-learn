@@ -31,7 +31,7 @@ for i in range(len(producers)):
         if is_CV_model(model):
             model = train_model_with_cv(X, y, model, train_split)
         model = model.fit(X_train, y_train)
-        pickled_model = serialized_model_path('crmp', producer_names[i], model)
+        pickled_model = serialized_model_path('crmp', model, producer_names[i])
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
 
@@ -51,7 +51,7 @@ for i in range(len(producers)):
             model = train_model_with_cv(X, y, model, train_split)
         model = model.fit(X_train, y_train)
         pickled_model = serialized_model_path(
-            'net_crm', 'Net {}'.format(producer_names[i]), model
+            'net_crm', model, 'Net {}'.format(producer_names[i])
         )
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)

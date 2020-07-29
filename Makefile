@@ -43,7 +43,7 @@ crmp-features:
 wfsim-features:
 	$(PYTHON) src.features.build_wfsim_features
 
-## Run the models
+## Run the CRMP models
 simulate-crmp: train-crmp predict-crmp
 
 ## Run and train the models
@@ -57,6 +57,15 @@ predict-crmp:
 ## Make all the plots
 crmp-plots:
 	$(PYTHON) src.visualization.visualize_crmp
+
+## Run the CRMT models
+simulate-crmt: train-crmt predict-crmt
+
+train-crmt:
+	$(PYTHON) src.simulations.train_crmt
+
+predict-crmt:
+	$(PYTHON) src.simulations.predict_crmt
 
 ## Run tests
 test:
