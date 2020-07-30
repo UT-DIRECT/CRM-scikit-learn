@@ -1,6 +1,9 @@
+import pandas as pd
+
 from sklearn.model_selection import train_test_split
 
-from src.data.read_wfsim import (delta_time, qo_tank, w_tank, qw_tank, q_tank)
+from src.config import INPUTS
+from src.data.read_wfsim import (delta_time, q_tank, time, w_tank)
 from src.helpers.analysis import fit_statistics
 from src.helpers.features import production_rate_dataset
 from src.helpers.models import load_models
@@ -16,8 +19,15 @@ X_train, X_test, y_train, y_test = train_test_split(
 crmt = load_models('crmt')['crmt']
 
 y_hat = crmt.predict(X_test)
+time_test = time[len(X_train) + 1:]
 
 r2, mse = fit_statistics(y_hat, y_test)
 mse = mse / len(y_hat)
 
-# TODO: Output these results to a CSV file
+crmt_predictions_file = INPUTS['wfsim']['crmt_predictions']
+crmt_predictions = {
+    'Time': time_test,
+    'Prediction': y_hat
+}
+crmt_predictions_df = pd.DataFrame(crmt_predictions)
+crmt_predictions_df.to_csv(crmt_predictions_file)

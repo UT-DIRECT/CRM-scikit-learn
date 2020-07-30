@@ -10,4 +10,5 @@
     'raw_data': './data/raw/WFSim.xlsx'
     'data': './data/processed/wfsim/WFSim.csv'
     'figures_dir': './reports/figures/wfsim/'
-    'q_predictions': './data/processed/wfsim/q_predictions.csv'
+    'crmt_predictions': './data/processed/wfsim/crmt_predictions.csv'
+    'koval_predictions': './data/processed/wfsim/koval_predictions.csv'

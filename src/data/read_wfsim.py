@@ -2,6 +2,7 @@ import numpy as np
 import yaml
 
 from src.config import INPUTS
+from src.helpers.features import net_flow
 
 
 def read_wfsim(data_file):
@@ -19,3 +20,5 @@ def read_wfsim(data_file):
 data_file = INPUTS['wfsim']['data']
 features = read_wfsim(data_file)
 [time, delta_time, qo_tank, w_tank, qw_tank, q_tank] = features
+f_w = qw_tank / q_tank
+W_t = np.array(net_flow(w_tank))
