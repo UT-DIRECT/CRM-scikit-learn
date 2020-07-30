@@ -67,6 +67,15 @@ train-crmt:
 predict-crmt:
 	$(PYTHON) src.simulations.predict_crmt
 
+## Run the Koval models
+simulate-koval: train-koval predict-koval
+
+train-koval:
+	$(PYTHON) src.simulations.train_koval
+
+predict-koval:
+	$(PYTHON) src.simulations.predict_koval
+
 ## Run tests
 test:
 	pytest -q tests/
