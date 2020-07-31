@@ -42,5 +42,4 @@ net_productions = np.array([
     N_1, N_2, N_3, N_4
 ])
 
-step_sizes = np.linspace(2, 12, num=11).astype(int)
 q_predictions_output_file = INPUTS['crmp']['q_predictions']

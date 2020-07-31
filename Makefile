@@ -22,7 +22,7 @@ endif
 #################################################################################
 
 ## Default commands
-default: simulate-crmp plots
+default: crmp crmt koval
 
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
@@ -43,6 +43,15 @@ crmp-features:
 wfsim-features:
 	$(PYTHON) src.features.build_wfsim_features
 
+## Rum all the models
+simulate: simulate-crmp simulate-crmt simulate-koval
+
+## Run all the plots
+plots: crmp-plots crmt-plots koval-plots
+
+## Entire CRMP workflow
+crmp: simulate-crmp crmp-plots
+
 ## Run the CRMP models
 simulate-crmp: train-crmp predict-crmp
 
@@ -54,9 +63,12 @@ train-crmp:
 predict-crmp:
 	$(PYTHON) src.simulations.predict_crmp
 
-## Make all the plots
+## Make the CRMP plots
 crmp-plots:
 	$(PYTHON) src.visualization.visualize_crmp
+
+## Entire CRMT workflow
+crmt: simulate-crmt crmt-plots
 
 ## Run the CRMT models
 simulate-crmt: train-crmt predict-crmt
@@ -67,6 +79,13 @@ train-crmt:
 predict-crmt:
 	$(PYTHON) src.simulations.predict_crmt
 
+## Make the CRMT plots
+crmt-plots:
+	$(PYTHON) src.visualization.visualize_crmt
+
+## Entire Koval workflow
+koval: simulate-koval koval-plots
+
 ## Run the Koval models
 simulate-koval: train-koval predict-koval
 
@@ -75,6 +94,10 @@ train-koval:
 
 predict-koval:
 	$(PYTHON) src.simulations.predict_koval
+
+## Make the Koval plots
+koval-plots:
+	$(PYTHON) src.visualization.visualize_koval
 
 ## Run tests
 test:

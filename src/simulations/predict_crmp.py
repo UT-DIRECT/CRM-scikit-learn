@@ -2,10 +2,11 @@ import pandas as pd
 
 from src.config import INPUTS
 from src.data.read_crmp import (injectors, net_productions, producers,
-     producer_names, step_sizes)
+     producer_names)
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset, production_rate_dataset
 from src.helpers.models import load_models, model_namer, test_model
+from src.simulations import step_sizes
 
 
 # Loading the previously serialized models
