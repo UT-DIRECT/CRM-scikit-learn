@@ -14,18 +14,35 @@ from src.models.crmt import CRMT
 # Loading the previously serialized CRMT model
 crmt = load_models('crmt')['crmt']
 
+step_size = 2
 X, y = production_rate_dataset(q_tank, delta_time, w_tank)
 train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
-    X, y, 2
+    X, y, step_size
 )
 r2, mse, y_hat, time_step = test_model(X, y, crmt, test_split)
-
 time_test = time[-len(y_hat):]
 
 crmt_predictions_file = INPUTS['wfsim']['crmt_predictions']
 crmt_predictions = {
-    'Time': time_test,
-    'Prediction': y_hat
+    'Step size': [],
+    't_start': [],
+    't_end': [],
+    't_i': [],
+    'Prediction': []
 }
+for i in range(len(y_hat)):
+    y_hat_i = y_hat[i]
+    time_step_i = time_step[i]
+    t_start = time_step_i[0]
+    t_end = time_step_i[-1]
+    for k in range(len(y_hat_i)):
+        y_i = y_hat_i[k]
+        t_i = time_step_i[k]
+        crmt_predictions['Step size'].append(step_size)
+        crmt_predictions['t_start'].append(t_start)
+        crmt_predictions['t_end'].append(t_end)
+        crmt_predictions['t_i'].append(t_i)
+        crmt_predictions['Prediction'].append(y_i)
+
 crmt_predictions_df = pd.DataFrame(crmt_predictions)
 crmt_predictions_df.to_csv(crmt_predictions_file)
