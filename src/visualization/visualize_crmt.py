@@ -76,7 +76,14 @@ def net_water_production_vs_time():
 
 
 def production_rate_vs_injection_rate():
-    pass
+    plt.figure()
+    plt.scatter(w_tank, q_tank)
+    plot_helper(
+        FIG_DIR,
+        xlabel='Injection Rate',
+        ylabel='Production Rate',
+        save=True
+    )
 
 
 def production_rate_estimation_and_time_step():
@@ -89,5 +96,5 @@ water_production_rate_vs_time()
 net_production_vs_time()
 net_oil_production_vs_time()
 net_water_production_vs_time()
-# production_rate_vs_injection_rate()
+production_rate_vs_injection_rate()
 # production_rate_estimation_and_time_step()
