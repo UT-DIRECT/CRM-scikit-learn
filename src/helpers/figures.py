@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 from src.config import INPUTS
 
 
-def plot_helper(fig_dir, title='', xlabel='', ylabel='', legend=[], save=False):
+def plot_helper(fig_dir, title='', xlabel='', ylabel='', legend=None, save=False):
     plt.title(title)
     plt.xlabel(xlabel, fontsize=14)
     plt.ylabel(ylabel, fontsize=14)
-    plt.legend(legend)
+    if legend is not None:
+        plt.legend(legend)
     if save:
         fig_saver(fig_dir, title, xlabel, ylabel)
         plt.close()
