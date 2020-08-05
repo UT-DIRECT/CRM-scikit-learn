@@ -83,8 +83,8 @@ def production_rate_estimators_and_time_steps():
         title = 'Producer {} '.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
-        bar_plot_helper(FIG_DIR, width, x, x_labels, bar_labels, heights)
-        bar_plot_formater(x, x_labels, title, xlabel, ylabel)
+        bar_plot_helper(width, x, x_labels, bar_labels, heights)
+        bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel)
 
 
 def production_rate_good_estimators_and_time_steps():
@@ -114,8 +114,8 @@ def production_rate_good_estimators_and_time_steps():
         title = 'Producer {}'.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
-        bar_plot_helper(FIG_DIR, width, x, x_labels, bar_labels, heights)
-        bar_plot_formater(x, x_labels, title, xlabel, ylabel)
+        bar_plot_helper(width, x, x_labels, bar_labels, heights)
+        bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel)
 
 
 def net_production_estimators_and_time_steps():
@@ -149,8 +149,8 @@ def net_production_estimators_and_time_steps():
         title = 'Net Production Estimators Producer {}'.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
-        bar_plot_helper(FIG_DIR, width, x, x_labels, bar_labels, heights)
-        bar_plot_formater(x, x_labels, title, xlabel, ylabel)
+        bar_plot_helper(width, x, x_labels, bar_labels, heights)
+        bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel)
 
 
 def net_production_good_estimators_and_time_steps():
@@ -180,8 +180,8 @@ def net_production_good_estimators_and_time_steps():
         title = 'Net Production Estimators Good Estimator MSEs Producer {}'.format(producer)
         xlabel = 'Step Size'
         ylabel = 'Mean Squared Error'
-        bar_plot_helper(FIG_DIR, width, x, x_labels, bar_labels, heights)
-        bar_plot_formater(x, x_labels, title, xlabel, ylabel)
+        bar_plot_helper(width, x, x_labels, bar_labels, heights)
+        bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel)
 
 
 def animated_net_production_predictions():

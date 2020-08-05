@@ -49,11 +49,12 @@ def bar_plot_helper(width, x, x_labels, bar_labels, heights):
         plt.bar(x + (i - center_x_location) * width, heights[i], width, label=bar_labels[i], alpha=alpha)
 
 
-def bar_plot_formater(fig_dir, x, x_labels, title, xlabel, ylabel):
+def bar_plot_formater(fig_dir, x, x_labels, title, xlabel, ylabel, legend=True):
     plot_helper(fig_dir, title=title, xlabel=xlabel, ylabel=ylabel)
     plt.yscale('log')
     plt.xticks(ticks=x, labels=x_labels)
-    plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+    if legend:
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     plt.tight_layout()
     fig_saver(fig_dir, title, xlabel, ylabel)
     plt.close()

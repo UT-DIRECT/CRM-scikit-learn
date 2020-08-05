@@ -4,9 +4,11 @@ import pandas as pd
 
 from src.data.read_wfsim import (delta_time, f_w, q_tank, Q_t, qo_tank, Qo_t,
      qw_tank, Qw_t, time, w_tank, W_t)
-from src.helpers.figures import bar_plot_helper, bar_plot_helper, plot_helper
+from src.helpers.figures import bar_plot_formater, plot_helper
+from src.simulations import step_sizes
 from src.visualization import INPUTS
 
+crmt_predictions_metrics_file = INPUTS['wfsim']['crmt_predictions_metrics']
 FIG_DIR = INPUTS['wfsim']['figures_dir']
 
 def production_rate_vs_time():
@@ -87,7 +89,19 @@ def production_rate_vs_injection_rate():
 
 
 def production_rate_estimation_and_time_step():
-    pass
+    x_labels = [int(step_size) for step_size in step_sizes]
+    predictions_metrics_df = pd.read_csv(crmt_predictions_metrics_file)
+    x = np.arange(len(x_labels))
+    width = 0.25
+    heights = []
+    for i in range(len(step_sizes)):
+        height = predictions_metrics_df.loc[predictions_metrics_df['Step size'] == step_sizes[i]]['MSE']
+        heights.append(float(height))
+    plt.bar(x, heights, width, label='CRMT, mse', alpha=0.5)
+    title = 'CRMT Production Estimators'
+    xlabel = 'Step Size'
+    ylabel = 'Mean Squared Error'
+    bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel, legend=False)
 
 
 production_rate_vs_time()
@@ -97,4 +111,4 @@ net_production_vs_time()
 net_oil_production_vs_time()
 net_water_production_vs_time()
 production_rate_vs_injection_rate()
-# production_rate_estimation_and_time_step()
+production_rate_estimation_and_time_step()
