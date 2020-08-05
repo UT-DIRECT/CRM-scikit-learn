@@ -16,13 +16,11 @@ from src.simulations import step_sizes
 crmt = load_models('crmt')['crmt']
 
 crmt_predictions_file = INPUTS['wfsim']['crmt_predictions']
+crmt_predictions_metrics_file = INPUTS['wfsim']['crmt_predictions_metrics']
 crmt_predictions = {
-    'Step size': [],
-    't_start': [],
-    't_end': [],
-    't_i': [],
-    'Prediction': []
+    'Step size': [], 't_start': [], 't_end': [], 't_i': [], 'Prediction': []
 }
+crmt_predictions_metrics = {'Step size': [], 'r2': [], 'MSE': []}
 
 X, y = production_rate_dataset(q_tank, delta_time, w_tank)
 for step_size in step_sizes:
@@ -30,6 +28,9 @@ for step_size in step_sizes:
         X, y, step_size
     )
     r2, mse, y_hat, time_step = test_model(X, y, crmt, test_split)
+    crmt_predictions_metrics['Step size'].append(step_size)
+    crmt_predictions_metrics['r2'].append(r2)
+    crmt_predictions_metrics['MSE'].append(mse)
 
     for i in range(len(y_hat)):
         y_hat_i = y_hat[i]
@@ -46,4 +47,6 @@ for step_size in step_sizes:
             crmt_predictions['Prediction'].append(y_i)
 
 crmt_predictions_df = pd.DataFrame(crmt_predictions)
+crmt_predictions_metrics_df = pd.DataFrame(crmt_predictions_metrics)
 crmt_predictions_df.to_csv(crmt_predictions_file)
+crmt_predictions_metrics_df.to_csv(crmt_predictions_metrics_file)

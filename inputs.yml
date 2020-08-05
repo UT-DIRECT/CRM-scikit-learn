@@ -11,4 +11,6 @@
     'data': './data/processed/wfsim/WFSim.csv'
     'figures_dir': './reports/figures/wfsim/'
     'crmt_predictions': './data/processed/wfsim/crmt_predictions.csv'
+    'crmt_predictions_metrics': './data/processed/wfsim/crmt_predictions_metrics.csv'
     'koval_predictions': './data/processed/wfsim/koval_predictions.csv'
+    'koval_predictions_metrics': './data/processed/wfsim/koval_predictions_metrics.csv'
