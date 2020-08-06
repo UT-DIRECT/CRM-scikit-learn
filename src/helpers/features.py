@@ -41,6 +41,14 @@ def net_production_dataset(N, q, *I):
     ]
 
 
+def koval_dataset(W_t, f_w):
+    X = W_t[:-1]
+    y = f_w[1:]
+    return [
+        X, y
+    ]
+
+
 def white_noise(column):
     length = len(column)
     sigma = column.std()

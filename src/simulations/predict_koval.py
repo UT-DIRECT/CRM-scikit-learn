@@ -6,7 +6,7 @@ from src.config import INPUTS
 from src.data.read_wfsim import f_w,  time, W_t
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.analysis import fit_statistics
-from src.helpers.features import production_rate_dataset
+from src.helpers.features import koval_dataset
 from src.helpers.models import load_models, test_model
 from src.models.koval import Koval
 from src.simulations import step_sizes
@@ -22,8 +22,7 @@ koval_predictions = {
 }
 koval_predictions_metrics = {'Step size': [], 'r2': [], 'MSE': []}
 
-X = W_t[:-1]
-y = f_w[1:]
+X, y = koval_dataset(W_t, f_w)
 for step_size in step_sizes:
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
         X, y, step_size
