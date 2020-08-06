@@ -1,7 +1,6 @@
 import numpy as np
 
 
-# TODO: Rename all of this
 def production_rate_features(q, *I):
     size = q[:-1].size
     if len(I) == 0:
