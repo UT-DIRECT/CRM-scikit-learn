@@ -10,13 +10,17 @@ from src.helpers.analysis import fit_statistics
 TRAINED_MODEL_DIR = './models'
 
 
-def serialized_model_path(producer_name, model):
+def serialized_model_path(subdir, model, producer_name=''):
     model_name = model_namer(model)
-    return '{}/{}_{}.pkl'.format(
-        TRAINED_MODEL_DIR,
-        producer_name,
-        model_name
-    ).lower().replace(' ', '_')
+    if len(producer_name) > 0:
+        path = '{}/{}/{}_{}.pkl'.format(
+        TRAINED_MODEL_DIR, subdir, producer_name, model_name
+    )
+    else:
+        path = '{}/{}/{}.pkl'.format(
+        TRAINED_MODEL_DIR, subdir, model_name
+    )
+    return path.lower().replace(' ', '_')
 
 
 def model_namer(model):
@@ -24,20 +28,21 @@ def model_namer(model):
     return str(model)[:str(model).index('(')]
 
 
-def load_models():
-    dir_contents = listdir(TRAINED_MODEL_DIR)
+def load_models(subdir=''):
+    dir_name = '{}/{}'.format(TRAINED_MODEL_DIR, subdir)
+    dir_contents = listdir(dir_name)
     dir_files = []
     for f in dir_contents:
-        if isfile(join(TRAINED_MODEL_DIR, f)) and f != '.gitkeep':
+        if isfile(join(dir_name, f)) and f != '.gitkeep':
             dir_files.append(f)
     models = {}
     for f in dir_files:
-        models[f[:-4]] = _load_model(f)
+        models[f[:-4]] = _load_model(dir_name, f)
     return models
 
 
-def _load_model(f):
-    with open(join(TRAINED_MODEL_DIR, f), 'rb') as f:
+def _load_model(dir_name, f):
+    with open(join(dir_name, f), 'rb') as f:
         model = pickle.load(f)
     return model
 

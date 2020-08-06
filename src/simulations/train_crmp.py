@@ -1,20 +1,15 @@
 import pickle
 import dill as pickle
 
-import matplotlib.pyplot as plt
-import numpy as np
-import yaml
-
-from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 
-from src.helpers.analysis import fit_statistics
+from src.data.read_crmp import (injectors, net_productions, producers,
+         producer_names)
 from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
 from src.helpers.features import net_production_dataset, production_rate_dataset
 from src.helpers.models import serialized_model_path
-from src.models import injectors, net_productions, producers, producer_names
 from src.models.crmp import CRMP
 
 
@@ -36,7 +31,7 @@ for i in range(len(producers)):
         if is_CV_model(model):
             model = train_model_with_cv(X, y, model, train_split)
         model = model.fit(X_train, y_train)
-        pickled_model = serialized_model_path(producer_names[i], model)
+        pickled_model = serialized_model_path('crmp', model, producer_names[i])
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
 
@@ -56,8 +51,7 @@ for i in range(len(producers)):
             model = train_model_with_cv(X, y, model, train_split)
         model = model.fit(X_train, y_train)
         pickled_model = serialized_model_path(
-            'Net {}'.format(producer_names[i]),
-            model
+            'net_crm', model, 'Net {}'.format(producer_names[i])
         )
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
