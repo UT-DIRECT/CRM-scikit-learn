@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_wfsim import (delta_time, f_w, q_tank, Q_t, qo_tank, Qo_t,
-     qw_tank, Qw_t, time, w_tank, W_t)
+from src.data.read_wfsim import (q_tank, Q_t, qo_tank, Qo_t, qw_tank, Qw_t,
+    time, w_tank)
 from src.helpers.figures import bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
+
 
 crmt_predictions_metrics_file = INPUTS['wfsim']['crmt_predictions_metrics']
 FIG_DIR = INPUTS['wfsim']['figures_dir']

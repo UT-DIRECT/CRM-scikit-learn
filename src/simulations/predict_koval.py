@@ -16,13 +16,11 @@ from src.simulations import step_sizes
 koval = load_models('koval')['koval']
 
 koval_predictions_file = INPUTS['wfsim']['koval_predictions']
+koval_predictions_metrics_file = INPUTS['wfsim']['koval_predictions_metrics']
 koval_predictions = {
-    'Step size': [],
-    't_start': [],
-    't_end': [],
-    't_i': [],
-    'Prediction': []
+    'Step size': [], 't_start': [], 't_end': [], 't_i': [], 'Prediction': []
 }
+koval_predictions_metrics = {'Step size': [], 'r2': [], 'MSE': []}
 
 X = W_t[:-1]
 y = f_w[1:]
@@ -31,6 +29,10 @@ for step_size in step_sizes:
         X, y, step_size
     )
     r2, mse, y_hat, time_step = test_model(X, y, koval, test_split)
+
+    koval_predictions_metrics['Step size'].append(step_size)
+    koval_predictions_metrics['r2'].append(r2)
+    koval_predictions_metrics['MSE'].append(mse)
 
     for i in range(len(y_hat)):
         y_hat_i = y_hat[i]
@@ -47,4 +49,6 @@ for step_size in step_sizes:
             koval_predictions['Prediction'].append(y_i)
 
 koval_predictions_df = pd.DataFrame(koval_predictions)
+koval_predictions_metrics_df = pd.DataFrame(koval_predictions_metrics)
 koval_predictions_df.to_csv(koval_predictions_file)
+koval_predictions_metrics_df.to_csv(koval_predictions_metrics_file)
