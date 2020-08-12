@@ -19,7 +19,7 @@ def fig_saver(fig_dir, title, xlabel, ylabel):
         fig_dir,
         fig_filename(title, xlabel, ylabel)
     )
-    plt.savefig(fig_file)
+    plt.savefig(fig_file, bbox_inches='tight')
 
 
 def fig_filename(title, xlabel, ylabel):
