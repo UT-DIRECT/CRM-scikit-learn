@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_wfsim import f_w, W_t
+from src.data.read_wfsim import time, f_w, W_t
 from src.helpers.figures import bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
@@ -11,6 +11,7 @@ from src.visualization import INPUTS
 koval_predictions_file = INPUTS['wfsim']['koval_predictions']
 koval_predictions_metrics_file = INPUTS['wfsim']['koval_predictions_metrics']
 FIG_DIR = INPUTS['wfsim']['figures_dir']
+
 
 def total_water_injected_and_water_cut():
     plt.figure()
@@ -23,8 +24,34 @@ def total_water_injected_and_water_cut():
     )
 
 
+def water_cut_vs_time():
+    plt.figure()
+    plt.plot(f_w)
+    plot_helper(
+        FIG_DIR,
+        xlabel='Time',
+        ylabel='Water Cut',
+        save=True
+    )
+
+
 def total_water_injected_and_predicted_water_cut():
-    pass
+    predictions_df = pd.read_csv(koval_predictions_file)
+    predictions = predictions_df.loc[predictions_df['Step size'] == 2]
+    x = [0] * 140
+    y = [0] * 140
+    for index, row in predictions.iterrows():
+        index = int(row['t_i']) - 11
+        x[index] = row['t_i']
+        y[index] = row['Prediction']
+    plt.figure()
+    plt.plot(x, y)
+    plot_helper(
+        FIG_DIR,
+        xlabel='Time',
+        ylabel='Estimated Water Cut',
+        save=True
+    )
 
 
 def koval_estimation_error_and_time_steps():
@@ -44,4 +71,6 @@ def koval_estimation_error_and_time_steps():
 
 
 total_water_injected_and_water_cut()
+water_cut_vs_time()
+total_water_injected_and_predicted_water_cut()
 koval_estimation_error_and_time_steps()

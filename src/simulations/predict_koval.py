@@ -25,7 +25,7 @@ koval_predictions_metrics = {'Step size': [], 'r2': [], 'MSE': []}
 X, y = koval_dataset(W_t, f_w)
 for step_size in step_sizes:
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
-        X, y, step_size
+        X, y, step_size, training_split=0.05
     )
     r2, mse, y_hat, time_step = test_model(X, y, koval, test_split)
 
