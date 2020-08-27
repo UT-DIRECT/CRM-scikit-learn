@@ -14,12 +14,12 @@ def serialized_model_path(subdir, model, producer_name=''):
     model_name = model_namer(model)
     if len(producer_name) > 0:
         path = '{}/{}/{}_{}.pkl'.format(
-        TRAINED_MODEL_DIR, subdir, producer_name, model_name
-    )
+            TRAINED_MODEL_DIR, subdir, producer_name, model_name
+        )
     else:
         path = '{}/{}/{}.pkl'.format(
-        TRAINED_MODEL_DIR, subdir, model_name
-    )
+            TRAINED_MODEL_DIR, subdir, model_name
+        )
     return path.lower().replace(' ', '_')
 
 

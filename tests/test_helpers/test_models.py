@@ -8,8 +8,10 @@ class TestSerializedModelFile():
 
     def test_serialized_model_path(self):
         model = BayesianRidge()
-        model_path = serialized_model_path('Producer 1', model)
-        assert(model_path == './models/producer_1_bayesianridge.pkl')
+        model_path = serialized_model_path(
+            'ml_models', model, producer_name='Producer 1'
+        )
+        assert(model_path == './models/ml_models/producer_1_bayesianridge.pkl')
 
 
 class TestModelNamer():
