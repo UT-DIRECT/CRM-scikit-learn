@@ -16,7 +16,7 @@ class Koval(BaseEstimator, RegressorMixin):
         X = X.reshape(-1, 1)
         X, y = check_X_y(X, y)
         V_p, K_val = curve_fit(
-            self._koval_field, X, y, bounds=([1000, 1], [1000000, np.inf])
+            self._koval_field, X, y, bounds=([1e6, 0.1], [1e9, 100])
         )[0]
         self.V_p_ = V_p
         self.K_val_ = K_val

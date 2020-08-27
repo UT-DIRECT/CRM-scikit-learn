@@ -38,18 +38,44 @@ def water_cut_vs_time():
 def total_water_injected_and_predicted_water_cut():
     predictions_df = pd.read_csv(koval_predictions_file)
     predictions = predictions_df.loc[predictions_df['Step size'] == 2]
-    x = [0] * 140
-    y = [0] * 140
+    x = [0] * 74
+    y = [0] * 74
     for index, row in predictions.iterrows():
-        index = int(row['t_i']) - 11
-        x[index] = row['t_i']
-        y[index] = row['Prediction']
+        i = int(row['t_i'] - 77)
+        x[i] = int(row['t_i'])
+        y[i] = row['Prediction']
     plt.figure()
-    plt.plot(x, y)
+    plt.plot(time[x], y)
+    plt.plot(time[x], f_w[x])
     plot_helper(
         FIG_DIR,
         xlabel='Time',
         ylabel='Estimated Water Cut',
+        legend=['Calculated', 'Data'],
+        save=True
+    )
+
+
+def total_water_injected_and_predicted_water_cut_dimensionless_time():
+    V_p = 70289930.22889942
+    predictions_df = pd.read_csv(koval_predictions_file)
+    predictions = predictions_df.loc[predictions_df['Step size'] == 2]
+    x = [0] * 74
+    y = [0] * 74
+    t_D = [0] * 74
+    for index, row in predictions.iterrows():
+        i = int(row['t_i'] - 77)
+        t_D[i] = (W_t[i]/ V_p)
+        x[i] = int(row['t_i'])
+        y[i] = row['Prediction']
+    plt.figure()
+    plt.plot(t_D, y)
+    plt.plot(t_D, f_w[x])
+    plot_helper(
+        FIG_DIR,
+        xlabel='Dimensionless Time',
+        ylabel='Estimated Water Cut',
+        legend=['Calculated', 'Data'],
         save=True
     )
 
@@ -73,4 +99,5 @@ def koval_estimation_error_and_time_steps():
 total_water_injected_and_water_cut()
 water_cut_vs_time()
 total_water_injected_and_predicted_water_cut()
+total_water_injected_and_predicted_water_cut_dimensionless_time()
 koval_estimation_error_and_time_steps()
