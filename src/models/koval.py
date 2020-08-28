@@ -33,11 +33,6 @@ class Koval(BaseEstimator, RegressorMixin):
         f_w_hat = np.zeros(length)
         for i in range(length):
             t_D = W_t[i] / V_p
-            if t_D < (1 / K_val):
-                f = 0
-            elif (1 / K_val) < t_D < K_val:
-                f = (K_val - np.sqrt(K_val / t_D)) / (K_val - 1)
-            else:
-                f = 1
-            f_w_hat[i] = f
+            koval = (K_val - np.sqrt(K_val / t_D)) / (K_val - 1)
+            f_w_hat[i] = min(1, max(0, koval))
         return f_w_hat
