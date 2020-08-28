@@ -38,10 +38,10 @@ def water_cut_vs_time():
 def total_water_injected_and_predicted_water_cut():
     predictions_df = pd.read_csv(koval_predictions_file)
     predictions = predictions_df.loc[predictions_df['Step size'] == 2]
-    x = [0] * 74
-    y = [0] * 74
+    x = [0] * 30
+    y = [0] * 30
     for index, row in predictions.iterrows():
-        i = int(row['t_i'] - 77)
+        i = int(row['t_i'] - 121)
         x[i] = int(row['t_i'])
         y[i] = row['Prediction']
     plt.figure()
@@ -60,11 +60,11 @@ def total_water_injected_and_predicted_water_cut_dimensionless_time():
     V_p = 70289930.22889942
     predictions_df = pd.read_csv(koval_predictions_file)
     predictions = predictions_df.loc[predictions_df['Step size'] == 2]
-    x = [0] * 74
-    y = [0] * 74
-    t_D = [0] * 74
+    x = [0] * 30
+    y = [0] * 30
+    t_D = [0] * 30
     for index, row in predictions.iterrows():
-        i = int(row['t_i'] - 77)
+        i = int(row['t_i'] - 121)
         t_D[i] = (W_t[i]/ V_p)
         x[i] = int(row['t_i'])
         y[i] = row['Prediction']
