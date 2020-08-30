@@ -51,7 +51,7 @@ def total_water_injected_and_predicted_water_cut():
         FIG_DIR,
         xlabel='Time',
         ylabel='Estimated Water Cut',
-        legend=['Calculated', 'Data'],
+        legend=['Prediction, Step Size 2', 'Data'],
         save=True
     )
 
