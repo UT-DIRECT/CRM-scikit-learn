@@ -10,12 +10,12 @@ from .models import test_model
 TRAINING_SPLIT = 0.8
 
 
-def forward_walk_and_ML(X, y, step_size, model):
-    train_test_splits = forward_walk_splitter(X, y, step_size)
+def forward_walk_and_ML(X, y, step_size, model, training_split=TRAINING_SPLIT):
+    train_test_splits = forward_walk_splitter(X, y, step_size, training_split=training_split)
     return train_and_test_model(X, y, model, train_test_splits)
 
 
-def forward_walk_splitter(X, y, step_size):
+def forward_walk_splitter(X, y, step_size, training_split=TRAINING_SPLIT):
     length = len(X)
     split = []
     for i in range(length - 1):
@@ -35,7 +35,7 @@ def forward_walk_splitter(X, y, step_size):
             test_start, test_end, num=(test_end - test_start + 1)
         ).astype(int)
         split.append([train, test])
-    train_test_seperation_idx = (int(TRAINING_SPLIT * len(split)) + 1)
+    train_test_seperation_idx = (int(training_split * len(split)) + 1)
     train_split = split[:train_test_seperation_idx]
     test_split = split[train_test_seperation_idx:]
     return (train_split, test_split, train_test_seperation_idx)

@@ -31,7 +31,7 @@ class TestCRMT():
     def test_predict(self):
         X, y = production_rate_dataset(q, delta_time, inj)
         crmt = CRMT().fit(X, y)
-        X = np.array([q[1:], delta_time[1:], inj[1:]])
+        X = production_rate_dataset(q, delta_time, inj)[0]
         y_hat = crmt.predict(X)
         assert(y_hat is not None)
         assert(len(y_hat) == 4)

@@ -10,7 +10,7 @@ from src.models.koval import Koval
 
 X, y = koval_dataset(W_t, f_w)
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=1, shuffle=False
+    X, y, train_size=0.8, random_state=1, shuffle=False
 )
 koval = Koval().fit(X=X_train, y=y_train)
 

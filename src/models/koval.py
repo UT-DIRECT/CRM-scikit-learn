@@ -15,8 +15,10 @@ class Koval(BaseEstimator, RegressorMixin):
     def fit(self, X=None, y=None):
         X = X.reshape(-1, 1)
         X, y = check_X_y(X, y)
+        y = y[(y > 0.4)]
+        X = X[-len(y):]
         V_p, K_val = curve_fit(
-            self._koval_field, X, y, bounds=([1000, 1], [1000000, np.inf])
+            self._koval_field, X, y, bounds=([1e6, 0.1], [1e9, 100])
         )[0]
         self.V_p_ = V_p
         self.K_val_ = K_val
@@ -33,11 +35,6 @@ class Koval(BaseEstimator, RegressorMixin):
         f_w_hat = np.zeros(length)
         for i in range(length):
             t_D = W_t[i] / V_p
-            if t_D < (1 / K_val):
-                f = 0
-            elif (1 / K_val) < t_D < K_val:
-                f = (K_val - np.sqrt(K_val / t_D)) / (K_val - 1)
-            else:
-                f = 1
-            f_w_hat[i] = f
+            koval = (K_val - np.sqrt(K_val / t_D)) / (K_val - 1)
+            f_w_hat[i] = min(1, max(0, koval))
         return f_w_hat
