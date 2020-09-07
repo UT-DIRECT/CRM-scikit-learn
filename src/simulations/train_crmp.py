@@ -8,13 +8,10 @@ from src.data.read_crmp import (injectors, net_productions, producers,
          producer_names)
 from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
-from src.helpers.features import net_production_dataset, production_rate_dataset
+from src.helpers.features import (net_production_dataset,
+        production_rate_dataset, is_CV_model)
 from src.helpers.models import serialized_model_path
 from src.models.crmp import CRMP
-
-
-def is_CV_model(model):
-    return not (isinstance(model, LinearRegression) or isinstance(model, BayesianRidge) or isinstance(model, CRMP))
 
 
 # Production Rate Training
