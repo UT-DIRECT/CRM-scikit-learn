@@ -9,8 +9,8 @@ from src.data.read_crmp import (injectors, net_productions, producers,
 from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
 from src.helpers.features import (net_production_dataset,
-        production_rate_dataset, is_CV_model)
-from src.helpers.models import serialized_model_path
+        production_rate_dataset)
+from src.helpers.models import serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
 
 
