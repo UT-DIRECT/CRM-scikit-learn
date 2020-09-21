@@ -8,8 +8,6 @@ import dill as pickle
 from sklearn.linear_model import BayesianRidge, LinearRegression
 
 from src.helpers.analysis import fit_statistics
-from src.models.crmp import CRMP
-from src.models.crmt import CRMT
 
 
 TRAINED_MODEL_DIR = './models'
