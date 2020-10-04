@@ -9,8 +9,12 @@ from src.simulations import step_sizes
 from src.visualization import INPUTS
 
 
+q_fitting_file = INPUTS['crmp']['q_fitting']
 q_predictions_metrics_file = INPUTS['crmp']['q_predictions_metrics']
+q_predictions_file = INPUTS['crmp']['q_predictions']
+N_fitting_file = INPUTS['crmp']['N_fitting']
 N_predictions_metrics_file = INPUTS['crmp']['N_predictions_metrics']
+N_predictions_file = INPUTS['crmp']['N_predictions']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def producers_vs_time():
@@ -124,7 +128,7 @@ def net_production_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
-        'CRMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
+        'NetCRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
         'Lasso, mse', 'Elastic, mse'
     ]
     for i in range(len(producers)):
@@ -139,7 +143,7 @@ def net_production_estimators_and_time_steps():
             crmp_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
             elastic_mse
         ]
-        models = ['CRMP', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
+        models = ['NetCRM', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -159,7 +163,7 @@ def net_production_good_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
-        'CRMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
+        'NetCRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
     ]
     for i in range(len(producers)):
         producer = i + 1
@@ -170,7 +174,7 @@ def net_production_good_estimators_and_time_steps():
         heights = [
             crmp_mse, linear_regression_mse, bayesian_ridge_mse
         ]
-        models = ['CRMP', 'LinearRegression', 'BayesianRidge']
+        models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -184,14 +188,116 @@ def net_production_good_estimators_and_time_steps():
         bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel)
 
 
+def production_rate_with_predictions():
+    fitting_df = pd.read_csv(q_fitting_file)
+    predictions_df = pd.read_csv(q_predictions_file)
+    for i in range(len(producers)):
+        producer_number = i + 1
+        plt.figure()
+        fitting_producer = fitting_df.loc[
+            fitting_df['Producer'] == producer_number
+        ]
+        predictions_producer = predictions_df.loc[
+            predictions_df['Producer'] == producer_number
+        ]
+        producer = producers[i]
+        predictions_step_size_2 = predictions_producer.loc[
+            predictions_producer['Step size'] == 12
+        ]
+        models = ['CRMP', 'LinearRegression', 'BayesianRidge']
+        # models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
+        for model in models:
+            fitting = fitting_producer.loc[
+                fitting_producer['Model'] == model
+            ]
+            predictions = predictions_step_size_2.loc[
+                predictions_step_size_2['Model'] == model
+            ]
+            x = [0] * 29
+            y = [0] * 29
+            for index, row in predictions.iterrows():
+                k = int(row['t_i'] - 121)
+                x[k] = int(row['t_i'])
+                y[k] = row['Prediction']
+            x = fitting['t_i'].tolist() + x
+            y = fitting['Fit'].tolist() + y
+            plt.plot(x, y, linestyle='--', linewidth=2, alpha=0.6)
+        plt.axvline(x=120, color='k')
+        plt.plot(producer)
+        legend = models
+        legend.append('Predictions Start')
+        legend.append('Data')
+        plot_helper(
+            FIG_DIR,
+            title='Producer {}'.format(producer_number),
+            xlabel='Time',
+            ylabel='Production Rate Fitting and Predictions',
+            legend=legend,
+            save=True
+        )
+
+
+def net_production_with_predictions():
+    fitting_df = pd.read_csv(N_fitting_file)
+    predictions_df = pd.read_csv(N_predictions_file)
+    for i in range(len(producers)):
+        producer_number = i + 1
+        plt.figure()
+        fitting_producer = fitting_df.loc[
+            fitting_df['Producer'] == producer_number
+        ]
+        predictions_producer = predictions_df.loc[
+            predictions_df['Producer'] == producer_number
+        ]
+        net_production = net_productions[i]
+        predictions_step_size_2 = predictions_producer.loc[
+            predictions_producer['Step size'] == 12
+        ]
+        models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
+        # models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
+        graphs = []
+        for model in models:
+            fitting = fitting_producer.loc[
+                fitting_producer['Model'] == model
+            ]
+            predictions = predictions_step_size_2.loc[
+                predictions_step_size_2['Model'] == model
+            ]
+            x = [0] * 29
+            y = [0] * 29
+            for index, row in predictions.iterrows():
+                k = int(row['t_i'] - 121)
+                x[k] = int(row['t_i']) + 1
+                y[k] = row['Prediction']
+            graphs.append(y)
+            x = fitting['t_i'].tolist() + x
+            y = fitting['Fit'].tolist() + y
+            plt.plot(x, y, linestyle='--', linewidth=2, alpha=0.6)
+        plt.axvline(x=120, color='k')
+        plt.plot(net_production)
+        legend = models
+        legend.append('Predictions Start')
+        legend.append('Data')
+        plot_helper(
+            FIG_DIR,
+            title='Producer {}'.format(producer_number),
+            xlabel='Time',
+            ylabel='Net Production Predictions',
+            legend=legend,
+            save=True
+        )
+
+
 def animated_net_production_predictions():
     pass
 
 
-producers_vs_time()
-net_production_vs_time()
-producers_vs_injector()
-production_rate_estimators_and_time_steps()
-production_rate_good_estimators_and_time_steps()
-net_production_estimators_and_time_steps()
-net_production_good_estimators_and_time_steps()
+# producers_vs_time()
+# net_production_vs_time()
+# producers_vs_injector()
+# production_rate_estimators_and_time_steps()
+# production_rate_good_estimators_and_time_steps()
+# net_production_estimators_and_time_steps()
+# net_production_good_estimators_and_time_steps()
+# production_rate_with_predictions()
+net_production_with_predictions()

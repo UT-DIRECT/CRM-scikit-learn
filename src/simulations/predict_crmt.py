@@ -28,7 +28,7 @@ crmt_predictions = {
 crmt_predictions_metrics = {'Model': [], 'Step size': [], 'r2': [], 'MSE': []}
 
 
-# CRMT predictions
+# CRMT Predictions
 X, y = production_rate_dataset(q_tank, delta_time, w_tank)
 for step_size in step_sizes:
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
@@ -56,7 +56,7 @@ for step_size in step_sizes:
             crmt_predictions['Prediction'].append(y_i)
 
 
-# ML Model predictions
+# ML Model Predictions
 X, y = production_rate_dataset(
     q_tank, time, qo_tank, w_tank, q_tank
 )

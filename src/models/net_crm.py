@@ -25,7 +25,7 @@ class NetCRM(BaseEstimator, RegressorMixin):
         lower_bounds = np.zeros(n_gains + 1)
         lower_bounds[0] = 1
         upper_bounds = np.ones(n_gains + 1)
-        upper_bounds[0] = 30
+        upper_bounds[0] = 100
         self.bounds = np.array([lower_bounds, upper_bounds]).T.tolist()
         params = self._fit_production_rate(X, y)
         self.tau_ = params[0]
