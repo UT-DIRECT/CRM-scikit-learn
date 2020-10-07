@@ -3,6 +3,7 @@
     'data': './data/processed/crmp/CRMP_Corrected_July16_2018.csv'
     'figures_dir': './reports/figures/crmp/'
     'q_fitting': './data/processed/crmp/q_fitting.csv'
+    'q_sensitivity_analysis': './data/processed/crmp/q_sensitivity_analysis.csv'
     'q_predictions': './data/processed/crmp/q_predictions.csv'
     'q_predictions_metrics': './data/processed/crmp/q_predictions_metrics.csv'
     'N_fitting': './data/processed/crmp/N_fitting.csv'

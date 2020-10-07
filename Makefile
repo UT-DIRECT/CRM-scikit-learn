@@ -63,6 +63,10 @@ train-crmp:
 predict-crmp:
 	$(PYTHON) src.simulations.predict_crmp
 
+## Run Sensitivity Analysis on CRMP
+crmp-sensitivity-analysis:
+	$(PYTHON) src.simulations.crmp_sensitivity_analysis
+
 ## Make the CRMP plots
 crmp-plots:
 	$(PYTHON) src.visualization.visualize_crmp
