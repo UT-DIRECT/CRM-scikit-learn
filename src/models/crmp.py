@@ -18,8 +18,11 @@ class CRMP(BaseEstimator, RegressorMixin):
         self.X_ = X
         self.y_ = y
         n_gains = len(X) - 1
-        self.p0 = (1. / n_gains * np.ones(n_gains + 1))
-        self.p0[0] = 5
+        # self.p0 = (1. / n_gains * np.ones(n_gains + 1))
+        # self.p0[0] = 5
+        # # self.p0[0] = 1.5
+        # self.p0[1] = 0.6
+        # self.p0[2] = 0.4
         self._q2_constructor(n_gains)
         lower_bounds = np.zeros(n_gains + 1)
         lower_bounds[0] = 1
