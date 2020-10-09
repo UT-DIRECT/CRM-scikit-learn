@@ -55,4 +55,11 @@ N_2 = np.insert(N_2, 0, 0., axis=0)
 N_3 = np.insert(N_3, 0, 0., axis=0)
 N_4 = np.insert(N_4, 0, 0., axis=0)
 
+actual_parameters = {
+    1: [0.2, 0.8, 1.5],
+    2: [0.4, 0.6, 1],
+    3: [0.6, 0.4, 5],
+    4: [0.8, 0.2, 50]
+}
+
 q_predictions_output_file = INPUTS['crmp']['q_predictions']
