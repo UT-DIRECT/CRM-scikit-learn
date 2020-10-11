@@ -47,14 +47,6 @@ for i in range(len(producers)):
         pickled_model = serialized_model_path('crmp', model, producer_names[i])
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
-        if isinstance(model, CRMP):
-            print()
-            print()
-            print('Producer {}'.format(i + 1))
-            print('r2: ', r2_score(y_train, y_hat))
-            print()
-            print()
-            print()
 
 q_fitting_df = pd.DataFrame(q_fitting_data)
 q_fitting_df.to_csv(q_fitting_file)
