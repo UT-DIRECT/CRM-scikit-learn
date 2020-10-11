@@ -39,6 +39,7 @@ for i in range(len(producers)):
         model = model.fit(X_train, y_train)
         y_hat = model.predict(X_train)
         time = np.linspace(1, len(y_hat), num=len(y_hat))
+        # TODO: This is not the ideal location for getting this fitting data.
         for k in range(len(y_hat)):
             q_fitting_data['Producer'].append(i + 1)
             q_fitting_data['Model'].append(model_namer(model))
