@@ -37,23 +37,22 @@ features = read_crmp(data_file)
     Time, Fixed_inj1, Net_Fixed_inj1, Fixed_inj2, Net_Fixed_inj2, q_1, N_1,
     q_2, N_2, q_3, N_3, q_4, N_4
 ] = features
-q_1 = np.insert(q_1, 0, 0., axis=0)
-q_2 = np.insert(q_2, 0, 0., axis=0)
-q_3 = np.insert(q_3, 0, 0., axis=0)
-q_4 = np.insert(q_4, 0, 0., axis=0)
 
 producers = np.array([q_1, q_2, q_3, q_4])
+producers_new = []
+for i in range(len(producers)):
+    producers_new.append(_insert_zero(producers[i]))
+producers = np.array(producers_new)
+
 producer_names = [
     'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
 ]
 injectors = np.array([Fixed_inj1, Fixed_inj2])
-net_productions = np.array([
-    N_1, N_2, N_3, N_4
-])
-N_1 = np.insert(N_1, 0, 0., axis=0)
-N_2 = np.insert(N_2, 0, 0., axis=0)
-N_3 = np.insert(N_3, 0, 0., axis=0)
-N_4 = np.insert(N_4, 0, 0., axis=0)
+net_productions = np.array([N_1, N_2, N_3, N_4])
+net_productions_new = []
+for i in range(len(net_productions)):
+    net_productions_new.append(_insert_zero(net_productions[i]))
+net_productions = np.array(net_productions_new)
 
 actual_parameters = {
     1: [0.2, 0.8, 1.5],
