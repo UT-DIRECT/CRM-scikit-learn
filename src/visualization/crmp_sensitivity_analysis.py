@@ -4,13 +4,20 @@ import numpy as np
 import pandas as pd
 
 
-from src.data.read_crmp import actual_parameters, producers
+from src.data.read_crmp import producers
 from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
 
 
 q_sensitivity_analysis_file = INPUTS['crmp']['q_sensitivity_analysis']
 FIG_DIR = INPUTS['crmp']['figures_dir']
+
+true_parameters = {
+    1: [0.2, 0.8, 1.5],
+    2: [0.4, 0.6, 1],
+    3: [0.6, 0.4, 5],
+    4: [0.8, 0.2, 50]
+}
 
 
 def plot_parameter_convergence():
@@ -29,10 +36,10 @@ def plot_parameter_convergence():
         x = np.array([x_i, x_f]).T
         y = np.array([y_i, y_f]).T
         z = np.array([z_i, z_f]).T
-        actual_params = actual_parameters[producer]
-        x_true = actual_params[0]
-        y_true = actual_params[1]
-        z_true = actual_params[2]
+        true_params = true_parameters[producer]
+        x_true = true_params[0]
+        y_true = true_params[1]
+        z_true = true_params[2]
         initial = ax.scatter(x_i, y_i, z_i, s=40, c='g', marker='o', label='Initial')
         final = ax.scatter(x_f, y_f, z_f, s=40, c='r', marker='x', label='Final')
         for i in range(len(x)):
@@ -48,7 +55,6 @@ def plot_parameter_convergence():
         ax.set_xlabel('f1', fontsize=12)
         ax.set_ylabel('f2', fontsize=12)
         ax.set_zlabel('tau', fontsize=12)
-        # ax.legend(bbox_to_anchor=(1.04, 1))
         ax.legend(handles=[actual, initial, final], loc="lower left")
         filename = 'producer_{}_initial_parameter_values_with_convergence'.format(producer)
         fig_file = '{}/{}'.format(FIG_DIR, filename)

@@ -54,11 +54,4 @@ for i in range(len(net_productions)):
     net_productions_new.append(_insert_zero(net_productions[i]))
 net_productions = np.array(net_productions_new)
 
-actual_parameters = {
-    1: [0.2, 0.8, 1.5],
-    2: [0.4, 0.6, 1],
-    3: [0.6, 0.4, 5],
-    4: [0.8, 0.2, 50]
-}
-
 q_predictions_output_file = INPUTS['crmp']['q_predictions']
