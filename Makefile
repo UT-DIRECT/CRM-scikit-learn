@@ -68,7 +68,7 @@ crmp-sensitivity-analysis:
 	$(PYTHON) src.simulations.crmp_sensitivity_analysis
 
 ## Plot Sensitivity Analysis results for CRMP
-plot-crmp-sensitivity-analysis:
+crmp-sensitivity-analysis-plot:
 	$(PYTHON) src.visualization.crmp_sensitivity_analysis
 
 ## Make the CRMP plots
