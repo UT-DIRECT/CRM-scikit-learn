@@ -8,8 +8,8 @@ from sklearn.utils.validation import check_X_y, check_is_fitted
 class CRMP(BaseEstimator, RegressorMixin):
 
 
-    def __init__(self):
-        return
+    def __init__(self, p0=0):
+        self.p0 = p0
 
 
     def fit(self, X=None, y=None):
@@ -17,22 +17,28 @@ class CRMP(BaseEstimator, RegressorMixin):
         X = X.T
         self.X_ = X
         self.y_ = y
-        n_gains = len(X) - 1
-        # self.p0 = (1. / n_gains * np.ones(n_gains + 1))
-        # self.p0[0] = 5
-        # # self.p0[0] = 1.5
-        # self.p0[1] = 0.6
-        # self.p0[2] = 0.4
-        self._q2_constructor(n_gains)
-        lower_bounds = np.zeros(n_gains + 1)
-        lower_bounds[0] = 1
-        upper_bounds = np.ones(n_gains + 1)
-        upper_bounds[0] = 100
-        self.bounds = np.array([lower_bounds, upper_bounds]).T.tolist()
+        self.n_gains = len(X) - 1
+        self.ensure_p0()
+        self._q2_constructor()
         params = self._fit_production_rate(X, y)
         self.tau_ = params[0]
         self.gains_ = params[1:]
         return self
+
+
+    def ensure_p0(self):
+        if self.p0 == 0:
+            self.p0 = (1. / self.n_gains * np.ones(self.n_gains + 1))
+            self.p0[0] = 5
+
+
+    @property
+    def bounds(self):
+        lower_bounds = np.zeros(self.n_gains + 1)
+        lower_bounds[0] = 1
+        upper_bounds = np.ones(self.n_gains + 1)
+        upper_bounds[0] = 100
+        return np.array([lower_bounds, upper_bounds]).T.tolist()
 
 
     def predict(self, X):
@@ -41,8 +47,8 @@ class CRMP(BaseEstimator, RegressorMixin):
         return self.q2(X, self.tau_, *self.gains_)
 
 
-    def _q2_constructor(self, n_gains):
-        gains = ['f{}'.format(i + 1) for i in range(n_gains)]
+    def _q2_constructor(self):
+        gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         _q2 = 'lambda X, tau'
 
         for gain in gains:
