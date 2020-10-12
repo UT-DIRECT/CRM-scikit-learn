@@ -4,7 +4,7 @@ import pandas as pd
 
 from src.data.read_wfsim import (q_tank, Q_t, qo_tank, Qo_t, qw_tank, Qw_t,
     time, w_tank)
-from src.helpers.figures import bar_plot_formater, plot_helper
+from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
 
@@ -93,16 +93,33 @@ def production_rate_estimation_and_time_step():
     x_labels = [int(step_size) for step_size in step_sizes]
     predictions_metrics_df = pd.read_csv(crmt_predictions_metrics_file)
     x = np.arange(len(x_labels))
-    width = 0.25
-    heights = []
-    for i in range(len(step_sizes)):
-        height = predictions_metrics_df.loc[predictions_metrics_df['Step size'] == step_sizes[i]]['MSE']
-        heights.append(float(height))
-    plt.bar(x, heights, width, label='CRMT, mse', alpha=0.5)
+    width = 0.15
+    bar_labels = [
+        'CRMT, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
+        'Lasso, mse', 'Elastic, mse'
+    ]
+    crmt_mse = []
+    linear_regression_mse = []
+    bayesian_ridge_mse = []
+    lasso_mse = []
+    elastic_mse = []
+    heights = [
+        crmt_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
+        elastic_mse
+    ]
+    models = ['CRMT', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
+    for i in range(len(models)):
+        mses = predictions_metrics_df.loc[
+            predictions_metrics_df['Model'] == models[i]
+        ]
+        for step_size in step_sizes:
+            height = mses.loc[mses['Step size'] == step_sizes[i]]['MSE']
+            heights[i].append(float(height))
     title = 'CRMT Production Estimators'
     xlabel = 'Step Size'
     ylabel = 'Mean Squared Error'
-    bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel, legend=False)
+    bar_plot_helper(width, x, x_labels, bar_labels, heights)
+    bar_plot_formater(FIG_DIR, x, x_labels, title, xlabel, ylabel)
 
 
 production_rate_vs_time()

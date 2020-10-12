@@ -1,8 +1,11 @@
+from abc import ABCMeta
 from os import listdir
 from os.path import isfile, join
 
 import pickle
 import dill as pickle
+
+from sklearn.linear_model import BayesianRidge, LinearRegression
 
 from src.helpers.analysis import fit_statistics
 
@@ -65,3 +68,9 @@ def test_model(X, y, model, test_split):
     r2 = r2_sum / length
     mse = mse_sum / length
     return (r2, mse, y_hat, time_step)
+
+
+def is_CV_model(model):
+    if type(model) == ABCMeta:
+        return True
+    return False

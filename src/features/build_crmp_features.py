@@ -13,9 +13,10 @@ df.columns = [
     'Time', 'Fixed_inj1', 'Fixed_inj2',
     'Prod1', 'Prod2', 'Prod3', 'Prod4'
 ]
-columns = df.columns[1:]
-for column in columns:
-    df[column] = white_noise(df[column])
+# columns = df.columns[1:]
+# for column in columns:
+#     df[column] = white_noise(df[column])
+
 
 df.insert(2, 'Net_Fixed_inj1', net_flow(df['Fixed_inj1']))
 df.insert(4, 'Net_Fixed_inj2', net_flow(df['Fixed_inj2']))

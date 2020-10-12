@@ -4,6 +4,11 @@ import yaml
 from src.config import INPUTS
 
 
+def _insert_zero(column):
+    column = np.insert(column, 0, 0., axis=0)
+    return column
+
+
 def read_crmp(data_file):
     data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
     Time = data[0]
@@ -34,12 +39,19 @@ features = read_crmp(data_file)
 ] = features
 
 producers = np.array([q_1, q_2, q_3, q_4])
+producers_new = []
+for i in range(len(producers)):
+    producers_new.append(_insert_zero(producers[i]))
+producers = np.array(producers_new)
+
 producer_names = [
     'Producer 1', 'Producer 2', 'Producer 3', 'Producer 4'
 ]
 injectors = np.array([Fixed_inj1, Fixed_inj2])
-net_productions = np.array([
-    N_1, N_2, N_3, N_4
-])
+net_productions = np.array([N_1, N_2, N_3, N_4])
+net_productions_new = []
+for i in range(len(net_productions)):
+    net_productions_new.append(_insert_zero(net_productions[i]))
+net_productions = np.array(net_productions_new)
 
 q_predictions_output_file = INPUTS['crmp']['q_predictions']
