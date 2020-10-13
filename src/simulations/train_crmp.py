@@ -16,7 +16,7 @@ from src.helpers.features import (net_production_dataset,
         production_rate_dataset)
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
-from src.models.net_crm import NetCRM
+from src.models.icrmp import IRCMP
 
 
 # Production Rate Training
@@ -60,7 +60,7 @@ N_fitting_data = {
 }
 for i in range(len(producers)):
     models = [
-        BayesianRidge(), NetCRM(), ElasticNetCV, LassoCV, LinearRegression()
+        BayesianRidge(), IRCMP(), ElasticNetCV, LassoCV, LinearRegression()
     ]
     X, y = net_production_dataset(net_productions[i], producers[i], *injectors)
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y, 2)
@@ -79,7 +79,7 @@ for i in range(len(producers)):
             N_fitting_data['t_i'].append(k + 1)
             N_fitting_data['Fit'].append(y_hat[k])
         pickled_model = serialized_model_path(
-            'net_crm', model, 'Net {}'.format(producer_names[i])
+            'icrmp', model, 'Integrated {}'.format(producer_names[i])
         )
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)

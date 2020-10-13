@@ -128,7 +128,7 @@ def net_production_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
-        'NetCRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
+        'IRCMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse',
         'Lasso, mse', 'Elastic, mse'
     ]
     for i in range(len(producers)):
@@ -143,7 +143,7 @@ def net_production_estimators_and_time_steps():
             crmp_mse, linear_regression_mse, bayesian_ridge_mse, lasso_mse,
             elastic_mse
         ]
-        models = ['NetCRM', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
+        models = ['IRCMP', 'LinearRegression', 'BayesianRidge', 'Lasso', 'ElasticNet']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -163,7 +163,7 @@ def net_production_good_estimators_and_time_steps():
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
-        'NetCRM, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
+        'IRCMP, mse', 'Linear Regression, mse', 'Bayesian Ridge, mse'
     ]
     for i in range(len(producers)):
         producer = i + 1
@@ -174,7 +174,7 @@ def net_production_good_estimators_and_time_steps():
         heights = [
             crmp_mse, linear_regression_mse, bayesian_ridge_mse
         ]
-        models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
+        models = ['IRCMP', 'LinearRegression', 'BayesianRidge']
         for i in range(len(models)):
             mses = producer_rows_df.loc[producer_rows_df['Model'] == models[i]]
             for step_size in step_sizes:
@@ -205,7 +205,7 @@ def production_rate_with_predictions():
             predictions_producer['Step size'] == 12
         ]
         models = ['CRMP', 'LinearRegression', 'BayesianRidge']
-        # models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
+        # models = ['IRCMP', 'LinearRegression', 'BayesianRidge']
         for model in models:
             fitting = fitting_producer.loc[
                 fitting_producer['Model'] == model
@@ -253,8 +253,8 @@ def net_production_with_predictions():
         predictions_step_size_2 = predictions_producer.loc[
             predictions_producer['Step size'] == 12
         ]
-        models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
-        # models = ['NetCRM', 'LinearRegression', 'BayesianRidge']
+        models = ['IRCMP', 'LinearRegression', 'BayesianRidge']
+        # models = ['IRCMP', 'LinearRegression', 'BayesianRidge']
         graphs = []
         for model in models:
             fitting = fitting_producer.loc[
