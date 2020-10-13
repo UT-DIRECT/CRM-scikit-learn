@@ -8,7 +8,7 @@ from sklearn.utils.validation import check_X_y, check_is_fitted
 class CRMP(BaseEstimator, RegressorMixin):
 
 
-    def __init__(self, p0=0):
+    def __init__(self, p0=[]):
         self.p0 = p0
 
 
@@ -27,7 +27,7 @@ class CRMP(BaseEstimator, RegressorMixin):
 
 
     def ensure_p0(self):
-        if self.p0 == 0:
+        if self.p0 == []:
             self.p0 = (1. / self.n_gains * np.ones(self.n_gains + 1))
             self.p0[0] = 5
 
