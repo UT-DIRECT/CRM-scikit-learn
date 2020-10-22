@@ -75,6 +75,24 @@ crmp-sensitivity-analysis-plot:
 crmp-plots:
 	$(PYTHON) src.visualization.visualize_crmp
 
+## Entire ICRMP workflow
+icrmp: simulate-icrmp icrmp-plots
+
+## Run the ICRMP models
+simulate-icrmp: train-icrmp predict-icrmp
+
+## Run and train ICRMP
+train-icrmp:
+	$(PYTHON) src.simulations.train_icrmp
+
+## Run ICRMP to make predictions
+predict-icrmp:
+	$(PYTHON) src.simulations.predict_icrmp
+
+## Make the ICRMP plots
+icrmp-plots:
+	$(PYTHON) src.visualization.visualize_icrmp
+
 ## Entire CRMT workflow
 crmt: simulate-crmt crmt-plots
 
