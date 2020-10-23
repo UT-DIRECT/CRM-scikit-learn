@@ -17,7 +17,7 @@ from src.helpers.features import (net_production_dataset,
         production_rate_dataset)
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
-from src.models.icrmp import IRCMP
+from src.models.icrmp import ICRMP
 
 
 # Net Production Training
@@ -27,7 +27,7 @@ N_fitting_data = {
 }
 for i in range(len(producers)):
     models = [
-        BayesianRidge(), IRCMP(), ElasticNetCV, LassoCV, LinearRegression()
+        BayesianRidge(), ICRMP(), ElasticNetCV, LassoCV, LinearRegression()
     ]
     X, y = net_production_dataset(net_productions[i], producers[i], *injectors)
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y, 2)

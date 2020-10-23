@@ -7,7 +7,7 @@ from src.helpers.features import production_rate_dataset
 from src.models.crmp import CRMP
 
 
-class IRCMP(CRMP):
+class ICRMP(CRMP):
 
 
     def fit(self, X=None, y=None):

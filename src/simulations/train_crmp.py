@@ -16,7 +16,7 @@ from src.helpers.features import (net_production_dataset,
         production_rate_dataset)
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
-from src.models.icrmp import IRCMP
+from src.models.icrmp import ICRMP
 
 
 # Production Rate Training
