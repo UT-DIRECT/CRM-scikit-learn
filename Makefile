@@ -22,7 +22,7 @@ endif
 #################################################################################
 
 ## Default commands
-default: crmp crmt koval
+default: crmp koval
 
 ## Install Python Dependencies
 # run `conda activate $(PROJECT_NAME)` before running this command
@@ -44,10 +44,10 @@ wfsim-features:
 	$(PYTHON) src.features.build_wfsim_features
 
 ## Rum all the models
-simulate: simulate-crmp simulate-crmt simulate-koval
+simulate: simulate-crmp simulate-koval
 
 ## Run all the plots
-plots: crmp-plots crmt-plots koval-plots
+plots: crmp-plots koval-plots
 
 ## Entire CRMP workflow
 crmp: simulate-crmp crmp-plots
@@ -73,7 +73,7 @@ crmp-sensitivity-analysis-plot:
 
 ## Make the CRMP plots
 crmp-plots:
-	$(PYTHON) src.visualization.visualize_crmp
+	$(PYTHON) src.visualization.crmp
 
 ## Entire ICRMP workflow
 icrmp: simulate-icrmp icrmp-plots
@@ -91,7 +91,7 @@ predict-icrmp:
 
 ## Make the ICRMP plots
 icrmp-plots:
-	$(PYTHON) src.visualization.visualize_icrmp
+	$(PYTHON) src.visualization.icrmp
 
 ## Entire Koval workflow
 koval: simulate-koval koval-plots
@@ -107,7 +107,7 @@ predict-koval:
 
 ## Make the Koval plots
 koval-plots:
-	$(PYTHON) src.visualization.visualize_koval
+	$(PYTHON) src.visualization.koval
 
 ## Run tests
 test:
