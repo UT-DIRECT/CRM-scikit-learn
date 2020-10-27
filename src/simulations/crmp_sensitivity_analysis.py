@@ -10,7 +10,7 @@ from src.helpers.analysis import fit_statistics
 from src.helpers.features import production_rate_dataset
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
-from src.models.net_crm import NetCRM
+from src.models.icrmp import ICRMP
 
 
 q_sensitivity_analysis_file = INPUTS['crmp']['q_sensitivity_analysis']
