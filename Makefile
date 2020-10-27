@@ -93,22 +93,6 @@ predict-icrmp:
 icrmp-plots:
 	$(PYTHON) src.visualization.visualize_icrmp
 
-## Entire CRMT workflow
-crmt: simulate-crmt crmt-plots
-
-## Run the CRMT models
-simulate-crmt: train-crmt predict-crmt
-
-train-crmt:
-	$(PYTHON) src.simulations.train_crmt
-
-predict-crmt:
-	$(PYTHON) src.simulations.predict_crmt
-
-## Make the CRMT plots
-crmt-plots:
-	$(PYTHON) src.visualization.visualize_crmt
-
 ## Entire Koval workflow
 koval: simulate-koval koval-plots
 
