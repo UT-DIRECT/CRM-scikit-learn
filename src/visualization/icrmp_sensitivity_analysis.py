@@ -7,7 +7,7 @@ from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
 
 
-q_sensitivity_analysis_file = INPUTS['crmp']['q_sensitivity_analysis']
+N_sensitivity_analysis_file = INPUTS['crmp']['N_sensitivity_analysis']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 true_parameters = {
@@ -19,11 +19,11 @@ true_parameters = {
 
 
 def plot_parameter_convergence():
-    q_sensitivity_analysis_df = pd.read_csv(q_sensitivity_analysis_file)
+    N_sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
     for i in range(len(producers)):
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
-        producer_rows_df = q_sensitivity_analysis_df.loc[q_sensitivity_analysis_df['Producer'] == producer]
+        producer_rows_df = N_sensitivity_analysis_df.loc[N_sensitivity_analysis_df['Producer'] == producer]
         x_i = producer_rows_df['f1_initial']
         x_f = producer_rows_df['f1_final']
         y_i = producer_rows_df['tau_initial']
@@ -42,7 +42,7 @@ def plot_parameter_convergence():
             label='Actual'
         )
         plt.title(
-            'CRMP Producer {}: Initial Parameter Values with Convergence'.format(producer),
+            'ICRMP Producer {}: Initial Parameter Values with Convergence'.format(producer),
             fontsize=14,
         )
         plt.xlabel('f1', fontsize=12)
@@ -53,7 +53,7 @@ def plot_parameter_convergence():
             loc="upper left"
         )
         plt.tight_layout()
-        filename = 'producer_{}_initial_parameter_values_with_convergence'.format(producer)
+        filename = 'icrmp_producer_{}_initial_parameter_values_with_convergence'.format(producer)
         fig_file = '{}/{}'.format(FIG_DIR, filename)
         plt.savefig(fig_file)
 

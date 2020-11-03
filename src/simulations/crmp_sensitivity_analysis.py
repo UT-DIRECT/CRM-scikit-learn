@@ -10,7 +10,6 @@ from src.helpers.analysis import fit_statistics
 from src.helpers.features import production_rate_dataset
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
-from src.models.icrmp import ICRMP
 
 
 q_sensitivity_analysis_file = INPUTS['crmp']['q_sensitivity_analysis']
@@ -28,7 +27,6 @@ for i in tau:
     for j in range(len(f1)):
         p0s.append([i, f1[j], f2[j]])
 
-iterations = 0
 for i in range(len(producers)):
     X, y = production_rate_dataset(producers[i], *injectors)
     X_train, X_test, y_train, y_test = train_test_split(

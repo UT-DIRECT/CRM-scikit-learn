@@ -93,6 +93,14 @@ predict-icrmp:
 icrmp-plots:
 	$(PYTHON) src.visualization.icrmp
 
+## Run Sensitivity Analysis on CRMP
+icrmp-sensitivity-analysis:
+	$(PYTHON) src.simulations.icrmp_sensitivity_analysis
+
+## Plot Sensitivity Analysis results for CRMP
+icrmp-sensitivity-analysis-plot:
+	$(PYTHON) src.visualization.icrmp_sensitivity_analysis
+
 ## Entire Koval workflow
 koval: simulate-koval koval-plots
 
