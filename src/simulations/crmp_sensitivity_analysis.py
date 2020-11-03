@@ -1,14 +1,13 @@
 import numpy as np
 import pandas as pd
 
-from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
 from src.data.read_crmp import injectors, producers, producer_names
 from src.helpers.analysis import fit_statistics
 from src.helpers.features import production_rate_dataset
-from src.helpers.models import model_namer, serialized_model_path, is_CV_model
+from src.helpers.models import model_namer
 from src.models.crmp import CRMP
 
 
