@@ -41,21 +41,22 @@ def plot_parameter_convergence():
             x_true, y_true, s=200, c='b', marker='X',
             label='Actual'
         )
-        plt.title(
-            'CRMP Producer {}: Initial Parameter Values with Convergence'.format(producer),
-            fontsize=14,
-        )
-        plt.xlabel('f1', fontsize=12)
-        plt.ylabel('tau', fontsize=12)
+        title = 'CRMP Producer {}: Initial Parameter Values with Convergence'.format(producer)
+        xlabel ='f1'
+        ylabel ='tau'
         plt.legend(
             handles=[actual, initial, final],
             bbox_to_anchor=(1.04, 1),
             loc="upper left"
         )
         plt.tight_layout()
-        filename = 'producer_{}_initial_parameter_values_with_convergence'.format(producer)
-        fig_file = '{}/{}'.format(FIG_DIR, filename)
-        plt.savefig(fig_file)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
 
 
 plot_parameter_convergence()
