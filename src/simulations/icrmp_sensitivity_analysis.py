@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 from src.config import INPUTS
 from src.data.read_crmp import (injectors, net_productions, producers,
          producer_names)
 from src.helpers.analysis import fit_statistics
+from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset
 from src.helpers.models import model_namer
 from src.models.icrmp import ICRMP
@@ -19,20 +20,29 @@ N_sensitivity_analysis_data = {
     'r2': [], 'MSE': []
 }
 
-f1 = np.linspace(0, 1, 6)
-f2 = np.ones(6) - f1
-tau = np.linspace(1, 100, 10)
-p0s = []
+f1 = np.linspace(0, 1, 11)
+f2 = np.ones(11) - f1
+tau = np.linspace(1, 100, 100)
+# TODO: I might be able to construct this using a meshgrid
+param_grid = {'p0': []}
 for i in tau:
     for j in range(len(f1)):
-        p0s.append([i, f1[j], f2[j]])
+        param_grid['p0'].append([i, f1[j], f2[j]])
 
 for i in range(len(producers)):
     X, y = net_production_dataset(net_productions[i], producers[i], *injectors)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, train_size=0.8, random_state=1, shuffle=False
+    train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
+        X, y, 2
     )
-    for p0 in p0s:
+    X_train = X[:train_test_seperation_idx]
+    y_train = y[:train_test_seperation_idx]
+    X_test = X[train_test_seperation_idx:]
+    y_test = y[train_test_seperation_idx:]
+    # icrmp_cv = GridSearchCV(ICRMP(), param_grid, cv=None)
+    # icrmp_cv.fit(X_train, y_train)
+    # print(icrmp_cv.best_params_)
+    # print(icrmp_cv.best_score_)
+    for p0 in param_grid['p0']:
         icrmp = ICRMP(p0=p0)
         icrmp = icrmp.fit(X_train, y_train)
         y_hat = icrmp.predict(X_train)
