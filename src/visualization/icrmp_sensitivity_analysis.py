@@ -65,18 +65,17 @@ def initial_guesses_and_mean_squared_error():
         producer = i + 1
         producer_rows_df = N_sensitivity_analysis_df.loc[N_sensitivity_analysis_df['Producer'] == producer]
         x = producer_rows_df['f1_initial'].to_numpy()
-        x = np.reshape(x, (100, 11))
+        x = np.reshape(x, (101, 11))
         y = producer_rows_df['tau_initial'].to_numpy()
-        y = np.reshape(y, (100, 11))
+        y = np.reshape(y, (101, 11))
         z = producer_rows_df['MSE'].to_numpy()
         # z = np.sqrt(z)
         z = np.log(z)
-        z = np.reshape(z, (100, 11))
+        z = np.reshape(z, (101, 11))
         plt.contourf(x, y, z)
         plt.colorbar()
         x, y = true_parameters[producer]
         actual = plt.scatter(x, y, c='red', label='Actual')
-        plt.ylim(1, 100)
         plt.legend(handles=[actual])
         title = 'ICRMP: Producer {} Intial Guesses with ln(MSE)'.format(producer)
         xlabel = 'f1'

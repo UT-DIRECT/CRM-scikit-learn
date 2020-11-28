@@ -22,7 +22,7 @@ q_sensitivity_analysis_data = {
 
 f1 = np.linspace(0, 1, 11)
 f2 = np.ones(11) - f1
-tau = np.linspace(1, 100, 100)
+tau = np.linspace(0.01, 100, 101)
 # TODO: I might be able to construct this using a meshgrid
 param_grid = {'p0': []}
 for i in tau:
