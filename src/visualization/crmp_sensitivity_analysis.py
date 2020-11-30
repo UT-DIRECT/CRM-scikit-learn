@@ -22,6 +22,11 @@ true_parameters = {
     4: [0.8, 50]
 }
 
+number_of_time_constants = 101
+number_of_gains = 11
+xlabel ='f1'
+ylabel ='tau'
+
 
 def _producer_rows_from_df(df, producer):
     return df.loc[df['Producer'] == producer]
@@ -38,13 +43,13 @@ def _initial_and_final_parameters_from_df(df):
 
 
 def _contour_parameters(df):
-    x = producer_rows_df['f1_initial'].to_numpy()
-    x = np.reshape(x, (101, 11))
-    y = producer_rows_df['tau_initial'].to_numpy()
-    y = np.reshape(y, (101, 11))
-    z = producer_rows_df['MSE'].to_numpy()
+    x = df['f1_initial'].to_numpy()
+    x = np.reshape(x, (number_of_time_constants, number_of_gains))
+    y = df['tau_initial'].to_numpy()
+    y = np.reshape(y, (number_of_time_constants, number_of_gains))
+    z = df['MSE'].to_numpy()
     z = np.log(z)
-    z = np.reshape(z, (101, 11))
+    z = np.reshape(z, (number_of_time_constants, number_of_gains))
     return (x, y, z)
 
 
@@ -69,8 +74,6 @@ def plot_parameter_convergence_fitting():
             label='Actual'
         )
         title = 'CRMP Fitting: Producer {} Initial Parameter Values with Convergence'.format(producer)
-        xlabel ='f1'
-        ylabel ='tau'
         plt.legend(
             handles=[actual, initial, final],
             bbox_to_anchor=(1.04, 1),
@@ -107,8 +110,6 @@ def plot_parameter_convergence_prediction():
             label='Actual'
         )
         title = 'CRMP Prediction: Producer {} Initial Parameter Values with Convergence'.format(producer)
-        xlabel ='f1'
-        ylabel ='tau'
         plt.legend(
             handles=[actual, initial, final],
             bbox_to_anchor=(1.04, 1),
@@ -139,8 +140,6 @@ def initial_guesses_and_mean_squared_error_fitting():
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'CRMP Fitting: Producer {} Intial Guesses with ln(MSE)'.format(producer)
-        xlabel = 'f1'
-        ylabel = 'Tau'
         plot_helper(
             FIG_DIR,
             title=title,
@@ -165,8 +164,6 @@ def initial_guesses_and_mean_squared_error_prediction():
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'CRMP Prediction: Producer {} Intial Guesses with ln(MSE)'.format(producer)
-        xlabel = 'f1'
-        ylabel = 'Tau'
         plot_helper(
             FIG_DIR,
             title=title,
