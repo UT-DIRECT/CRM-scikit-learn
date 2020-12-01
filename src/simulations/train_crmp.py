@@ -20,8 +20,8 @@ from src.models.icrmp import ICRMP
 
 
 # Production Rate Training
-q_fitting_file = INPUTS['crmp']['q_fitting']
-q_fitting_data = {
+output_file = INPUTS['crmp']['crmp']['fit']['fit']
+data = {
     'Producer': [], 'Model': [], 't_i': [], 'Fit': []
 }
 for i in range(len(producers)):
@@ -41,13 +41,13 @@ for i in range(len(producers)):
         time = np.linspace(1, len(y_hat), num=len(y_hat))
         # TODO: This is not the ideal location for getting this fitting data.
         for k in range(len(y_hat)):
-            q_fitting_data['Producer'].append(i + 1)
-            q_fitting_data['Model'].append(model_namer(model))
-            q_fitting_data['t_i'].append(k + 1)
-            q_fitting_data['Fit'].append(y_hat[k])
+            data['Producer'].append(i + 1)
+            data['Model'].append(model_namer(model))
+            data['t_i'].append(k + 1)
+            data['Fit'].append(y_hat[k])
         pickled_model = serialized_model_path('crmp', model, producer_names[i])
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
 
-q_fitting_df = pd.DataFrame(q_fitting_data)
-q_fitting_df.to_csv(q_fitting_file)
+fit = pd.DataFrame(data)
+fit.to_csv(output_file)

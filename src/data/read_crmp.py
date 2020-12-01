@@ -53,5 +53,3 @@ net_productions_new = []
 for i in range(len(net_productions)):
     net_productions_new.append(_insert_zero(net_productions[i]))
 net_productions = np.array(net_productions_new)
-
-q_predictions_output_file = INPUTS['crmp']['q_predictions']

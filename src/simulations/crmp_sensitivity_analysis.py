@@ -13,14 +13,14 @@ from src.helpers.models import model_namer, test_model
 from src.models.crmp import CRMP
 
 
-q_fitting_sensitivity_analysis_file = INPUTS['crmp']['q_fitting_sensitivity_analysis']
-q_predictions_sensitivity_analysis_file = INPUTS['crmp']['q_predictions_sensitivity_analysis']
-q_fitting_sensitivity_analysis_data = {
+fit_ouput_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
+predict_output_file = INPUTS['crmp']['crmp']['predict']['sensitivity_analysis']
+fit_data = {
     'Producer': [], 'Model': [], 'tau_initial': [], 'tau_final': [],
     'f1_initial': [], 'f1_final': [], 'f2_initial': [], 'f2_final': [],
     'r2': [], 'MSE': []
 }
-q_predictions_sensitivity_analysis_data = {
+predict_data = {
     'Producer': [], 'Model': [], 'tau_initial': [], 'tau_final': [],
     'f1_initial': [], 'f1_final': [], 'f2_initial': [], 'f2_final': [],
     'r2': [], 'MSE': []
@@ -51,34 +51,34 @@ for i in range(len(producers)):
         # Fitting
         y_hat = crmp.predict(X_train)
         r2, mse = fit_statistics(y_hat, y_train)
-        q_fitting_sensitivity_analysis_data['Producer'].append(i + 1)
-        q_fitting_sensitivity_analysis_data['Model'].append(model_namer(crmp))
-        q_fitting_sensitivity_analysis_data['tau_initial'].append(p0[0])
-        q_fitting_sensitivity_analysis_data['tau_final'].append(crmp.tau_)
-        q_fitting_sensitivity_analysis_data['f1_initial'].append(p0[1])
-        q_fitting_sensitivity_analysis_data['f1_final'].append(crmp.gains_[0])
-        q_fitting_sensitivity_analysis_data['f2_initial'].append(p0[2])
-        q_fitting_sensitivity_analysis_data['f2_final'].append(crmp.gains_[1])
-        q_fitting_sensitivity_analysis_data['r2'].append(r2)
-        q_fitting_sensitivity_analysis_data['MSE'].append(mse)
+        fit_data['Producer'].append(i + 1)
+        fit_data['Model'].append(model_namer(crmp))
+        fit_data['tau_initial'].append(p0[0])
+        fit_data['tau_final'].append(crmp.tau_)
+        fit_data['f1_initial'].append(p0[1])
+        fit_data['f1_final'].append(crmp.gains_[0])
+        fit_data['f2_initial'].append(p0[2])
+        fit_data['f2_final'].append(crmp.gains_[1])
+        fit_data['r2'].append(r2)
+        fit_data['MSE'].append(mse)
 
         # Prediction
         r2, mse, y_hat, time_step = test_model(X, y, crmp, test_split)
-        q_predictions_sensitivity_analysis_data['Producer'].append(i + 1)
-        q_predictions_sensitivity_analysis_data['Model'].append(model_namer(crmp))
-        q_predictions_sensitivity_analysis_data['tau_initial'].append(p0[0])
-        q_predictions_sensitivity_analysis_data['tau_final'].append(crmp.tau_)
-        q_predictions_sensitivity_analysis_data['f1_initial'].append(p0[1])
-        q_predictions_sensitivity_analysis_data['f1_final'].append(crmp.gains_[0])
-        q_predictions_sensitivity_analysis_data['f2_initial'].append(p0[2])
-        q_predictions_sensitivity_analysis_data['f2_final'].append(crmp.gains_[1])
-        q_predictions_sensitivity_analysis_data['r2'].append(r2)
-        q_predictions_sensitivity_analysis_data['MSE'].append(mse)
+        predict_data['Producer'].append(i + 1)
+        predict_data['Model'].append(model_namer(crmp))
+        predict_data['tau_initial'].append(p0[0])
+        predict_data['tau_final'].append(crmp.tau_)
+        predict_data['f1_initial'].append(p0[1])
+        predict_data['f1_final'].append(crmp.gains_[0])
+        predict_data['f2_initial'].append(p0[2])
+        predict_data['f2_final'].append(crmp.gains_[1])
+        predict_data['r2'].append(r2)
+        predict_data['MSE'].append(mse)
 
 # Fitting
-q_fitting_sensitivity_analysis_df = pd.DataFrame(q_fitting_sensitivity_analysis_data)
-q_fitting_sensitivity_analysis_df.to_csv(q_fitting_sensitivity_analysis_file)
+fit_df = pd.DataFrame(fit_data)
+fit_df.to_csv(fit_ouput_file)
 
 # Prediction
-q_predictions_sensitivity_analysis_df = pd.DataFrame(q_predictions_sensitivity_analysis_data)
-q_predictions_sensitivity_analysis_df.to_csv(q_predictions_sensitivity_analysis_data)
+predict_df = pd.DataFrame(predict_data)
+predict_df.to_csv(predict_output_file)

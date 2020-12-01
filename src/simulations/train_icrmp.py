@@ -21,8 +21,8 @@ from src.models.icrmp import ICRMP
 
 
 # Net Production Training
-N_fitting_file = INPUTS['crmp']['N_fitting']
-N_fitting_data = {
+output_file = INPUTS['crmp']['icrmp']['fit']['fit']
+data = {
     'Producer': [], 'Model': [], 't_i': [], 'Fit': []
 }
 for i in range(len(producers)):
@@ -41,10 +41,10 @@ for i in range(len(producers)):
         y_hat = model.predict(X_train)
         time = np.linspace(1, len(y_hat), num=len(y_hat))
         for k in range(len(y_hat)):
-            N_fitting_data['Producer'].append(i + 1)
-            N_fitting_data['Model'].append(model_namer(model))
-            N_fitting_data['t_i'].append(k + 1)
-            N_fitting_data['Fit'].append(y_hat[k])
+            data['Producer'].append(i + 1)
+            data['Model'].append(model_namer(model))
+            data['t_i'].append(k + 1)
+            data['Fit'].append(y_hat[k])
         pickled_model = serialized_model_path(
             'icrmp', model, 'Integrated {}'.format(producer_names[i])
         )
@@ -52,5 +52,5 @@ for i in range(len(producers)):
             pickle.dump(model, f)
 
 
-N_fitting_df = pd.DataFrame(N_fitting_data)
-N_fitting_df.to_csv(N_fitting_file)
+df = pd.DataFrame(data)
+df.to_csv(output_file)
