@@ -7,11 +7,17 @@ from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
 
 
-q_fitting_sensitivity_analysis_file = INPUTS['crmp']['q_fitting_sensitivity_analysis']
+q_fitting_sensitivity_analysis_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
 q_fitting_sensitivity_analysis_df = pd.read_csv(q_fitting_sensitivity_analysis_file)
 
-q_predictions_sensitivity_analysis_file = INPUTS['crmp']['q_predictions_sensitivity_analysis']
+q_predictions_sensitivity_analysis_file = INPUTS['crmp']['crmp']['predict']['sensitivity_analysis']
 q_predictions_sensitivity_analysis_df = pd.read_csv(q_predictions_sensitivity_analysis_file)
+
+best_guesses_fit_file = INPUTS['crmp']['crmp']['fit']['best_guesses']
+best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
+
+best_guesses_predict_file = INPUTS['crmp']['crmp']['predict']['best_guesses']
+best_guesses_predict_df = pd.read_csv(best_guesses_predict_file)
 
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
@@ -48,7 +54,13 @@ def _contour_parameters(df):
     y = df['tau_initial'].to_numpy()
     y = np.reshape(y, (number_of_time_constants, number_of_gains))
     z = df['MSE'].to_numpy()
-    z = np.log(z)
+    z_tmp = []
+    for i in z:
+        if i == 0:
+            z_tmp.append(i)
+        else:
+            z_tmp.append(np.log(i))
+    z = z_tmp
     z = np.reshape(z, (number_of_time_constants, number_of_gains))
     return (x, y, z)
 
@@ -126,7 +138,6 @@ def plot_parameter_convergence_prediction():
 
 
 def initial_guesses_and_mean_squared_error_fitting():
-    q_fitting_sensitivity_analysis_df = pd.read_csv(q_fitting_sensitivity_analysis_file)
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = _producer_rows_from_df(
@@ -150,7 +161,6 @@ def initial_guesses_and_mean_squared_error_fitting():
 
 
 def initial_guesses_and_mean_squared_error_prediction():
-    q_predictions_sensitivity_analysis_df = pd.read_csv(q_predictions_sensitivity_analysis_file)
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = _producer_rows_from_df(
@@ -173,7 +183,37 @@ def initial_guesses_and_mean_squared_error_prediction():
         )
 
 
+def best_guesses_contour_plot_fit():
+    x, y, z = _contour_parameters(best_guesses_fit_df)
+    plt.contourf(x, y, z)
+    plt.colorbar()
+    title = 'CRMP Fitting: Best Guesses with ln(MSE)'
+    plot_helper(
+        FIG_DIR,
+        title=title,
+        xlabel=xlabel,
+        ylabel=ylabel,
+        save=True
+    )
+
+
+def best_guesses_contour_plot_predict():
+    x, y, z = _contour_parameters(best_guesses_predict_df)
+    plt.contourf(x, y, z)
+    plt.colorbar()
+    title = 'CRMP Prediction: Best Guesses'
+    plot_helper(
+        FIG_DIR,
+        title=title,
+        xlabel=xlabel,
+        ylabel=ylabel,
+        save=True
+    )
+
+
 plot_parameter_convergence_fitting()
 plot_parameter_convergence_prediction()
 initial_guesses_and_mean_squared_error_fitting()
 initial_guesses_and_mean_squared_error_prediction()
+best_guesses_contour_plot_fit()
+best_guesses_contour_plot_predict()

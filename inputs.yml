@@ -6,10 +6,12 @@
     'fit':
       'fit': './data/processed/crmp/crmp/fit/fit.csv'
       'sensitivity_analysis': './data/processed/crmp/crmp/fit/sensitivity_analysis.csv'
+      'best_guesses': './data/processed/crmp/crmp/fit/best_guesses.csv'
     'predict':
       'predict': './data/processed/crmp/crmp/predict/predict.csv'
       'metrics': './data/processed/crmp/crmp/predict/metrics.csv'
       'sensitivity_analysis': './data/processed/crmp/crmp/predict/sensitivity_analysis.csv'
+      'best_guesses': './data/processed/crmp/crmp/predict/best_guesses.csv'
   'icrmp':
     'fit':
       'fit': './data/processed/crmp/icrmp/fit/fit.csv'
