@@ -7,7 +7,7 @@ from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
 
 
-N_sensitivity_analysis_file = INPUTS['crmp']['N_sensitivity_analysis']
+sensitivity_analysis_file = INPUTS['crmp']['icrmp']['predict']['sensitivity_analysis']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 true_parameters = {
@@ -19,11 +19,11 @@ true_parameters = {
 
 
 def plot_parameter_convergence():
-    N_sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
+    sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
     for i in range(len(producers)):
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
-        producer_rows_df = N_sensitivity_analysis_df.loc[N_sensitivity_analysis_df['Producer'] == producer]
+        producer_rows_df = sensitivity_analysis_df.loc[sensitivity_analysis_df['Producer'] == producer]
         x_i = producer_rows_df['f1_initial']
         x_f = producer_rows_df['f1_final']
         y_i = producer_rows_df['tau_initial']
@@ -60,10 +60,10 @@ def plot_parameter_convergence():
 
 
 def initial_guesses_and_mean_squared_error():
-    N_sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
+    sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
     for i in range(len(producers)):
         producer = i + 1
-        producer_rows_df = N_sensitivity_analysis_df.loc[N_sensitivity_analysis_df['Producer'] == producer]
+        producer_rows_df = sensitivity_analysis_df.loc[sensitivity_analysis_df['Producer'] == producer]
         x = producer_rows_df['f1_initial'].to_numpy()
         x = np.reshape(x, (101, 11))
         y = producer_rows_df['tau_initial'].to_numpy()
