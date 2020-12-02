@@ -47,7 +47,7 @@ wfsim-features:
 simulate: simulate-crmp simulate-koval
 
 ## Run all the plots
-plots: crmp-plots koval-plots
+plots: crmp-plots icrmp-plots koval-plots crmp-sensitivity-analysis-plots
 
 ## Entire CRMP workflow
 crmp: simulate-crmp crmp-plots
@@ -72,7 +72,7 @@ crmp-sensitivity-analysis-analysis:
 	$(PYTHON) src.analysis.crmp_sensitivity_analysis
 
 ## Plot Sensitivity Analysis results for CRMP
-crmp-sensitivity-analysis-plot:
+crmp-sensitivity-analysis-plots:
 	$(PYTHON) src.visualization.crmp_sensitivity_analysis
 
 ## Make the CRMP plots
