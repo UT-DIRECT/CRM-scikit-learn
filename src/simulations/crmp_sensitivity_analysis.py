@@ -26,9 +26,9 @@ predict_data = {
     'r2': [], 'MSE': []
 }
 
-f1 = np.linspace(0, 1, 11)
-f2 = np.ones(11) - f1
-tau = np.linspace(0.01, 100, 101)
+f1 = np.linspace(0, 1, 6)
+f2 = np.ones(6) - f1
+tau = np.linspace(1, 100, 10)
 # TODO: I might be able to construct this using a meshgrid
 param_grid = {'p0': []}
 for i in tau:
@@ -63,7 +63,8 @@ for i in range(len(producers)):
         fit_data['MSE'].append(mse)
 
         # Prediction
-        r2, mse, y_hat, time_step = test_model(X, y, crmp, test_split)
+        y_hat = crmp.predict(X_test)
+        r2, mse = fit_statistics(y_hat, y_test)
         predict_data['Producer'].append(i + 1)
         predict_data['Model'].append(model_namer(crmp))
         predict_data['tau_initial'].append(p0[0])

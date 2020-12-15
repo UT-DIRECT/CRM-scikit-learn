@@ -19,16 +19,23 @@ best_guesses_predict_data = {
     'tau_initial': [], 'f1_initial': [], 'f2_initial': [], 'MSE': []
 }
 
-f1 = np.linspace(0, 1, 11)
-f2 = np.ones(11) - f1
-tau = np.linspace(0.01, 100, 101)
+f1 = np.linspace(0, 1, 6)
+f2 = np.ones(6) - f1
+tau = np.linspace(1, 100, 10)
 p0s = []
 for i in tau:
     for j in range(len(f1)):
         p0s.append([i, f1[j], f2[j]])
 
 def _initial_guesses_from_df(df, tau, f1):
-    return df.loc[(df['tau_initial'] == tau) & (df['f1_initial'] == f1)]
+    initial_guesses_df = df.loc[(df['tau_initial'] == tau) & (df['f1_initial'] == f1)]
+    if initial_guesses_df.empty:
+        print(df.dtypes)
+        print('tau: ', tau)
+        print('f1: ', f1)
+        print(df.loc[df['tau_initial'] == tau])
+        raise
+    return initial_guesses_df
 
 
 def best_initial_guesses_fit():
@@ -42,8 +49,14 @@ def best_initial_guesses_fit():
         best_guesses_fit_data['f2_initial'].append(p0[2])
         best_guesses_fit_data['MSE'].append(summed_df['MSE'])
 
-    best_guesses_df = pd.DataFrame(best_guesses_fit_data)
-    best_guesses_df.to_csv(best_guesses_fit_file)
+    best_guesses_fit_df = pd.DataFrame(best_guesses_fit_data)
+    best_guesses_fit_df.to_csv(best_guesses_fit_file)
+    best_guesses_fit_df = best_guesses_fit_df.sort_values(by=['MSE'])
+    print('Fit')
+    print(best_guesses_fit_df.head(5))
+    print()
+    print()
+    print()
 
 
 def best_initial_guesses_predict():
@@ -57,8 +70,14 @@ def best_initial_guesses_predict():
         best_guesses_predict_data['f2_initial'].append(p0[2])
         best_guesses_predict_data['MSE'].append(summed_df['MSE'])
 
-    best_guesses_df = pd.DataFrame(best_guesses_predict_data)
-    best_guesses_df.to_csv(best_guesses_predict_file)
+    best_guesses_predict_df = pd.DataFrame(best_guesses_predict_data)
+    best_guesses_predict_df.to_csv(best_guesses_predict_file)
+    best_guesses_predict_df = best_guesses_predict_df.sort_values(by=['MSE'])
+    print('Predict')
+    print(best_guesses_predict_df.head(5))
+    print()
+    print()
+    print()
 
 
 best_initial_guesses_fit()
