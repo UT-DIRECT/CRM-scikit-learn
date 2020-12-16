@@ -12,6 +12,7 @@
       'metrics': './data/processed/crmp/crmp/predict/metrics.csv'
       'sensitivity_analysis': './data/processed/crmp/crmp/predict/sensitivity_analysis.csv'
       'best_guesses': './data/processed/crmp/crmp/predict/best_guesses.csv'
+    'tau_at_zero': './data/processed/crmp/crmp/predict/tau_at_zero.csv'
   'icrmp':
     'fit':
       'fit': './data/processed/crmp/icrmp/fit/fit.csv'

@@ -12,6 +12,7 @@ from src.visualization import INPUTS
 fit_file = INPUTS['crmp']['crmp']['fit']['fit']
 metrics_file = INPUTS['crmp']['crmp']['predict']['metrics']
 predict_file = INPUTS['crmp']['crmp']['predict']['predict']
+tau_at_zero_file = INPUTS['crmp']['crmp']['tau_at_zero']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def producers_vs_time():
@@ -156,8 +157,22 @@ def production_rate_with_predictions():
         )
 
 
+def tau_at_zero():
+    tau_at_zero_df = pd.read_csv(tau_at_zero_file)
+    plt.plot(tau_at_zero_df['Time'], tau_at_zero_df['q1'])
+    plot_helper(
+        FIG_DIR,
+        title='CRMP With Zero Time Constant',
+        xlabel='Time',
+        ylabel='Production Rate',
+        legend=['Constant Injection'],
+        save=True
+    )
+
+
 # producers_vs_time()
 # producers_vs_injector()
 # production_rate_estimators_and_time_steps()
 # production_rate_good_estimators_and_time_steps()
 # production_rate_with_predictions()
+tau_at_zero()
