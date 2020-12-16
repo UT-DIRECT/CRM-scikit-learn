@@ -57,15 +57,15 @@ simulate-crmp: train-crmp predict-crmp
 
 ## Run and train the models
 train-crmp:
-	$(PYTHON) src.simulations.train_crmp
+	$(PYTHON) src.simulations.crmp.train
 
 ## Run the models to make predictions
 predict-crmp:
-	$(PYTHON) src.simulations.predict_crmp
+	$(PYTHON) src.simulations.crmp.predict
 
 ## Run Sensitivity Analysis on CRMP
 crmp-sensitivity-analysis:
-	$(PYTHON) src.simulations.crmp_sensitivity_analysis
+	$(PYTHON) src.simulations.crmp.sensitivity_analysis
 
 ## Run Analysis of Sensitivity Analysis Data on CRMP for the fit case
 crmp-sensitivity-analysis-analysis:
@@ -87,11 +87,11 @@ simulate-icrmp: train-icrmp predict-icrmp
 
 ## Run and train ICRMP
 train-icrmp:
-	$(PYTHON) src.simulations.train_icrmp
+	$(PYTHON) src.simulations.icrmp.train
 
 ## Run ICRMP to make predictions
 predict-icrmp:
-	$(PYTHON) src.simulations.predict_icrmp
+	$(PYTHON) src.simulations.icrmp.predict
 
 ## Make the ICRMP plots
 icrmp-plots:
@@ -99,7 +99,7 @@ icrmp-plots:
 
 ## Run Sensitivity Analysis on CRMP
 icrmp-sensitivity-analysis:
-	$(PYTHON) src.simulations.icrmp_sensitivity_analysis
+	$(PYTHON) src.simulations.icrmp.sensitivity_analysis
 
 ## Plot Sensitivity Analysis results for CRMP
 icrmp-sensitivity-analysis-plot:
@@ -112,10 +112,10 @@ koval: simulate-koval koval-plots
 simulate-koval: train-koval predict-koval
 
 train-koval:
-	$(PYTHON) src.simulations.train_koval
+	$(PYTHON) src.simulations.koval.train
 
 predict-koval:
-	$(PYTHON) src.simulations.predict_koval
+	$(PYTHON) src.simulations.koval.predict
 
 ## Make the Koval plots
 koval-plots:
