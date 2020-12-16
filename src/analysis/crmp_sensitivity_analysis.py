@@ -21,7 +21,7 @@ best_guesses_predict_data = {
 
 f1 = np.linspace(0, 1, 6)
 f2 = np.ones(6) - f1
-tau = np.linspace(1, 100, 10)
+tau = np.linspace(1e-6, 100, 10)
 p0s = []
 for i in tau:
     for j in range(len(f1)):

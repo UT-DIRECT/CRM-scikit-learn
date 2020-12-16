@@ -35,7 +35,7 @@ class CRMP(BaseEstimator, RegressorMixin):
     @property
     def bounds(self):
         lower_bounds = np.zeros(self.n_gains + 1)
-        lower_bounds[0] = 0.01
+        lower_bounds[0] = 1e-6
         upper_bounds = np.ones(self.n_gains + 1)
         upper_bounds[0] = 100
         return np.array([lower_bounds, upper_bounds]).T.tolist()

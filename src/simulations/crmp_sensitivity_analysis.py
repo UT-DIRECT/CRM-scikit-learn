@@ -28,7 +28,7 @@ predict_data = {
 
 f1 = np.linspace(0, 1, 6)
 f2 = np.ones(6) - f1
-tau = np.linspace(1, 100, 10)
+tau = np.linspace(1e-6, 100, 10)
 # TODO: I might be able to construct this using a meshgrid
 param_grid = {'p0': []}
 for i in tau:
