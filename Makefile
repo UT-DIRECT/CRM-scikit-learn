@@ -63,6 +63,10 @@ train-crmp:
 predict-crmp:
 	$(PYTHON) src.simulations.crmp.predict
 
+## Make the CRMP plots
+crmp-plots:
+	$(PYTHON) src.visualization.crmp
+
 ## Run Sensitivity Analysis on CRMP
 crmp-sensitivity-analysis:
 	$(PYTHON) src.simulations.crmp.sensitivity_analysis
@@ -75,9 +79,9 @@ crmp-sensitivity-analysis-analysis:
 crmp-sensitivity-analysis-plots:
 	$(PYTHON) src.visualization.crmp_sensitivity_analysis
 
-## Make the CRMP plots
-crmp-plots:
-	$(PYTHON) src.visualization.crmp
+## Run script to find the most predictive the parameter values
+crmp-most-predictive-parameters:
+	$(PYTHON) src.simulations.crmp.most_predictive_parameters
 
 ## Entire ICRMP workflow
 icrmp: simulate-icrmp icrmp-plots
