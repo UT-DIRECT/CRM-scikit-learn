@@ -101,7 +101,7 @@ def parameter_convergence_fitting():
         )
 
 
-def initial_guesses_and_mean_squared_error_fitting():
+def fitted_parameters_and_mean_squared_error_fitting():
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = _producer_rows_from_df(
@@ -114,7 +114,7 @@ def initial_guesses_and_mean_squared_error_fitting():
         x, y = true_parameters[producer]
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
-        title = 'CRMP: Producer {} Initial Parameter Values with ln(MSE) from Fitting'.format(producer)
+        title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Fitting'.format(producer)
         plot_helper(
             FIG_DIR,
             title=title,
@@ -124,7 +124,7 @@ def initial_guesses_and_mean_squared_error_fitting():
         )
 
 
-def initial_guesses_and_mean_squared_error_prediction():
+def fitted_parameters_and_mean_squared_error_prediction():
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = _producer_rows_from_df(
@@ -137,7 +137,7 @@ def initial_guesses_and_mean_squared_error_prediction():
         x, y = true_parameters[producer]
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
-        title = 'CRMP: Producer {} Initial Parameter Values with ln(MSE) from Prediction'.format(producer)
+        title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Prediction'.format(producer)
         plot_helper(
             FIG_DIR,
             title=title,
@@ -176,7 +176,7 @@ def aggregate_mses_contour_plot_predict():
 
 
 parameter_convergence_fitting()
-# initial_guesses_and_mean_squared_error_fitting()
-# initial_guesses_and_mean_squared_error_prediction()
-# aggregate_mses_contour_plot_fit()
-# aggregate_mses_contour_plot_predict()
+fitted_parameters_and_mean_squared_error_fitting()
+fitted_parameters_and_mean_squared_error_prediction()
+aggregate_mses_contour_plot_fit()
+aggregate_mses_contour_plot_predict()
