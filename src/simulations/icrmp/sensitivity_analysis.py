@@ -11,6 +11,7 @@ from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset
 from src.helpers.models import model_namer
 from src.models.icrmp import ICRMP
+from src.simulations import param_grid
 
 
 fit_file = INPUTS['crmp']['icrmp']['fit']['sensitivity_analysis']
@@ -19,15 +20,6 @@ fit_data = {
     'f1_initial': [], 'f1_final': [], 'f2_initial': [], 'f2_final': [],
     'r2': [], 'MSE': []
 }
-
-f1 = np.linspace(0, 1, 11)
-f2 = np.ones(11) - f1
-tau = np.linspace(1e-6, 100, 101)
-# TODO: I might be able to construct this using a meshgrid
-param_grid = {'p0': []}
-for i in tau:
-    for j in range(len(f1)):
-        param_grid['p0'].append([i, f1[j], f2[j]])
 
 for i in range(len(producers)):
     X, y = net_production_dataset(net_productions[i], producers[i], *injectors)

@@ -11,6 +11,7 @@ from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import production_rate_dataset
 from src.helpers.models import model_namer, test_model
 from src.models.crmp import CRMP
+from src.simulations import param_grid
 
 
 fit_ouput_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
@@ -25,15 +26,6 @@ predict_data = {
     'f1_initial': [], 'f1_final': [], 'f2_initial': [], 'f2_final': [],
     'r2': [], 'MSE': []
 }
-
-f1 = np.linspace(0, 1, 6)
-f2 = np.ones(6) - f1
-tau = np.linspace(1e-6, 100, 10)
-# TODO: I might be able to construct this using a meshgrid
-param_grid = {'p0': []}
-for i in tau:
-    for j in range(len(f1)):
-        param_grid['p0'].append([i, f1[j], f2[j]])
 
 for i in range(len(producers)):
     X, y = production_rate_dataset(producers[i], *injectors)
