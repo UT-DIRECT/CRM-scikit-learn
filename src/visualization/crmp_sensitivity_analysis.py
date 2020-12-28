@@ -19,6 +19,9 @@ best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
 best_guesses_predict_file = INPUTS['crmp']['crmp']['predict']['best_guesses']
 best_guesses_predict_df = pd.read_csv(best_guesses_predict_file)
 
+most_predictive_parameters_file = INPUTS['crmp']['crmp']['predict']['most_predictive_parameters']
+most_predictive_parameters_df = pd.read_csv(most_predictive_parameters_file)
+
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 true_parameters = {
@@ -48,12 +51,12 @@ def _initial_and_final_parameters_from_df(df):
     return (x, y)
 
 
-def _contour_parameters(df):
-    x = df['f1_initial'].to_numpy()
+def _contour_parameters(df, x_column='', y_column='', z_column=''):
+    x = df[x_column].to_numpy()
     x = np.reshape(x, (number_of_time_constants, number_of_gains))
-    y = df['tau_initial'].to_numpy()
+    y = df[y_column].to_numpy()
     y = np.reshape(y, (number_of_time_constants, number_of_gains))
-    z = df['MSE'].to_numpy()
+    z = df[z_column].to_numpy()
     z_tmp = []
     for i in z:
         if i == 0:
@@ -108,7 +111,12 @@ def fitted_parameters_and_mean_squared_error_fitting():
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_parameters(producer_rows_df)
+        x, y, z = _contour_parameters(
+            producer_rows_df,
+            x_column='f_initial',
+            y_column='tau_initial',
+            z_column='MSE'
+        )
         plt.contourf(x, y, z)
         plt.colorbar()
         x, y = true_parameters[producer]
@@ -131,7 +139,12 @@ def fitted_parameters_and_mean_squared_error_prediction():
             q_predictions_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_parameters(producer_rows_df)
+        x, y, z = _contour_parameters(
+            producer_rows_df,
+            x_column='f_initial',
+            y_column='tau_initial',
+            z_column='MSE'
+        )
         plt.contourf(x, y, z)
         plt.colorbar()
         x, y = true_parameters[producer]
@@ -147,30 +160,21 @@ def fitted_parameters_and_mean_squared_error_prediction():
         )
 
 
-def aggregate_mses_contour_plot_fit():
-    x, y, z = _contour_parameters(best_guesses_fit_df)
-    plt.contourf(x, y, z)
-    plt.colorbar()
-    title = 'CRMP: Aggregate MSEs from Fitting'
-    plot_helper(
-        FIG_DIR,
-        title=title,
-        xlabel=xlabel,
-        ylabel=ylabel,
-        save=True
+def aggregate_mses_contour_plot():
+    x, y, z = _contour_parameters(
+        most_predictive_parameters_df,
+        x_column='f1',
+        y_column='tau',
+        z_column='aggregate_mses'
     )
-
-
-def aggregate_mses_contour_plot_predict():
-    x, y, z = _contour_parameters(best_guesses_predict_df)
     plt.contourf(x, y, z)
     plt.colorbar()
-    title = 'CRMP: Aggregate MSEs from Prediction'
+    title = 'CRMP: Most Predictive Parameters in Aggregate'
     plot_helper(
         FIG_DIR,
         title=title,
-        xlabel=xlabel,
-        ylabel=ylabel,
+        xlabel='f1',
+        ylabel='tau',
         save=True
     )
 
@@ -178,5 +182,4 @@ def aggregate_mses_contour_plot_predict():
 parameter_convergence_fitting()
 fitted_parameters_and_mean_squared_error_fitting()
 fitted_parameters_and_mean_squared_error_prediction()
-aggregate_mses_contour_plot_fit()
-aggregate_mses_contour_plot_predict()
+aggregate_mses_contour_plot()

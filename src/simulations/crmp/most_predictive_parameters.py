@@ -41,7 +41,7 @@ def predictive_value_of_different_parameters():
         mses = 0
 
         for i in range(len(producers)):
-            X, y = production_rate_dataset(producers[0], *injectors)
+            X, y = production_rate_dataset(producers[i], *injectors)
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, shuffle=False
             )
@@ -50,7 +50,6 @@ def predictive_value_of_different_parameters():
             most_predictive_parameters_data['q{}_mse'.format(i + 1)].append(mse)
             mses += mse
 
-        mses /= 4
         most_predictive_parameters_data['tau'].append(tau)
         most_predictive_parameters_data['f1'].append(gains[0])
         most_predictive_parameters_data['f2'].append(gains[1])
