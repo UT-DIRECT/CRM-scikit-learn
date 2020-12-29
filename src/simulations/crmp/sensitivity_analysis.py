@@ -11,7 +11,7 @@ from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import production_rate_dataset
 from src.helpers.models import model_namer, test_model
 from src.models.crmp import CRMP
-from src.simulations import param_grid
+from src.simulations import number_of_producers, param_grid
 
 
 fit_ouput_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
@@ -27,7 +27,7 @@ predict_data = {
     'r2': [], 'MSE': []
 }
 
-for i in range(len(producers)):
+for i in range(number_of_producers):
     X, y = production_rate_dataset(producers[i], *injectors)
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
         X, y, 2

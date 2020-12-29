@@ -6,7 +6,7 @@ from src.data.read_crmp import (injectors, net_productions, producers,
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import net_production_dataset
 from src.helpers.models import load_models, model_namer, test_model
-from src.simulations import step_sizes
+from src.simulations import number_of_producers, step_sizes
 
 
 # Net Production Predictions
@@ -33,7 +33,7 @@ predict_data = {
 metrics_data = {
     'Producer': [], 'Model': [], 'Step size': [], 'r2': [], 'MSE': []
 }
-for i in range(len(producers)):
+for i in range(number_of_producers):
     producer_name = producer_names[i]
     producer_number = i + 1
     models = net_production_models_by_producer[producer_name]

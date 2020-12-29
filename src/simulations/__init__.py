@@ -1,7 +1,10 @@
 import numpy as np
 
+from src.data.read_crmp import injectors, producers, producer_names
 
 step_sizes = np.linspace(2, 12, num=11).astype(int)
+
+number_of_producers = len(producers)
 
 f1 = np.linspace(0, 1, 6)
 f2 = np.ones(6) - f1

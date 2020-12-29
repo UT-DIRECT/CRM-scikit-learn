@@ -18,6 +18,7 @@ from src.helpers.features import (net_production_dataset,
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
 from src.models.icrmp import ICRMP
+from src.simulations import number_of_producers
 
 
 # Net Production Training
@@ -25,7 +26,7 @@ output_file = INPUTS['crmp']['icrmp']['fit']['fit']
 data = {
     'Producer': [], 'Model': [], 't_i': [], 'Fit': []
 }
-for i in range(len(producers)):
+for i in range(number_of_producers):
     models = [
         BayesianRidge(), ICRMP(), ElasticNetCV, LassoCV, LinearRegression()
     ]
