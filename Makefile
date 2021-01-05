@@ -79,12 +79,12 @@ crmp-sensitivity-analysis-analysis:
 crmp-sensitivity-analysis-plots:
 	$(PYTHON) src.visualization.crmp_sensitivity_analysis
 
-## Run script to find the most predictive the parameter values
-crmp-most-predictive-parameters:
-	$(PYTHON) src.simulations.crmp.most_predictive_parameters
+## Run script to find the characteristic parameter values
+crmp-characteristic-param:
+	$(PYTHON) src.simulations.crmp.characteristic_param
 
-most-predictive-parameters-plots:
-	$(PYTHON) src.visualization.most_predictive_parameters
+crmp-characteristic-param-plots:
+	$(PYTHON) src.visualization.characteristic_param
 
 ## Entire ICRMP workflow
 icrmp: simulate-icrmp icrmp-plots
