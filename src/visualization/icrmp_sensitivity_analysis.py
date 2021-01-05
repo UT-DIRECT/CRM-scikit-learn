@@ -2,20 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_crmp import producers
+from src.data.read_crmp import producers, true_params
 from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
 
 
 sensitivity_analysis_file = INPUTS['crmp']['icrmp']['predict']['sensitivity_analysis']
 FIG_DIR = INPUTS['crmp']['figures_dir']
-
-true_params = {
-    1: [0.2, 1.5],
-    2: [0.4, 1],
-    3: [0.6, 5],
-    4: [0.8, 50]
-}
 
 
 def plot_parameter_convergence():

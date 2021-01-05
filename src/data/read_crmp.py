@@ -53,3 +53,10 @@ net_productions_new = []
 for i in range(len(net_productions)):
     net_productions_new.append(_insert_zero(net_productions[i]))
 net_productions = np.array(net_productions_new)
+
+true_params = {
+    1: [0.2, 1.5],
+    2: [0.4, 1],
+    3: [0.6, 5],
+    4: [0.8, 50]
+}
