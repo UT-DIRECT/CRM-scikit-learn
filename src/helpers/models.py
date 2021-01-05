@@ -27,7 +27,7 @@ def serialized_model_path(subdir, model, producer_name=''):
 
 
 def model_namer(model):
-    # Removes the parameters found in the model name
+    # Removes the params found in the model name
     return str(model)[:str(model).index('(')]
 
 

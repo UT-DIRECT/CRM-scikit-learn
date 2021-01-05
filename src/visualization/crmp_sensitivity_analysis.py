@@ -19,12 +19,12 @@ best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
 best_guesses_predict_file = INPUTS['crmp']['crmp']['predict']['best_guesses']
 best_guesses_predict_df = pd.read_csv(best_guesses_predict_file)
 
-most_predictive_parameters_file = INPUTS['crmp']['crmp']['predict']['most_predictive_parameters']
-most_predictive_parameters_df = pd.read_csv(most_predictive_parameters_file)
+characteristic_params_file = INPUTS['crmp']['crmp']['predict']['characteristic_params']
+characteristic_params_df = pd.read_csv(characteristic_params_file)
 
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
-true_parameters = {
+true_params = {
     1: [0.2, 1.5],
     2: [0.4, 1],
     3: [0.6, 5],
@@ -41,7 +41,7 @@ def _producer_rows_from_df(df, producer):
     return df.loc[df['Producer'] == producer]
 
 
-def _initial_and_final_parameters_from_df(df):
+def _initial_and_final_params_from_df(df):
     x_i = df['f1_initial']
     x_f = df['f1_final']
     y_i = df['tau_initial']
@@ -51,7 +51,7 @@ def _initial_and_final_parameters_from_df(df):
     return (x, y)
 
 
-def _contour_parameters(df, x_column='', y_column='', z_column=''):
+def _contour_params(df, x_column='', y_column='', z_column=''):
     x = df[x_column].to_numpy()
     x = np.reshape(x, (number_of_time_constants, number_of_gains))
     y = df[y_column].to_numpy()
@@ -76,8 +76,8 @@ def parameter_convergence_fitting():
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y = _initial_and_final_parameters_from_df(producer_rows_df)
-        true_params = true_parameters[producer]
+        x, y = _initial_and_final_params_from_df(producer_rows_df)
+        true_params = true_params[producer]
         x_true = true_params[0]
         y_true = true_params[1]
         for j in range(len(x)):
@@ -104,14 +104,14 @@ def parameter_convergence_fitting():
         )
 
 
-def fitted_parameters_and_mean_squared_error_fitting():
+def fitted_params_and_mean_squared_error_fitting():
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = _producer_rows_from_df(
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_parameters(
+        x, y, z = _contour_params(
             producer_rows_df,
             x_column='f_initial',
             y_column='tau_initial',
@@ -119,7 +119,7 @@ def fitted_parameters_and_mean_squared_error_fitting():
         )
         plt.contourf(x, y, z)
         plt.colorbar()
-        x, y = true_parameters[producer]
+        x, y = true_params[producer]
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Fitting'.format(producer)
@@ -132,14 +132,14 @@ def fitted_parameters_and_mean_squared_error_fitting():
         )
 
 
-def fitted_parameters_and_mean_squared_error_prediction():
+def fitted_params_and_mean_squared_error_prediction():
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = _producer_rows_from_df(
             q_predictions_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_parameters(
+        x, y, z = _contour_params(
             producer_rows_df,
             x_column='f_initial',
             y_column='tau_initial',
@@ -147,7 +147,7 @@ def fitted_parameters_and_mean_squared_error_prediction():
         )
         plt.contourf(x, y, z)
         plt.colorbar()
-        x, y = true_parameters[producer]
+        x, y = true_params[producer]
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Prediction'.format(producer)
@@ -161,15 +161,15 @@ def fitted_parameters_and_mean_squared_error_prediction():
 
 
 def aggregate_mses_contour_plot():
-    x, y, z = _contour_parameters(
-        most_predictive_parameters_df,
+    x, y, z = _contour_params(
+        characteristic_params_df,
         x_column='f1',
         y_column='tau',
         z_column='aggregate_mses'
     )
     plt.contourf(x, y, z)
     plt.colorbar()
-    title = 'CRMP: Most Predictive Parameters in Aggregate'
+    title = 'CRMP: Most Predictive params in Aggregate'
     plot_helper(
         FIG_DIR,
         title=title,
@@ -180,6 +180,6 @@ def aggregate_mses_contour_plot():
 
 
 parameter_convergence_fitting()
-fitted_parameters_and_mean_squared_error_fitting()
-fitted_parameters_and_mean_squared_error_prediction()
+fitted_params_and_mean_squared_error_fitting()
+fitted_params_and_mean_squared_error_prediction()
 aggregate_mses_contour_plot()

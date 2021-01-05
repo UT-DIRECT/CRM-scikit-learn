@@ -10,7 +10,7 @@ from src.visualization import INPUTS
 sensitivity_analysis_file = INPUTS['crmp']['icrmp']['predict']['sensitivity_analysis']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
-true_parameters = {
+true_params = {
     1: [0.2, 1.5],
     2: [0.4, 1],
     3: [0.6, 5],
@@ -30,7 +30,7 @@ def plot_parameter_convergence():
         y_f = producer_rows_df['tau_final']
         x = np.array([x_i, x_f]).T
         y = np.array([y_i, y_f]).T
-        true_params = true_parameters[producer]
+        true_params = true_params[producer]
         x_true = true_params[0]
         y_true = true_params[1]
         initial = plt.scatter(x_i, y_i, s=40, c='g', marker='o', label='Initial')
@@ -74,7 +74,7 @@ def initial_guesses_and_mean_squared_error():
         z = np.reshape(z, (101, 11))
         plt.contourf(x, y, z)
         plt.colorbar()
-        x, y = true_parameters[producer]
+        x, y = true_params[producer]
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'ICRMP: Producer {} Intial Guesses with ln(MSE)'.format(producer)
