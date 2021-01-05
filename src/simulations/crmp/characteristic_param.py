@@ -53,26 +53,26 @@ def train_crmp_across_wells():
             characteristic_params_data['r2'].append(r2_i)
             characteristic_params_data['MSE'].append(mse_i)
 
-            characteristic_params_predictions_data['Producer'] = np.append(
-                characteristic_params_predictions_data['Producer'],
-                [producer] * len(y_hat)
-            )
-            characteristic_params_predictions_data['t_i']= np.append(
-                characteristic_params_predictions_data['t_i'], t_range
-            )
-            characteristic_params_predictions_data['Prediction'] = np.append(
-                characteristic_params_predictions_data['Prediction'], y_hat
-            )
+            # characteristic_params_predictions_data['Producer'] = np.append(
+            #     characteristic_params_predictions_data['Producer'],
+            #     [producer] * len(y_hat)
+            # )
+            # characteristic_params_predictions_data['t_i']= np.append(
+            #     characteristic_params_predictions_data['t_i'], t_range
+            # )
+            # characteristic_params_predictions_data['Prediction'] = np.append(
+            #     characteristic_params_predictions_data['Prediction'], y_hat
+            # )
 
     characteristic_params_df = pd.DataFrame(
         characteristic_params_data
     )
     characteristic_params_df.to_csv(characteristic_params_file)
-    characteristic_params_predictions_df = pd.DataFrame(
-        characteristic_params_predictions_data
-    )
-    characteristic_params_predictions_df.to_csv(
-        characteristic_params_predictions_file
-    )
+    # characteristic_params_predictions_df = pd.DataFrame(
+    #     characteristic_params_predictions_data
+    # )
+    # characteristic_params_predictions_df.to_csv(
+    #     characteristic_params_predictions_file
+    # )
 
 train_crmp_across_wells()

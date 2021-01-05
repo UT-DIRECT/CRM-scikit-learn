@@ -2,9 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_crmp import producers
+from src.data.read_crmp import producers, true_params
 from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
+from src.simulations import number_of_gains, number_of_time_constants
 
 
 q_fitting_sensitivity_analysis_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
@@ -24,15 +25,6 @@ characteristic_params_df = pd.read_csv(characteristic_params_file)
 
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
-true_params = {
-    1: [0.2, 1.5],
-    2: [0.4, 1],
-    3: [0.6, 5],
-    4: [0.8, 50]
-}
-
-number_of_time_constants = 10
-number_of_gains = 6
 xlabel ='f1'
 ylabel ='tau'
 
@@ -81,8 +73,12 @@ def parameter_convergence_fitting():
         x_true = true_params[0]
         y_true = true_params[1]
         for j in range(len(x)):
-            initial = plt.scatter(x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial')
-            final = plt.scatter(x[j][1], y[j][1], s=40, c='r', marker='x', label='Final')
+            initial = plt.scatter(
+                x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
+            )
+            final = plt.scatter(
+                x[j][1], y[j][1], s=40, c='r', marker='x', label='Final'
+            )
             plt.plot(x[j], y[j], c='k', alpha=0.3)
         actual = plt.scatter(
             x_true, y_true, s=200, c='b', marker='X',
