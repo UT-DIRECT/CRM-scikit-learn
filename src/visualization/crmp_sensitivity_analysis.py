@@ -20,8 +20,6 @@ best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
 best_guesses_predict_file = INPUTS['crmp']['crmp']['predict']['best_guesses']
 best_guesses_predict_df = pd.read_csv(best_guesses_predict_file)
 
-characteristic_params_file = INPUTS['crmp']['crmp']['predict']['characteristic_params']
-characteristic_params_df = pd.read_csv(characteristic_params_file)
 
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
@@ -69,9 +67,9 @@ def parameter_convergence_fitting():
             producer
         )
         x, y = _initial_and_final_params_from_df(producer_rows_df)
-        true_params = true_params[producer]
-        x_true = true_params[0]
-        y_true = true_params[1]
+        true_params_i = true_params[producer]
+        x_true = true_params_i[0]
+        y_true = true_params_i[1]
         for j in range(len(x)):
             initial = plt.scatter(
                 x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
@@ -109,7 +107,7 @@ def fitted_params_and_mean_squared_error_fitting():
         )
         x, y, z = _contour_params(
             producer_rows_df,
-            x_column='f_initial',
+            x_column='f1_initial',
             y_column='tau_initial',
             z_column='MSE'
         )
@@ -137,7 +135,7 @@ def fitted_params_and_mean_squared_error_prediction():
         )
         x, y, z = _contour_params(
             producer_rows_df,
-            x_column='f_initial',
+            x_column='f1_initial',
             y_column='tau_initial',
             z_column='MSE'
         )
@@ -156,26 +154,6 @@ def fitted_params_and_mean_squared_error_prediction():
         )
 
 
-def aggregate_mses_contour_plot():
-    x, y, z = _contour_params(
-        characteristic_params_df,
-        x_column='f1',
-        y_column='tau',
-        z_column='aggregate_mses'
-    )
-    plt.contourf(x, y, z)
-    plt.colorbar()
-    title = 'CRMP: Most Predictive params in Aggregate'
-    plot_helper(
-        FIG_DIR,
-        title=title,
-        xlabel='f1',
-        ylabel='tau',
-        save=True
-    )
-
-
 parameter_convergence_fitting()
 fitted_params_and_mean_squared_error_fitting()
 fitted_params_and_mean_squared_error_prediction()
-aggregate_mses_contour_plot()
