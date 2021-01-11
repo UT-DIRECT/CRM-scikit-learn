@@ -13,6 +13,7 @@ from src.simulations import (
 characteristic_params_file = INPUTS['crmp']['crmp']['predict']['characteristic_params']
 characteristic_params_predictions_file = INPUTS['crmp']['crmp']['predict']['characteristic_params_predictions']
 characteristic_objective_function_file = INPUTS['crmp']['crmp']['predict']['characteristic_objective_function']
+q_predict_sensitivity_analysis_file = INPUTS['crmp']['crmp']['predict']['sensitivity_analysis']
 
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
@@ -32,8 +33,6 @@ def _initial_and_final_params_from_df(df):
 
 # FIXME: This function is found else where
 def _contour_params(df, x_column='', y_column='', z_column=''):
-    number_of_gains = 20
-    number_of_time_constants = 100
     x = df[x_column].to_numpy()
     x = np.reshape(x, (number_of_time_constants, number_of_gains))
     y = df[y_column].to_numpy()
@@ -45,14 +44,14 @@ def _contour_params(df, x_column='', y_column='', z_column=''):
         if i == 0:
             z_tmp.append(i)
         else:
-            z_tmp.append(np.log10(i))
+            z_tmp.append(np.log(i))
     z = z_tmp
     z = np.reshape(z, (number_of_time_constants, number_of_gains))
     return (x, y, z)
 
 
 def characteristic_params_convergence_plot():
-    df = pd.read_csv(characteristic_params_file )
+    df = pd.read_csv(characteristic_params_file)
     plt.figure(figsize=[7, 4.8])
     characteristic_objective_function_df = pd.read_csv(
         characteristic_objective_function_file
@@ -127,6 +126,43 @@ def best_characteristic_param():
     print(df)
 
 
-# characteristic_params_convergence_plot()
-# characteristic_well_vs_actual_well()
+def initial_guesses_and_mse_from_prediction():
+    df = pd.read_csv(q_predict_sensitivity_analysis_file)
+    for i in range(number_of_producers):
+        producer = i + 1
+        df_producer_rows = df.loc[
+            df['Producer'] == producer
+        ]
+        x, y, z = _contour_params(
+            df_producer_rows, x_column='f1_initial', y_column='tau_initial',
+            z_column='MSE'
+        )
+        plt.contourf(x, y, z, alpha=1.0)
+        plt.colorbar()
+        title = 'CRMP: Producer {} Initial Guesses with ln(MSE)s from Prediction'.format(producer)
+        x_true = true_params[producer][0]
+        y_true = true_params[producer][1]
+        actual = plt.scatter(
+            x_true, y_true, s=100, c='r',
+            label='Actual', alpha=0.5
+        )
+        plt.legend(
+            handles=[actual],
+            # bbox_to_anchor=(1.04, 1),
+            loc="upper left"
+        )
+        plt.tight_layout()
+        plt.ylim(0, 100)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
+characteristic_params_convergence_plot()
+characteristic_well_vs_actual_well()
 best_characteristic_param()
+initial_guesses_and_mse_from_prediction()
