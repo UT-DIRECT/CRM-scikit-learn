@@ -8,7 +8,7 @@ number_of_producers = len(producers)
 
 
 number_of_gains = 6
-number_of_time_constants = 10
+number_of_time_constants = 11
 f1 = np.linspace(0, 1, number_of_gains)
 f2 = np.ones(number_of_gains) - f1
 tau = np.linspace(1e-6, 100, number_of_time_constants)

@@ -30,7 +30,7 @@ predict_data = {
 for i in range(number_of_producers):
     X, y = production_rate_dataset(producers[i], *injectors)
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(
-        X, y, 2
+        X, y, 2, training_split=0.5
     )
     X_train = X[:train_test_seperation_idx]
     y_train = y[:train_test_seperation_idx]
