@@ -30,10 +30,6 @@ for i in range(number_of_producers):
     y_train = y[:train_test_seperation_idx]
     X_test = X[train_test_seperation_idx:]
     y_test = y[train_test_seperation_idx:]
-    # icrmp_cv = GridSearchCV(ICRMP(), param_grid, cv=None)
-    # icrmp_cv.fit(X_train, y_train)
-    # print(icrmp_cv.best_params_)
-    # print(icrmp_cv.best_score_)
     for p0 in param_grid['p0']:
         icrmp = ICRMP(p0=p0)
         icrmp = icrmp.fit(X_train, y_train)
