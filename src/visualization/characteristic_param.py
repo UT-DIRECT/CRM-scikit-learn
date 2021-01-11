@@ -32,21 +32,21 @@ def _initial_and_final_params_from_df(df):
     return (x, y)
 
 # FIXME: This function is found else where
-def _contour_params(df, x_column='', y_column='', z_column=''):
+def _contour_params(df, x_column='', y_column='', z_column='',
+                    shape=(number_of_time_constants, number_of_gains)):
     x = df[x_column].to_numpy()
-    x = np.reshape(x, (number_of_time_constants, number_of_gains))
+    x = np.reshape(x, shape)
     y = df[y_column].to_numpy()
-    y = np.reshape(y, (number_of_time_constants, number_of_gains))
+    y = np.reshape(y, shape)
     z = df[z_column].to_numpy()
     z_tmp = []
     for i in z:
-        # z_tmp.append(i)
         if i == 0:
             z_tmp.append(i)
         else:
             z_tmp.append(np.log(i))
     z = z_tmp
-    z = np.reshape(z, (number_of_time_constants, number_of_gains))
+    z = np.reshape(z, shape)
     return (x, y, z)
 
 
@@ -123,7 +123,6 @@ def best_characteristic_param():
         'MSE': 'sum'
     })
     df = df.sort_values('MSE')
-    print(df)
 
 
 def initial_guesses_and_mse_from_prediction():
@@ -162,7 +161,28 @@ def initial_guesses_and_mse_from_prediction():
         )
 
 
+def initial_guesses_and_mse_from_prediction_in_aggregate():
+    df = pd.read_csv(q_predict_sensitivity_analysis_file)
+    df = df.groupby(['tau_initial', 'f1_initial']).sum().reset_index()
+    x, y, z = _contour_params(
+        df, x_column='f1_initial', y_column='tau_initial', z_column='MSE'
+    )
+    plt.contourf(x, y, z, alpha=1.0)
+    plt.colorbar()
+    title = 'CRMP: Initial Guesses with ln(MSE)s from Prediction in Aggregate'
+    plt.tight_layout()
+    plt.ylim(0, 100)
+    plot_helper(
+        FIG_DIR,
+        title=title,
+        xlabel=xlabel,
+        ylabel=ylabel,
+        save=True
+    )
+
+
 characteristic_params_convergence_plot()
 characteristic_well_vs_actual_well()
 best_characteristic_param()
 initial_guesses_and_mse_from_prediction()
+initial_guesses_and_mse_from_prediction_in_aggregate()
