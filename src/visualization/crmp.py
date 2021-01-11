@@ -170,9 +170,9 @@ def tau_at_zero():
     )
 
 
-# producers_vs_time()
+producers_vs_time()
 # producers_vs_injector()
 # production_rate_estimators_and_time_steps()
 # production_rate_good_estimators_and_time_steps()
 # production_rate_with_predictions()
-tau_at_zero()
+# tau_at_zero()
