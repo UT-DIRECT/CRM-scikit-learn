@@ -30,6 +30,7 @@ characteristic_objective_function_data = {
     'tau': [], 'f1': [], 'f2': [], 'r2': [], 'MSE': []
 }
 
+
 def train_crmp_across_wells():
     characteristic_producer = np.mean(producers, axis=0)
     X, y = production_rate_dataset(characteristic_producer, *injectors)

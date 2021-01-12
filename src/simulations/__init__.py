@@ -2,10 +2,9 @@ import numpy as np
 
 from src.data.read_crmp import injectors, producers, producer_names
 
+
 step_sizes = np.linspace(2, 12, num=11).astype(int)
-
 number_of_producers = len(producers)
-
 
 number_of_gains = 6
 number_of_time_constants = 11
