@@ -68,3 +68,21 @@ def initial_and_final_params_from_df(df):
     x = np.array([x_i, x_f]).T
     y = np.array([y_i, y_f]).T
     return (x, y)
+
+
+def contour_params(df, x_column='', y_column='', z_column='',
+                    shape=(number_of_time_constants, number_of_gains)):
+    x = df[x_column].to_numpy()
+    x = np.reshape(x, shape)
+    y = df[y_column].to_numpy()
+    y = np.reshape(y, shape)
+    z = df[z_column].to_numpy()
+    z_tmp = []
+    for i in z:
+        if i == 0:
+            z_tmp.append(i)
+        else:
+            z_tmp.append(np.log(i))
+    z = z_tmp
+    z = np.reshape(z, shape)
+    return (x, y, z)
