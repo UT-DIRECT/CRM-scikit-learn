@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 
 from src.data.read_crmp import producers, producer_names, time, true_params
-from src.helpers.figures import plot_helper
+from src.helpers.figures import (
+    contour_params, initial_and_final_params_from_df, plot_helper
+)
 from src.visualization import INPUTS
 from src.simulations import (
     number_of_gains, number_of_producers, number_of_time_constants
@@ -19,35 +21,6 @@ FIG_DIR = INPUTS['crmp']['figures_dir']
 
 xlabel ='f1'
 ylabel ='tau'
-
-
-# FIXME: This function is found else where
-def _initial_and_final_params_from_df(df):
-    x_i = df['f1_initial']
-    x_f = df['f1_final']
-    y_i = df['tau_initial']
-    y_f = df['tau_final']
-    x = np.array([x_i, x_f]).T
-    y = np.array([y_i, y_f]).T
-    return (x, y)
-
-# FIXME: This function is found else where
-def _contour_params(df, x_column='', y_column='', z_column='',
-                    shape=(number_of_time_constants, number_of_gains)):
-    x = df[x_column].to_numpy()
-    x = np.reshape(x, shape)
-    y = df[y_column].to_numpy()
-    y = np.reshape(y, shape)
-    z = df[z_column].to_numpy()
-    z_tmp = []
-    for i in z:
-        if i == 0:
-            z_tmp.append(i)
-        else:
-            z_tmp.append(np.log(i))
-    z = z_tmp
-    z = np.reshape(z, shape)
-    return (x, y, z)
 
 
 def characteristic_params_convergence_plot():
@@ -82,10 +55,9 @@ def characteristic_params_convergence_plot():
         x_true, y_true, s=200, c='b', marker='X',
         label='Actual', alpha=1
     )
-    title = 'Characteristic Well Parameter Convergence and log(MSE)s from Prediction'
+    title = 'Characteristic Well Parameter Convergence and ln(MSE)s from Prediction'
     plt.legend(
         handles=[actual, initial, final],
-        # bbox_to_anchor=(1.04, 1),
         loc="upper left"
     )
     plt.tight_layout()
@@ -147,7 +119,6 @@ def initial_guesses_and_mse_from_prediction():
         )
         plt.legend(
             handles=[actual],
-            # bbox_to_anchor=(1.04, 1),
             loc="upper left"
         )
         plt.tight_layout()

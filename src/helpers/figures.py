@@ -58,3 +58,13 @@ def bar_plot_formater(fig_dir, x, x_labels, title, xlabel, ylabel, legend=True):
     plt.tight_layout()
     fig_saver(fig_dir, title, xlabel, ylabel)
     plt.close()
+
+
+def initial_and_final_params_from_df(df):
+    x_i = df['f1_initial']
+    x_f = df['f1_final']
+    y_i = df['tau_initial']
+    y_f = df['tau_final']
+    x = np.array([x_i, x_f]).T
+    y = np.array([y_i, y_f]).T
+    return (x, y)

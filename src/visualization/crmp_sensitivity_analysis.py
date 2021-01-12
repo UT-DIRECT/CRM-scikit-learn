@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 
 from src.data.read_crmp import producers, true_params
-from src.helpers.figures import plot_helper
+from src.helpers.figures import (
+    contour_params, initial_and_final_params_from_df, plot_helper
+)
 from src.visualization import INPUTS
 from src.simulations import number_of_gains, number_of_time_constants
 
@@ -29,33 +31,6 @@ ylabel ='tau'
 
 def _producer_rows_from_df(df, producer):
     return df.loc[df['Producer'] == producer]
-
-
-def _initial_and_final_params_from_df(df):
-    x_i = df['f1_initial']
-    x_f = df['f1_final']
-    y_i = df['tau_initial']
-    y_f = df['tau_final']
-    x = np.array([x_i, x_f]).T
-    y = np.array([y_i, y_f]).T
-    return (x, y)
-
-
-def _contour_params(df, x_column='', y_column='', z_column=''):
-    x = df[x_column].to_numpy()
-    x = np.reshape(x, (number_of_time_constants, number_of_gains))
-    y = df[y_column].to_numpy()
-    y = np.reshape(y, (number_of_time_constants, number_of_gains))
-    z = df[z_column].to_numpy()
-    z_tmp = []
-    for i in z:
-        if i == 0:
-            z_tmp.append(i)
-        else:
-            z_tmp.append(np.log(i))
-    z = z_tmp
-    z = np.reshape(z, (number_of_time_constants, number_of_gains))
-    return (x, y, z)
 
 
 def parameter_convergence_fitting():
