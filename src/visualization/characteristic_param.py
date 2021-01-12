@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_crmp import producers, producer_names, Time, true_params
+from src.data.read_crmp import producers, producer_names, time, true_params
 from src.helpers.figures import plot_helper
 from src.visualization import INPUTS
 from src.simulations import (

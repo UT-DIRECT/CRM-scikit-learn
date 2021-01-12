@@ -6,7 +6,7 @@ from sklearn.model_selection import (cross_val_score, GridSearchCV,
     train_test_split)
 
 from src.config import INPUTS
-from src.data.read_crmp import injectors, producers, producer_names, Time
+from src.data.read_crmp import injectors, producers, producer_names, time
 from src.helpers.analysis import fit_statistics
 from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.features import production_rate_dataset
@@ -37,7 +37,7 @@ def train_crmp_across_wells():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, shuffle=False
     )
-    t_range = Time[len(X_train):]
+    t_range = time[len(X_train):]
     for p0 in param_grid['p0']:
         crmp = CRMP(p0=p0)
         crmp = crmp.fit(X_train, y_train)

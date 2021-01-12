@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from src.data.read_crmp import (injectors, net_productions,
-    producers, producer_names, Time)
+    producers, producer_names, time)
 from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
@@ -17,7 +17,7 @@ FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def producers_vs_time():
     plt.figure()
-    plt.plot(Time, producers.T)
+    plt.plot(time, producers.T)
     plot_helper(
         FIG_DIR,
         xlabel='Time',
@@ -159,10 +159,10 @@ def production_rate_with_predictions():
 
 def tau_at_zero():
     tau_at_zero_df = pd.read_csv(tau_at_zero_file)
-    plt.plot(tau_at_zero_df['Time'], tau_at_zero_df['q1'])
+    plt.plot(tau_at_zero_df['time'], tau_at_zero_df['q1'])
     plot_helper(
         FIG_DIR,
-        title='CRMP With Zero Time Constant',
+        title='CRMP With Zero time Constant',
         xlabel='Time',
         ylabel='Production Rate',
         legend=['Constant Injection'],

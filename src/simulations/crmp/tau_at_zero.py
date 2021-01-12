@@ -17,7 +17,7 @@ f2 = 0.4
 tau = 1e-6
 
 tau_at_zero_data = {
-    'Time': np.linspace(1, 150, 150).tolist(), 'q1': []
+    'time': np.linspace(1, 150, 150).tolist(), 'q1': []
 }
 
 

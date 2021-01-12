@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_crmp import (net_productions, producer_names, Time)
+from src.data.read_crmp import (net_productions, producer_names, time)
 from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
@@ -15,7 +15,7 @@ FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def net_production_vs_time():
     plt.figure()
-    plt.plot(Time, net_productions.T)
+    plt.plot(time, net_productions.T)
     plot_helper(
         FIG_DIR,
         xlabel='Time',
