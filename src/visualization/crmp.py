@@ -3,20 +3,21 @@ import numpy as np
 import pandas as pd
 
 from src.data.read_crmp import (injectors, net_productions,
-    producers, producer_names, Time)
+    producers, producer_names, time)
 from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
 
 
-q_fitting_file = INPUTS['crmp']['q_fitting']
-q_predictions_metrics_file = INPUTS['crmp']['q_predictions_metrics']
-q_predictions_file = INPUTS['crmp']['q_predictions']
+fit_file = INPUTS['crmp']['crmp']['fit']['fit']
+metrics_file = INPUTS['crmp']['crmp']['predict']['metrics']
+predict_file = INPUTS['crmp']['crmp']['predict']['predict']
+tau_at_zero_file = INPUTS['crmp']['crmp']['tau_at_zero']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def producers_vs_time():
     plt.figure()
-    plt.plot(Time, producers.T)
+    plt.plot(time, producers.T)
     plot_helper(
         FIG_DIR,
         xlabel='Time',
@@ -43,7 +44,7 @@ def producers_vs_injector():
 
 def production_rate_estimators_and_time_steps():
     x_labels = [int(step_size) for step_size in step_sizes]
-    predictions_metrics_df = pd.read_csv(q_predictions_metrics_file)
+    metrics_df = pd.read_csv(metrics_file)
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
@@ -52,7 +53,7 @@ def production_rate_estimators_and_time_steps():
     ]
     for i in range(len(producers)):
         producer = i + 1
-        producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
+        producer_rows_df = metrics_df.loc[metrics_df['Producer'] == producer]
         crmp_mse = []
         linear_regression_mse = []
         bayesian_ridge_mse = []
@@ -78,7 +79,7 @@ def production_rate_estimators_and_time_steps():
 
 def production_rate_good_estimators_and_time_steps():
     x_labels = [int(step_size) for step_size in step_sizes]
-    predictions_metrics_df = pd.read_csv(q_predictions_metrics_file)
+    metrics_df = pd.read_csv(metrics_file)
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
@@ -86,7 +87,7 @@ def production_rate_good_estimators_and_time_steps():
     ]
     for i in range(len(producers)):
         producer = i + 1
-        producer_rows_df = predictions_metrics_df.loc[predictions_metrics_df['Producer'] == producer]
+        producer_rows_df = metrics_df.loc[metrics_df['Producer'] == producer]
         crmp_mse = []
         linear_regression_mse = []
         bayesian_ridge_mse = []
@@ -108,16 +109,16 @@ def production_rate_good_estimators_and_time_steps():
 
 
 def production_rate_with_predictions():
-    fitting_df = pd.read_csv(q_fitting_file)
-    predictions_df = pd.read_csv(q_predictions_file)
+    fit_df = pd.read_csv(fit_file)
+    predict_df = pd.read_csv(predict_file)
     for i in range(len(producers)):
         producer_number = i + 1
         plt.figure()
-        fitting_producer = fitting_df.loc[
-            fitting_df['Producer'] == producer_number
+        fitting_producer = fit_df.loc[
+            fit_df['Producer'] == producer_number
         ]
-        predictions_producer = predictions_df.loc[
-            predictions_df['Producer'] == producer_number
+        predictions_producer = predict_df.loc[
+            predict_df['Producer'] == producer_number
         ]
         producer = producers[i]
         predictions_step_size_2 = predictions_producer.loc[
@@ -156,8 +157,22 @@ def production_rate_with_predictions():
         )
 
 
-# producers_vs_time()
+def tau_at_zero():
+    tau_at_zero_df = pd.read_csv(tau_at_zero_file)
+    plt.plot(tau_at_zero_df['time'], tau_at_zero_df['q1'])
+    plot_helper(
+        FIG_DIR,
+        title='CRMP With Zero time Constant',
+        xlabel='Time',
+        ylabel='Production Rate',
+        legend=['Constant Injection'],
+        save=True
+    )
+
+
+producers_vs_time()
 # producers_vs_injector()
 # production_rate_estimators_and_time_steps()
 # production_rate_good_estimators_and_time_steps()
 # production_rate_with_predictions()
+# tau_at_zero()

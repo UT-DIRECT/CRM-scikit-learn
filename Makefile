@@ -47,7 +47,7 @@ wfsim-features:
 simulate: simulate-crmp simulate-koval
 
 ## Run all the plots
-plots: crmp-plots koval-plots
+plots: crmp-plots icrmp-plots koval-plots crmp-sensitivity-analysis-plots
 
 ## Entire CRMP workflow
 crmp: simulate-crmp crmp-plots
@@ -57,23 +57,34 @@ simulate-crmp: train-crmp predict-crmp
 
 ## Run and train the models
 train-crmp:
-	$(PYTHON) src.simulations.train_crmp
+	$(PYTHON) src.simulations.crmp.train
 
 ## Run the models to make predictions
 predict-crmp:
-	$(PYTHON) src.simulations.predict_crmp
-
-## Run Sensitivity Analysis on CRMP
-crmp-sensitivity-analysis:
-	$(PYTHON) src.simulations.crmp_sensitivity_analysis
-
-## Plot Sensitivity Analysis results for CRMP
-crmp-sensitivity-analysis-plot:
-	$(PYTHON) src.visualization.crmp_sensitivity_analysis
+	$(PYTHON) src.simulations.crmp.predict
 
 ## Make the CRMP plots
 crmp-plots:
 	$(PYTHON) src.visualization.crmp
+
+## Run Sensitivity Analysis on CRMP
+crmp-sensitivity-analysis:
+	$(PYTHON) src.simulations.crmp.sensitivity_analysis
+
+## Run Analysis of Sensitivity Analysis Data on CRMP for the fit case
+crmp-sensitivity-analysis-analysis:
+	$(PYTHON) src.analysis.crmp_sensitivity_analysis
+
+## Plot Sensitivity Analysis results for CRMP
+crmp-sensitivity-analysis-plots:
+	$(PYTHON) src.visualization.crmp_sensitivity_analysis
+
+## Run script to find the characteristic parameter values
+crmp-characteristic-param:
+	$(PYTHON) src.simulations.crmp.characteristic_param
+
+crmp-characteristic-param-plots:
+	$(PYTHON) src.visualization.characteristic_param
 
 ## Entire ICRMP workflow
 icrmp: simulate-icrmp icrmp-plots
@@ -83,15 +94,23 @@ simulate-icrmp: train-icrmp predict-icrmp
 
 ## Run and train ICRMP
 train-icrmp:
-	$(PYTHON) src.simulations.train_icrmp
+	$(PYTHON) src.simulations.icrmp.train
 
 ## Run ICRMP to make predictions
 predict-icrmp:
-	$(PYTHON) src.simulations.predict_icrmp
+	$(PYTHON) src.simulations.icrmp.predict
 
 ## Make the ICRMP plots
 icrmp-plots:
 	$(PYTHON) src.visualization.icrmp
+
+## Run Sensitivity Analysis on CRMP
+icrmp-sensitivity-analysis:
+	$(PYTHON) src.simulations.icrmp.sensitivity_analysis
+
+## Plot Sensitivity Analysis results for CRMP
+icrmp-sensitivity-analysis-plot:
+	$(PYTHON) src.visualization.icrmp_sensitivity_analysis
 
 ## Entire Koval workflow
 koval: simulate-koval koval-plots
@@ -100,10 +119,10 @@ koval: simulate-koval koval-plots
 simulate-koval: train-koval predict-koval
 
 train-koval:
-	$(PYTHON) src.simulations.train_koval
+	$(PYTHON) src.simulations.koval.train
 
 predict-koval:
-	$(PYTHON) src.simulations.predict_koval
+	$(PYTHON) src.simulations.koval.predict
 
 ## Make the Koval plots
 koval-plots:

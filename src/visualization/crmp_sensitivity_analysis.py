@@ -1,64 +1,134 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pandas as pd
 
-
-from src.data.read_crmp import producers
-from src.helpers.figures import plot_helper
+from src.data.read_crmp import producers, true_params
+from src.helpers.figures import (
+    contour_params, initial_and_final_params_from_df, plot_helper
+)
 from src.visualization import INPUTS
+from src.simulations import number_of_gains, number_of_time_constants
 
 
-q_sensitivity_analysis_file = INPUTS['crmp']['q_sensitivity_analysis']
+q_fitting_sensitivity_analysis_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
+q_fitting_sensitivity_analysis_df = pd.read_csv(q_fitting_sensitivity_analysis_file)
+
+q_predictions_sensitivity_analysis_file = INPUTS['crmp']['crmp']['predict']['sensitivity_analysis']
+q_predictions_sensitivity_analysis_df = pd.read_csv(q_predictions_sensitivity_analysis_file)
+
+best_guesses_fit_file = INPUTS['crmp']['crmp']['fit']['best_guesses']
+best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
+
+best_guesses_predict_file = INPUTS['crmp']['crmp']['predict']['best_guesses']
+best_guesses_predict_df = pd.read_csv(best_guesses_predict_file)
+
+
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
-true_parameters = {
-    1: [0.2, 0.8, 1.5],
-    2: [0.4, 0.6, 1],
-    3: [0.6, 0.4, 5],
-    4: [0.8, 0.2, 50]
-}
+xlabel ='f1'
+ylabel ='tau'
 
 
-def plot_parameter_convergence():
-    q_sensitivity_analysis_df = pd.read_csv(q_sensitivity_analysis_file)
+def _producer_rows_from_df(df, producer):
+    return df.loc[df['Producer'] == producer]
+
+
+def parameter_convergence_fitting():
     for i in range(len(producers)):
-        fig =  plt.figure()
-        ax = Axes3D(fig)
+        plt.figure(figsize=[7, 4.8])
         producer = i + 1
-        producer_rows_df = q_sensitivity_analysis_df.loc[q_sensitivity_analysis_df['Producer'] == producer]
-        x_i = producer_rows_df['f1_initial']
-        x_f = producer_rows_df['f1_final']
-        y_i = producer_rows_df['f2_initial']
-        y_f = producer_rows_df['f2_final']
-        z_i = producer_rows_df['tau_initial']
-        z_f = producer_rows_df['tau_final']
-        x = np.array([x_i, x_f]).T
-        y = np.array([y_i, y_f]).T
-        z = np.array([z_i, z_f]).T
-        true_params = true_parameters[producer]
-        x_true = true_params[0]
-        y_true = true_params[1]
-        z_true = true_params[2]
-        initial = ax.scatter(x_i, y_i, z_i, s=40, c='g', marker='o', label='Initial')
-        final = ax.scatter(x_f, y_f, z_f, s=40, c='r', marker='x', label='Final')
-        for i in range(len(x)):
-            ax.plot(x[i], y[i], z[i], c='k', alpha=0.3)
-        actual = ax.scatter(
-            x_true, y_true, z_true, s=200, c='b', marker='X',
+        producer_rows_df = _producer_rows_from_df(
+            q_fitting_sensitivity_analysis_df,
+            producer
+        )
+        x, y = _initial_and_final_params_from_df(producer_rows_df)
+        true_params_i = true_params[producer]
+        x_true = true_params_i[0]
+        y_true = true_params_i[1]
+        for j in range(len(x)):
+            initial = plt.scatter(
+                x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
+            )
+            final = plt.scatter(
+                x[j][1], y[j][1], s=40, c='r', marker='x', label='Final'
+            )
+            plt.plot(x[j], y[j], c='k', alpha=0.3)
+        actual = plt.scatter(
+            x_true, y_true, s=200, c='b', marker='X',
             label='Actual'
         )
-        ax.set_title(
-            'Producer {}: Initial Parameter Values with Convergence'.format(producer),
-            fontsize=14,
+        title = 'CRMP Fitting: Producer {} Initial Parameter Values with Convergence'.format(producer)
+        plt.legend(
+            handles=[actual, initial, final],
+            bbox_to_anchor=(1.04, 1),
+            loc="upper left"
         )
-        ax.set_xlabel('f1', fontsize=12)
-        ax.set_ylabel('f2', fontsize=12)
-        ax.set_zlabel('tau', fontsize=12)
-        ax.legend(handles=[actual, initial, final], loc="lower left")
-        filename = 'producer_{}_initial_parameter_values_with_convergence'.format(producer)
-        fig_file = '{}/{}'.format(FIG_DIR, filename)
-        plt.savefig(fig_file)
+        plt.tight_layout()
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
 
 
-plot_parameter_convergence()
+def fitted_params_and_mean_squared_error_fitting():
+    for i in range(len(producers)):
+        producer = i + 1
+        producer_rows_df = _producer_rows_from_df(
+            q_fitting_sensitivity_analysis_df,
+            producer
+        )
+        x, y, z = _contour_params(
+            producer_rows_df,
+            x_column='f1_initial',
+            y_column='tau_initial',
+            z_column='MSE'
+        )
+        plt.contourf(x, y, z)
+        plt.colorbar()
+        x, y = true_params[producer]
+        actual = plt.scatter(x, y, c='red', label='Actual')
+        plt.legend(handles=[actual])
+        title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Fitting'.format(producer)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
+def fitted_params_and_mean_squared_error_prediction():
+    for i in range(len(producers)):
+        producer = i + 1
+        producer_rows_df = _producer_rows_from_df(
+            q_predictions_sensitivity_analysis_df,
+            producer
+        )
+        x, y, z = _contour_params(
+            producer_rows_df,
+            x_column='f1_initial',
+            y_column='tau_initial',
+            z_column='MSE'
+        )
+        plt.contourf(x, y, z)
+        plt.colorbar()
+        x, y = true_params[producer]
+        actual = plt.scatter(x, y, c='red', label='Actual')
+        plt.legend(handles=[actual])
+        title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Prediction'.format(producer)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
+parameter_convergence_fitting()
+fitted_params_and_mean_squared_error_fitting()
+fitted_params_and_mean_squared_error_prediction()

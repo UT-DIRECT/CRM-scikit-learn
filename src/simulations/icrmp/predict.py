@@ -4,39 +4,40 @@ from src.config import INPUTS
 from src.data.read_crmp import (injectors, net_productions, producers,
      producer_names)
 from src.helpers.cross_validation import forward_walk_splitter
-from src.helpers.features import net_production_dataset, production_rate_dataset
+from src.helpers.features import net_production_dataset
 from src.helpers.models import load_models, model_namer, test_model
-from src.simulations import step_sizes
+from src.simulations import number_of_producers, step_sizes
 
+
+# Net Production Predictions
 
 # Loading the previously serialized models
-trained_models = load_models('crmp')
+trained_models = load_models('icrmp')
 
-# Loading the production rate models up by producer
-production_rate_models_by_producer = {}
+# Loading the net production models up by producer
+net_production_models_by_producer = {}
 for producer in producer_names:
     producer_label = producer.lower().replace(' ', '_')
     keys_for_producer = []
     for key in trained_models.keys():
-        if producer_label in key and 'net_' not in key:
+        if producer_label in key and 'net_' in key:
             keys_for_producer.append(key)
-    production_rate_models_by_producer[producer] = [trained_models[key] for key in keys_for_producer]
+    net_production_models_by_producer[producer] = [trained_models[key] for key in keys_for_producer]
 
-# Predict each producer with each model
-q_predictions_file = INPUTS['crmp']['q_predictions']
-q_predictions_metrics_file = INPUTS['crmp']['q_predictions_metrics']
-predictions_data = {
+predict_file = INPUTS['crmp']['icrmp']['predict']['predict']
+metrics_file = INPUTS['crmp']['N_predictions_metrics']
+predict_data = {
     'Producer': [], 'Model': [], 'Step size': [], 't_start': [], 't_end': [],
     't_i': [], 'Prediction': []
 }
 metrics_data = {
     'Producer': [], 'Model': [], 'Step size': [], 'r2': [], 'MSE': []
 }
-for i in range(len(producers)):
+for i in range(number_of_producers):
     producer_name = producer_names[i]
     producer_number = i + 1
-    models = production_rate_models_by_producer[producer_name]
-    X, y = production_rate_dataset(producers[i], *injectors)
+    models = net_production_models_by_producer[producer_name]
+    X, y = net_production_dataset(net_productions[i], producers[i], *injectors)
 
     for model in models:
         for step_size in step_sizes:
@@ -55,15 +56,15 @@ for i in range(len(producers)):
                 for k in range(len(y_hat_i)):
                     y_i = y_hat_i[k]
                     t_i = time_step_i[k] + 2
-                    predictions_data['Producer'].append(producer_number)
-                    predictions_data['Model'].append(model_namer(model))
-                    predictions_data['Step size'].append(step_size)
-                    predictions_data['t_start'].append(t_start)
-                    predictions_data['t_end'].append(t_end)
-                    predictions_data['t_i'].append(t_i)
-                    predictions_data['Prediction'].append(y_i)
+                    predict_data['Producer'].append(producer_number)
+                    predict_data['Model'].append(model_namer(model))
+                    predict_data['Step size'].append(step_size)
+                    predict_data['t_start'].append(t_start)
+                    predict_data['t_end'].append(t_end)
+                    predict_data['t_i'].append(t_i)
+                    predict_data['Prediction'].append(y_i)
 
 metrics_df = pd.DataFrame(metrics_data)
-metrics_df.to_csv(q_predictions_metrics_file)
-predictions_df = pd.DataFrame(predictions_data)
-predictions_df.to_csv(q_predictions_file)
+metrics_df.to_csv(metrics_file)
+predictions_df = pd.DataFrame(predict_data)
+predictions_df.to_csv(output_file)

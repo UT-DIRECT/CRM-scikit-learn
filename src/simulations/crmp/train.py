@@ -10,7 +10,6 @@ from sklearn.metrics import r2_score
 from src.config import INPUTS
 from src.data.read_crmp import (injectors, net_productions, producers,
          producer_names)
-from src.helpers.analysis import fit_statistics
 from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
 from src.helpers.features import (net_production_dataset,
@@ -18,18 +17,19 @@ from src.helpers.features import (net_production_dataset,
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
 from src.models.crmp import CRMP
 from src.models.icrmp import ICRMP
+from src.simulations import number_of_producers
 
 
-# Net Production Training
-N_fitting_file = INPUTS['crmp']['N_fitting']
-N_fitting_data = {
+# Production Rate Training
+output_file = INPUTS['crmp']['crmp']['fit']['fit']
+data = {
     'Producer': [], 'Model': [], 't_i': [], 'Fit': []
 }
-for i in range(len(producers)):
+for i in range(number_of_producers):
     models = [
-        BayesianRidge(), ICRMP(), ElasticNetCV, LassoCV, LinearRegression()
+        BayesianRidge(), CRMP(), ElasticNetCV, LassoCV, LinearRegression()
     ]
-    X, y = net_production_dataset(net_productions[i], producers[i], *injectors)
+    X, y = production_rate_dataset(producers[i], *injectors)
     train_split, test_split, train_test_seperation_idx = forward_walk_splitter(X, y, 2)
     X_train = X[:train_test_seperation_idx]
     y_train = y[:train_test_seperation_idx]
@@ -40,17 +40,15 @@ for i in range(len(producers)):
         model = model.fit(X_train, y_train)
         y_hat = model.predict(X_train)
         time = np.linspace(1, len(y_hat), num=len(y_hat))
+        # TODO: This is not the ideal location for getting this fitting data.
         for k in range(len(y_hat)):
-            N_fitting_data['Producer'].append(i + 1)
-            N_fitting_data['Model'].append(model_namer(model))
-            N_fitting_data['t_i'].append(k + 1)
-            N_fitting_data['Fit'].append(y_hat[k])
-        pickled_model = serialized_model_path(
-            'icrmp', model, 'Integrated {}'.format(producer_names[i])
-        )
+            data['Producer'].append(i + 1)
+            data['Model'].append(model_namer(model))
+            data['t_i'].append(k + 1)
+            data['Fit'].append(y_hat[k])
+        pickled_model = serialized_model_path('crmp', model, producer_names[i])
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
 
-
-N_fitting_df = pd.DataFrame(N_fitting_data)
-N_fitting_df.to_csv(N_fitting_file)
+df = pd.DataFrame(data)
+df.to_csv(output_file)

@@ -2,20 +2,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.data.read_crmp import (net_productions, producer_names, Time)
+from src.data.read_crmp import (net_productions, producer_names, time)
 from src.helpers.figures import bar_plot_helper, bar_plot_formater, plot_helper
 from src.simulations import step_sizes
 from src.visualization import INPUTS
 
 
-N_fitting_file = INPUTS['crmp']['N_fitting']
-N_predictions_metrics_file = INPUTS['crmp']['N_predictions_metrics']
-N_predictions_file = INPUTS['crmp']['N_predictions']
+fit_file = INPUTS['crmp']['icrmp']['fit']['fit']
+metrics_file = INPUTS['crmp']['icrmp']['predict']['metrics']
+predict_file = INPUTS['crmp']['icrmp']['predict']['predict']
 FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def net_production_vs_time():
     plt.figure()
-    plt.plot(Time, net_productions.T)
+    plt.plot(time, net_productions.T)
     plot_helper(
         FIG_DIR,
         xlabel='Time',
@@ -27,7 +27,7 @@ def net_production_vs_time():
 
 def net_production_estimators_and_time_steps():
     x_labels = [int(step_size) for step_size in step_sizes]
-    predictions_metrics_df = pd.read_csv(N_predictions_metrics_file)
+    predictions_metrics_df = pd.read_csv(metrics_file)
     x = np.arange(len(x_labels))
     width = 0.15
     bar_labels = [
@@ -62,7 +62,7 @@ def net_production_estimators_and_time_steps():
 
 def net_production_good_estimators_and_time_steps():
     x_labels = [int(step_size) for step_size in step_sizes]
-    predictions_metrics_df = pd.read_csv(N_predictions_metrics_file)
+    predictions_metrics_df = pd.read_csv(metrics_file)
     x = np.arange(len(x_labels))
     width = 0.23
     bar_labels = [
@@ -92,8 +92,8 @@ def net_production_good_estimators_and_time_steps():
 
 
 def net_production_with_predictions():
-    fitting_df = pd.read_csv(N_fitting_file)
-    predictions_df = pd.read_csv(N_predictions_file)
+    fitting_df = pd.read_csv(fit_file)
+    predictions_df = pd.read_csv(predict_file)
     for i in range(len(net_productions)):
         producer_number = i + 1
         plt.figure()
