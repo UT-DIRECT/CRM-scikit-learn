@@ -50,5 +50,5 @@ for i in range(number_of_producers):
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
 
-fit = pd.DataFrame(data)
-fit.to_csv(output_file)
+df = pd.DataFrame(data)
+df.to_csv(output_file)
