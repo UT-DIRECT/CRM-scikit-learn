@@ -31,7 +31,6 @@ predict_df = pd.DataFrame(
     ]
 )
 
-
 for i in range(number_of_producers):
     producer_number = i + 1
     X, y = production_rate_dataset(producers[i], *injectors)

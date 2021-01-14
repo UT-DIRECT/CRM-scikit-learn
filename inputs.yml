@@ -28,8 +28,8 @@
   'raw_data': './data/raw/WFSim.xlsx'
   'data': './data/processed/wfsim/WFSim.csv'
   'figures_dir': './reports/figures/wfsim/'
-  'crmt_predictions': './data/processed/wfsim/crmt_predictions.csv'
-  'crmt_predictions_metrics': './data/processed/wfsim/crmt_predictions_metrics.csv'
-  'koval_fitting': './data/processed/wfsim/koval_fitting.csv'
-  'koval_predictions': './data/processed/wfsim/koval_predictions.csv'
-  'koval_predictions_metrics': './data/processed/wfsim/koval_predictions_metrics.csv'
+  'koval':
+    'fit': './data/processed/wfsim/koval/fit/fit.csv'
+    'predict':
+      'predictions': './data/processed/wfsim/koval/predict/predictions.csv'
+      'metrics': './data/processed/wfsim/koval/preidct/metrics.csv'

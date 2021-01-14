@@ -18,13 +18,17 @@ koval = trained_models['koval']
 del trained_models['koval']
 ml_models = list(trained_models.values())
 
-koval_predictions_file = INPUTS['wfsim']['koval_predictions']
-koval_predictions_metrics_file = INPUTS['wfsim']['koval_predictions_metrics']
-koval_predictions = {
-    'Model': [], 'Step size': [], 't_start': [], 't_end': [], 't_i': [],
-    'Prediction': []
-}
-koval_predictions_metrics = {'Model': [], 'Step size': [], 'r2': [], 'MSE': []}
+predictions_file = INPUTS['wfsim']['koval']['predict']['predictions']
+metrics_file = INPUTS['wfsim']['koval']['predict']['metrics']
+predictions_df = pd.DataFrame(
+    columns=[
+        'Model', 'Step size', 't_start', 't_end', 't_i',
+        'Prediction'
+    ]
+)
+metrics_df = pd.DataFrame(
+    columns=['Model', 'Step size', 'r2', 'MSE']
+)
 
 
 # Koval Predictions
@@ -35,11 +39,10 @@ for step_size in step_sizes:
     )
     r2, mse, y_hat, time_step = test_model(X, y, koval, test_split)
 
-    koval_predictions_metrics['Model'].append(model_namer(koval))
-    koval_predictions_metrics['Step size'].append(step_size)
-    koval_predictions_metrics['r2'].append(r2)
-    koval_predictions_metrics['MSE'].append(mse)
-
+    model_name = model_namer(koval)
+    metrics_df.loc[len(metrics_df.index)] = [
+        model_name, step_size, r2, mse
+    ]
     for i in range(len(y_hat)):
         y_hat_i = y_hat[i]
         time_step_i = time_step[i]
@@ -48,12 +51,9 @@ for step_size in step_sizes:
         for k in range(len(y_hat_i)):
             y_i = y_hat_i[k]
             t_i = time_step_i[k] + 2
-            koval_predictions['Model'].append(model_namer(koval))
-            koval_predictions['Step size'].append(step_size)
-            koval_predictions['t_start'].append(t_start)
-            koval_predictions['t_end'].append(t_end)
-            koval_predictions['t_i'].append(t_i)
-            koval_predictions['Prediction'].append(y_i)
+            predictions_df.loc[len(predictions_df.index)] = [
+                model_name, step_size, t_start, t_end, t_i, y_i
+            ]
 
 
 # ML Model Predictions
@@ -64,10 +64,11 @@ for model in ml_models:
             X, y, step_size
         )
         r2, mse, y_hat, time_step = test_model(X, y, model, test_split)
-        koval_predictions_metrics['Model'].append(model_namer(model))
-        koval_predictions_metrics['Step size'].append(step_size)
-        koval_predictions_metrics['r2'].append(r2)
-        koval_predictions_metrics['MSE'].append(mse)
+
+        model_name = model_namer(koval)
+        metrics_df.loc[len(metrics_df.index)] = [
+            model_name, step_size, r2, mse
+        ]
 
         for i in range(len(y_hat)):
             y_hat_i = y_hat[i]
@@ -77,15 +78,10 @@ for model in ml_models:
             for k in range(len(y_hat_i)):
                 y_i = y_hat_i[k]
                 t_i = time_step_i[k] + 2
-                koval_predictions['Model'].append(model_namer(model))
-                koval_predictions['Step size'].append(step_size)
-                koval_predictions['t_start'].append(t_start)
-                koval_predictions['t_end'].append(t_end)
-                koval_predictions['t_i'].append(t_i)
-                koval_predictions['Prediction'].append(y_i)
+                predictions_df.loc[len(predictions_df.index)] = [
+                    model_name, step_size, t_start, t_end, t_i, y_i
+            ]
 
 
-koval_predictions_df = pd.DataFrame(koval_predictions)
-koval_predictions_metrics_df = pd.DataFrame(koval_predictions_metrics)
-koval_predictions_df.to_csv(koval_predictions_file)
-koval_predictions_metrics_df.to_csv(koval_predictions_metrics_file)
+predictions_df.to_csv(predictions_file)
+metrics_df.to_csv(metrics_file)
