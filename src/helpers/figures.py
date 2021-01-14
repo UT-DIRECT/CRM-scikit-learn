@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 from src.config import INPUTS
+from src.simulations import (
+    number_of_gains, number_of_time_constants
+)
 
 
 def plot_helper(fig_dir, title='', xlabel='', ylabel='', legend=None, save=False):
