@@ -19,16 +19,15 @@ characteristic_params_file = INPUTS['crmp']['crmp']['predict']['characteristic_p
 characteristic_params_predictions_file = INPUTS['crmp']['crmp']['predict']['characteristic_params_predictions']
 characteristic_objective_function_file = INPUTS['crmp']['crmp']['predict']['characteristic_objective_function']
 
-characteristic_params_data = {
-    'Producer': [], 'tau_initial': [], 'tau_final': [], 'f1_initial': [],
-    'f1_final': [], 'f2_initial': [], 'f2_final': [], 'r2': [], 'MSE': []
-}
-characteristic_params_predictions_data = {
-    'Producer': np.array([]), 't_i': np.array([]), 'Prediction': np.array([])
-}
-characteristic_objective_function_data = {
-    'tau': [], 'f1': [], 'f2': [], 'r2': [], 'MSE': []
-}
+characteristic_params_df = pd.DataFrame(
+    columns=[
+        'Producer', 'tau_initial', 'tau_final', 'f1_initial',
+        'f1_final', 'f2_initial', 'f2_final', 'r2', 'MSE'
+    ]
+)
+characteristic_objective_function_df = pd.DataFrame(
+    columns=['tau', 'f1', 'f2', 'r2', 'MSE']
+)
 
 
 def train_crmp_across_wells():
@@ -48,18 +47,12 @@ def train_crmp_across_wells():
             )
             y_hat = crmp.predict(X_test_i)
             r2_i, mse_i = fit_statistics(y_hat, y_test_i)
-            characteristic_params_data['Producer'].append(producer)
-            characteristic_params_data['tau_initial'].append(p0[0])
-            characteristic_params_data['tau_final'].append(crmp.tau_)
-            characteristic_params_data['f1_initial'].append(p0[1])
-            characteristic_params_data['f1_final'].append(crmp.gains_[0])
-            characteristic_params_data['f2_initial'].append(p0[2])
-            characteristic_params_data['f2_final'].append(crmp.gains_[1])
-            characteristic_params_data['r2'].append(r2_i)
-            characteristic_params_data['MSE'].append(mse_i)
-    characteristic_params_df = pd.DataFrame(
-        characteristic_params_data
-    )
+            characteristic_params_df.loc[
+                    len(characteristic_params_df.index)
+                ] = [
+                    producer, p0[0], crmp.tau_, p0[1], crmp.gains_[0], p0[2],
+                    crmp.gains_[1], r2_i, mse_i
+                ]
     characteristic_params_df.to_csv(characteristic_params_file)
 
 
@@ -84,17 +77,15 @@ def characteristic_objective_function():
             mse += mse_i
         r2 /= 4
         mse /= 4
-        characteristic_objective_function_data['tau'].append(p0[0])
-        characteristic_objective_function_data['f1'].append(p0[1])
-        characteristic_objective_function_data['f2'].append(p0[2])
-        characteristic_objective_function_data['r2'].append(r2)
-        characteristic_objective_function_data['MSE'].append(mse)
-    characteristic_objective_function_df = pd.DataFrame(
-        characteristic_objective_function_data
-    )
+        characteristic_objective_function_df.loc[
+            len(characteristic_objective_function_df.index)
+            ] = [
+                p0[0], p0[1], p0[2], r2, mse
+            ]
     characteristic_objective_function_df.to_csv(
         characteristic_objective_function_file
     )
 
-# train_crmp_across_wells()
+
+train_crmp_across_wells()
 characteristic_objective_function()

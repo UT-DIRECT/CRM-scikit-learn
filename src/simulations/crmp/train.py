@@ -22,10 +22,11 @@ from src.simulations import number_of_producers
 
 # Production Rate Training
 output_file = INPUTS['crmp']['crmp']['fit']['fit']
-data = {
-    'Producer': [], 'Model': [], 't_i': [], 'Fit': []
-}
+df = pd.DataFrame(
+    columns=['Producer', 'Model', 't_i', 'Fit']
+)
 for i in range(number_of_producers):
+    producer_number = i + 1
     models = [
         BayesianRidge(), CRMP(), ElasticNetCV, LassoCV, LinearRegression()
     ]
@@ -40,15 +41,12 @@ for i in range(number_of_producers):
         model = model.fit(X_train, y_train)
         y_hat = model.predict(X_train)
         time = np.linspace(1, len(y_hat), num=len(y_hat))
-        # TODO: This is not the ideal location for getting this fitting data.
         for k in range(len(y_hat)):
-            data['Producer'].append(i + 1)
-            data['Model'].append(model_namer(model))
-            data['t_i'].append(k + 1)
-            data['Fit'].append(y_hat[k])
+            df.loc[len(df.index)] = [
+                producer_number, model_namer(model), k + 1, y_hat[k]
+            ]
         pickled_model = serialized_model_path('crmp', model, producer_names[i])
         with open(pickled_model, 'wb') as f:
             pickle.dump(model, f)
 
-df = pd.DataFrame(data)
 df.to_csv(output_file)

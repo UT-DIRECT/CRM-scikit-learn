@@ -33,10 +33,8 @@ def read_crmp(data_file):
 
 data_file = INPUTS['crmp']['data']
 features = read_crmp(data_file)
-[
-    time, fixed_inj1, net_fixed_inj1, fixed_inj2, net_fixed_inj2, q_1, N_1,
-    q_2, N_2, q_3, N_3, q_4, N_4
-] = features
+(time, fixed_inj1, net_fixed_inj1, fixed_inj2, net_fixed_inj2, q_1, N_1,
+q_2, N_2, q_3, N_3, q_4, N_4) = features
 
 producers = np.array([q_1, q_2, q_3, q_4])
 producers_new = []

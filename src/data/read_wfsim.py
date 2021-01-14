@@ -13,13 +13,13 @@ def read_wfsim(data_file):
     w_tank = data[3]
     qw_tank = data[4]
     q_tank = data[5]
-    return [time, delta_time, qo_tank, w_tank, qw_tank, q_tank]
+    return (time, delta_time, qo_tank, w_tank, qw_tank, q_tank)
 
 
 data_file = INPUTS['wfsim']['data']
 features = read_wfsim(data_file)
 
-[time, delta_time, qo_tank, w_tank, qw_tank, q_tank] = features
+time, delta_time, qo_tank, w_tank, qw_tank, q_tank = features
 f_w = qw_tank / q_tank
 W_t = np.array(net_flow(w_tank))
 Q_t = np.array(net_flow(q_tank))

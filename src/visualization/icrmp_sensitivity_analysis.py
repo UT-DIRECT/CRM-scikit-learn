@@ -12,7 +12,7 @@ FIG_DIR = INPUTS['crmp']['figures_dir']
 
 
 def plot_parameter_convergence():
-    sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
+    sensitivity_analysis_df = pd.read_csv(sensitivity_analysis_file)
     for i in range(len(producers)):
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
@@ -53,7 +53,7 @@ def plot_parameter_convergence():
 
 
 def initial_guesses_and_mean_squared_error():
-    sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
+    sensitivity_analysis_df = pd.read_csv(sensitivity_analysis_file)
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = sensitivity_analysis_df.loc[sensitivity_analysis_df['Producer'] == producer]

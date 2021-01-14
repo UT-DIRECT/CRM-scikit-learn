@@ -19,7 +19,7 @@ def plot_helper(fig_dir, title='', xlabel='', ylabel='', legend=None, save=False
 
 
 def fig_saver(fig_dir, title, xlabel, ylabel):
-    fig_file = "{}{}".format(
+    fig_file = '{}{}'.format(
         fig_dir,
         fig_filename(title, xlabel, ylabel)
     )
@@ -58,7 +58,7 @@ def bar_plot_formater(fig_dir, x, x_labels, title, xlabel, ylabel, legend=True):
     plt.yscale('log')
     plt.xticks(ticks=x, labels=x_labels)
     if legend:
-        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+        plt.legend(bbox_to_anchor=(1.04, 1), loc='upper left')
     plt.tight_layout()
     fig_saver(fig_dir, title, xlabel, ylabel)
     plt.close()

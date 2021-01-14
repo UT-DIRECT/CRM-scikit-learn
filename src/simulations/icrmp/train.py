@@ -23,10 +23,11 @@ from src.simulations import number_of_producers
 
 # Net Production Training
 output_file = INPUTS['crmp']['icrmp']['fit']['fit']
-data = {
-    'Producer': [], 'Model': [], 't_i': [], 'Fit': []
-}
+df = pd.DataFrame(
+    columns=['Producer', 'Model', 't_i', 'Fit']
+)
 for i in range(number_of_producers):
+    producer_number = i + 1
     models = [
         BayesianRidge(), ICRMP(), ElasticNetCV, LassoCV, LinearRegression()
     ]
@@ -42,10 +43,9 @@ for i in range(number_of_producers):
         y_hat = model.predict(X_train)
         time = np.linspace(1, len(y_hat), num=len(y_hat))
         for k in range(len(y_hat)):
-            data['Producer'].append(i + 1)
-            data['Model'].append(model_namer(model))
-            data['t_i'].append(k + 1)
-            data['Fit'].append(y_hat[k])
+            df.loc[len(df.index)] = [
+                producer_number, model_namer(model), k + 1, y_hat[k]
+            ]
         pickled_model = serialized_model_path(
             'icrmp', model, 'Integrated {}'.format(producer_names[i])
         )
@@ -53,5 +53,4 @@ for i in range(number_of_producers):
             pickle.dump(model, f)
 
 
-df = pd.DataFrame(data)
 df.to_csv(output_file)
