@@ -29,7 +29,7 @@ def characteristic_params_convergence_plot():
     characteristic_objective_function_df = pd.read_csv(
         characteristic_objective_function_file
     )
-    x, y, z = _contour_params(
+    x, y, z = contour_params(
         characteristic_objective_function_df, x_column='f1', y_column='tau',
         z_column='MSE'
     )
@@ -40,7 +40,7 @@ def characteristic_params_convergence_plot():
     df_producer_rows = df.loc[
         df['Producer'] == 1
     ]
-    x, y = _initial_and_final_params_from_df(df_producer_rows)
+    x, y = initial_and_final_params_from_df(df_producer_rows)
     for j in range(len(x)):
         initial = plt.scatter(
             x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial', alpha=0.3
@@ -104,7 +104,7 @@ def initial_guesses_and_mse_from_prediction():
         df_producer_rows = df.loc[
             df['Producer'] == producer
         ]
-        x, y, z = _contour_params(
+        x, y, z = contour_params(
             df_producer_rows, x_column='f1_initial', y_column='tau_initial',
             z_column='MSE'
         )
@@ -135,7 +135,7 @@ def initial_guesses_and_mse_from_prediction():
 def initial_guesses_and_mse_from_prediction_in_aggregate():
     df = pd.read_csv(q_predict_sensitivity_analysis_file)
     df = df.groupby(['tau_initial', 'f1_initial']).sum().reset_index()
-    x, y, z = _contour_params(
+    x, y, z = contour_params(
         df, x_column='f1_initial', y_column='tau_initial', z_column='MSE'
     )
     plt.contourf(x, y, z, alpha=1.0)
