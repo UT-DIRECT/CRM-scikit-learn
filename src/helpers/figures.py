@@ -83,7 +83,7 @@ def contour_params(df, x_column='', y_column='', z_column='',
     z = df[z_column].to_numpy()
     z_tmp = []
     for i in z:
-        if i == 0:
+        if i < 1e-06:
             z_tmp.append(-40)
         else:
             z_tmp.append(np.log(i))
