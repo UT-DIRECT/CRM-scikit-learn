@@ -7,7 +7,9 @@ from src.helpers.figures import (
     contour_params, initial_and_final_params_from_df, plot_helper
 )
 from src.visualization import INPUTS
-from src.simulations import number_of_gains, number_of_time_constants
+from src.simulations import (
+    number_of_gains, number_of_producers, number_of_time_constants
+)
 
 
 q_fitting_sensitivity_analysis_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
@@ -21,6 +23,9 @@ best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
 
 best_guesses_predict_file = INPUTS['crmp']['crmp']['predict']['best_guesses']
 best_guesses_predict_df = pd.read_csv(best_guesses_predict_file)
+
+objective_function_file = INPUTS['crmp']['crmp']['predict']['objective_function']
+objective_function_df = pd.read_csv(objective_function_file )
 
 
 FIG_DIR = INPUTS['crmp']['figures_dir']
@@ -41,10 +46,8 @@ def parameter_convergence_fitting():
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y = _initial_and_final_params_from_df(producer_rows_df)
-        true_params_i = true_params[producer]
-        x_true = true_params_i[0]
-        y_true = true_params_i[1]
+        x, y = initial_and_final_params_from_df(producer_rows_df)
+        x_true, y_true = true_params[producer]
         for j in range(len(x)):
             initial = plt.scatter(
                 x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
@@ -80,7 +83,7 @@ def fitted_params_and_mean_squared_error_fitting():
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_params(
+        x, y, z = contour_params(
             producer_rows_df,
             x_column='f1_initial',
             y_column='tau_initial',
@@ -108,7 +111,7 @@ def fitted_params_and_mean_squared_error_prediction():
             q_predictions_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_params(
+        x, y, z = contour_params(
             producer_rows_df,
             x_column='f1_initial',
             y_column='tau_initial',
@@ -129,6 +132,68 @@ def fitted_params_and_mean_squared_error_prediction():
         )
 
 
+def initial_guesses_and_mse_from_prediction():
+    df = q_fitting_sensitivity_analysis_df
+    for i in range(number_of_producers):
+        producer = i + 1
+        df_producer_rows = df.loc[
+            df['Producer'] == producer
+        ]
+        x, y, z = contour_params(
+            df_producer_rows, x_column='f1_initial', y_column='tau_initial',
+            z_column='MSE'
+        )
+        plt.contourf(x, y, z, alpha=1.0)
+        plt.colorbar()
+        title = 'CRMP: Producer {} Initial Guesses with MSEs from Prediction'.format(producer)
+        x_true, y_true = true_params[producer]
+        actual = plt.scatter(
+            x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
+        )
+        plt.legend(handles=[actual], loc='upper left')
+        plt.tight_layout()
+        plt.ylim(0, 100)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
+def objective_function_contour_plot():
+    df = objective_function_df
+    for i in range(number_of_producers):
+        producer = i + 1
+        df_producer_rows = df.loc[
+            df['Producer'] == producer
+        ]
+        x, y, z = contour_params(
+            df_producer_rows, x_column='f1', y_column='tau',
+            z_column='MSE'
+        )
+        plt.contourf(x, y, z, alpha=1.0)
+        plt.colorbar()
+        title = 'CRMP: Producer {} Objective Function'.format(producer)
+        x_true, y_true = true_params[producer]
+        actual = plt.scatter(
+            x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
+        )
+        plt.legend(handles=[actual], loc='upper left')
+        plt.tight_layout()
+        plt.ylim(0, 100)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
 parameter_convergence_fitting()
 fitted_params_and_mean_squared_error_fitting()
 fitted_params_and_mean_squared_error_prediction()
+initial_guesses_and_mse_from_prediction()
+objective_function_contour_plot()

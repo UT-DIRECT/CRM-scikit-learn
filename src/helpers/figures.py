@@ -84,7 +84,7 @@ def contour_params(df, x_column='', y_column='', z_column='',
     z_tmp = []
     for i in z:
         if i == 0:
-            z_tmp.append(i)
+            z_tmp.append(-40)
         else:
             z_tmp.append(np.log(i))
     z = z_tmp
