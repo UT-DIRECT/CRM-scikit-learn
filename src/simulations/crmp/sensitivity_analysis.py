@@ -62,9 +62,7 @@ for i in range(number_of_producers):
         ]
 
 # Fitting
-fit_df = pd.DataFrame(fit_data)
 fit_df.to_csv(fit_ouput_file)
 
 # Prediction
-predict_df = pd.DataFrame(predict_data)
 predict_df.to_csv(predict_output_file)

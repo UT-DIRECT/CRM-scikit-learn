@@ -71,10 +71,6 @@ crmp-plots:
 crmp-sensitivity-analysis:
 	$(PYTHON) src.simulations.crmp.sensitivity_analysis
 
-## Run Analysis of Sensitivity Analysis Data on CRMP for the fit case
-crmp-sensitivity-analysis-analysis:
-	$(PYTHON) src.analysis.crmp_sensitivity_analysis
-
 ## Plot Sensitivity Analysis results for CRMP
 crmp-sensitivity-analysis-plots:
 	$(PYTHON) src.visualization.crmp_sensitivity_analysis

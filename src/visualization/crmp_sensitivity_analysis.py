@@ -41,10 +41,10 @@ def parameter_convergence_fitting():
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y = _initial_and_final_params_from_df(producer_rows_df)
-        true_params_i = true_params[producer]
-        x_true = true_params_i[0]
-        y_true = true_params_i[1]
+        x, y = initial_and_final_params_from_df(producer_rows_df)
+        true_params_tmp = _producer_rows_from_df(true_params, producer)
+        x_true = true_params_tmp['f1']
+        y_true = true_params_tmp['tau']
         for j in range(len(x)):
             initial = plt.scatter(
                 x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
@@ -80,7 +80,7 @@ def fitted_params_and_mean_squared_error_fitting():
             q_fitting_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_params(
+        x, y, z = contour_params(
             producer_rows_df,
             x_column='f1_initial',
             y_column='tau_initial',
@@ -88,7 +88,9 @@ def fitted_params_and_mean_squared_error_fitting():
         )
         plt.contourf(x, y, z)
         plt.colorbar()
-        x, y = true_params[producer]
+        true_params_tmp = _producer_rows_from_df(true_params, producer)
+        x_true = true_params_tmp['f1']
+        y_true = true_params_tmp['tau']
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Fitting'.format(producer)
@@ -108,7 +110,7 @@ def fitted_params_and_mean_squared_error_prediction():
             q_predictions_sensitivity_analysis_df,
             producer
         )
-        x, y, z = _contour_params(
+        x, y, z = contour_params(
             producer_rows_df,
             x_column='f1_initial',
             y_column='tau_initial',
@@ -116,7 +118,9 @@ def fitted_params_and_mean_squared_error_prediction():
         )
         plt.contourf(x, y, z)
         plt.colorbar()
-        x, y = true_params[producer]
+        true_params_tmp = _producer_rows_from_df(true_params, producer)
+        x_true = true_params_tmp['f1']
+        y_true = true_params_tmp['tau']
         actual = plt.scatter(x, y, c='red', label='Actual')
         plt.legend(handles=[actual])
         title = 'CRMP Producer {}: Fitted Parameter Values with ln(MSE) from Prediction'.format(producer)
