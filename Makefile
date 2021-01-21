@@ -82,6 +82,13 @@ crmp-characteristic-param:
 crmp-characteristic-param-plots:
 	$(PYTHON) src.visualization.characteristic_param
 
+## FIXME: I am not sure that I need this
+crmp-tau-at-zero:
+	$(PYTHON) src.simulations.crmp.tau_at_zero
+
+crmp-tau-at-zero-plots:
+	$(PYTHON) src.visualization.tau_at_zero
+
 ## Entire ICRMP workflow
 icrmp: simulate-icrmp icrmp-plots
 

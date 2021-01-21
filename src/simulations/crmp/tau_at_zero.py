@@ -14,23 +14,27 @@ fixed_injector_1 = 400
 f1 = 0.3
 fixed_injector_2 = 600
 f2 = 0.4
-tau = 1e-6
+taus = [1e-6, 1, 10, 20, 50, 100]
 
 tau_at_zero_data = {
-    'time': np.linspace(1, 150, 150).tolist(), 'q1': []
+    'time': np.linspace(1, 150, 150).tolist(), 'tau_0': [], 'tau_1': [],
+    'tau_10': [], 'tau_20': [], 'tau_50': [], 'tau_100': []
 }
 
 
 def constant_injection_producer():
     X, y = production_rate_dataset(producers[0], *injectors)
     crmp = CRMP().fit(X, y)
-    crmp.tau_ = tau
     crmp.gains_ = [f1, f2]
-    q = [initial_production_rate]
-    for i in range(150):
-        X = np.array([q[-1], fixed_injector_1, fixed_injector_2])
-        q.append(crmp.predict(X))
-    tau_at_zero_data['q1'] = q[1:]
+    for i in taus:
+        crmp.tau_ = i
+        q = [initial_production_rate]
+        for k in range(150):
+            X = np.array([q[-1], fixed_injector_1, fixed_injector_2])
+            q.append(crmp.predict(X))
+        if i < 1e-05:
+            i = 0
+        tau_at_zero_data['tau_{}'.format(i)] = q[1:]
 
 
 constant_injection_producer()
