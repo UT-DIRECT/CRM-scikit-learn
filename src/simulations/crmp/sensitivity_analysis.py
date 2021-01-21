@@ -31,6 +31,15 @@ objective_function_data = {
 }
 
 def convergence_sensitivity_analysis():
+    # f1 = np.linspace(0, 1, 6)
+    # tau = np.linspace(0, 100, 10)
+    # f2 = np.ones(6) - f1
+    # param_grid = {'p0': []}
+    # for i in tau:
+    #     if i == 0:
+    #         i = 1e-06
+    #     for j in range(len(f1)):
+    #         param_grid['p0'].append([i, f1[j], f2[j]])
     for i in range(number_of_producers):
         X, y = production_rate_dataset(producers[i], *injectors)
         X_train, X_test, y_train, y_test = train_test_split(
@@ -104,5 +113,5 @@ def objective_function():
     objective_function_df.to_csv(objective_function_file)
 
 
-# fitting_sensitivity_analysis()
-objective_function()
+convergence_sensitivity_analysis()
+# objective_function()

@@ -57,9 +57,7 @@ def train_crmp_across_wells():
             characteristic_params_data['f2_final'].append(crmp.gains_[1])
             characteristic_params_data['r2'].append(r2_i)
             characteristic_params_data['MSE'].append(mse_i)
-    characteristic_params_df = pd.DataFrame(
-        characteristic_params_data
-    )
+    characteristic_params_df = pd.DataFrame(characteristic_params_data)
     characteristic_params_df.to_csv(characteristic_params_file)
 
 
@@ -96,5 +94,5 @@ def characteristic_objective_function():
         characteristic_objective_function_file
     )
 
-# train_crmp_across_wells()
+train_crmp_across_wells()
 characteristic_objective_function()

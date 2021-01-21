@@ -38,7 +38,7 @@ def _producer_rows_from_df(df, producer):
     return df.loc[df['Producer'] == producer]
 
 
-def parameter_convergence_fitting():
+def parameter_convergence():
     for i in range(len(producers)):
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
@@ -55,17 +55,22 @@ def parameter_convergence_fitting():
             final = plt.scatter(
                 x[j][1], y[j][1], s=40, c='r', marker='x', label='Final'
             )
-            plt.plot(x[j], y[j], c='k', alpha=0.3)
+            plt.plot(x[j], y[j], c='k', alpha=0.15)
         actual = plt.scatter(
             x_true, y_true, s=200, c='b', marker='X',
             label='Actual'
         )
-        title = 'CRMP Fitting: Producer {} Initial Parameter Values with Convergence'.format(producer)
+        # actual = plt.scatter(
+        #     x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
+        # )
+        title = 'CRMP: Producer {} Initial Parameter Values with Convergence'.format(producer)
         plt.legend(
             handles=[actual, initial, final],
             bbox_to_anchor=(1.04, 1),
             loc="upper left"
         )
+        plt.xlim(0, 1)
+        plt.ylim(0, 100)
         plt.tight_layout()
         plot_helper(
             FIG_DIR,
@@ -143,7 +148,7 @@ def initial_guesses_and_mse_from_prediction():
             df_producer_rows, x_column='f1_initial', y_column='tau_initial',
             z_column='MSE'
         )
-        plt.contourf(x, y, z, alpha=1.0)
+        plt.contourf(x, y, z, 15, alpha=1.0)
         plt.colorbar()
         title = 'CRMP: Producer {} Initial Guesses with MSEs from Prediction'.format(producer)
         x_true, y_true = true_params[producer]
@@ -163,22 +168,21 @@ def initial_guesses_and_mse_from_prediction():
 
 
 def objective_function_contour_plot():
-    df = objective_function_df
     for i in range(number_of_producers):
         producer = i + 1
-        df_producer_rows = df.loc[
-            df['Producer'] == producer
-        ]
+        producer_df = _producer_rows_from_df(
+            objective_function_df, producer
+        )
         x, y, z = contour_params(
-            df_producer_rows, x_column='f1', y_column='tau',
+            producer_df , x_column='f1', y_column='tau',
             z_column='MSE'
         )
-        plt.contourf(x, y, z, alpha=1.0)
+        plt.contourf(x, y, z, 15, alpha=1.0)
         plt.colorbar()
         title = 'CRMP: Producer {} Objective Function'.format(producer)
         x_true, y_true = true_params[producer]
         actual = plt.scatter(
-            x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
+            x_true, y_true, s=100, c='r', label='Actual', alpha=0.4
         )
         plt.legend(handles=[actual], loc='upper left')
         plt.tight_layout()
@@ -192,8 +196,52 @@ def objective_function_contour_plot():
         )
 
 
-parameter_convergence_fitting()
-fitted_params_and_mean_squared_error_fitting()
-fitted_params_and_mean_squared_error_prediction()
+def objective_function_with_convergence():
+    df = objective_function_df
+    for i in range(number_of_producers):
+        producer = i + 1
+        producer_df = _producer_rows_from_df(
+            objective_function_df, producer
+        )
+        x, y, z = contour_params(
+            producer_df, x_column='f1', y_column='tau',
+            z_column='MSE'
+        )
+        plt.contourf(x, y, z, 15, alpha=1.0)
+        plt.colorbar()
+        producer_df = _producer_rows_from_df(
+            q_predictions_sensitivity_analysis_df, producer
+        )
+        x, y = initial_and_final_params_from_df(producer_df)
+        for j in range(len(x)):
+            initial = plt.scatter(
+                x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
+            )
+            final = plt.scatter(
+                x[j][1], y[j][1], s=40, c='r', marker='x', label='Final'
+            )
+            plt.plot(x[j], y[j], c='k', alpha=0.15)
+        title = 'CRMP: Producer {} Objective Function with Convergence'.format(producer)
+        x_true, y_true = true_params[producer]
+        actual = plt.scatter(
+            x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
+        )
+        plt.legend(handles=[actual, initial, final], loc='upper left')
+        plt.tight_layout()
+        plt.xlim(0, 1)
+        plt.ylim(0, 100)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
+# parameter_convergence()
+# fitted_params_and_mean_squared_error_fitting()
+# fitted_params_and_mean_squared_error_prediction()
 initial_guesses_and_mse_from_prediction()
-objective_function_contour_plot()
+# objective_function_contour_plot()
+# objective_function_with_convergence()
