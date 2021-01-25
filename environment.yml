@@ -28,8 +28,6 @@ dependencies:
   - imagesize=1.2.0=py_0
   - importlib-metadata=1.6.0=py38h32f6830_0
   - importlib_metadata=1.6.0=0
-  - jax=0.2.8=pyhd8ed1ab_0
-  - jaxlib=0.1.56=py38h32f6830_0
   - jinja2=2.11.1=py_0
   - jmespath=0.9.4=py_0
   - joblib=0.14.1=py_0
