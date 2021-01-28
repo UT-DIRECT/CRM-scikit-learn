@@ -10,12 +10,12 @@
     'predict':
       'predict': './data/processed/crmp/crmp/predict/predict.csv'
       'metrics': './data/processed/crmp/crmp/predict/metrics.csv'
+      'objective_function': './data/processed/crmp/crmp/predict/objective_function.csv'
       'sensitivity_analysis': './data/processed/crmp/crmp/predict/sensitivity_analysis.csv'
       'best_guesses': './data/processed/crmp/crmp/predict/best_guesses.csv'
       'characteristic_params': './data/processed/crmp/crmp/predict/characteristic_params.csv'
       'characteristic_params_predictions': './data/processed/crmp/crmp/predict/characteristic_params_predictions.csv'
       'characteristic_objective_function': './data/processed/crmp/crmp/predict/characteristic_objective_function.csv'
-    'tau_at_zero': './data/processed/crmp/crmp/predict/tau_at_zero.csv'
   'icrmp':
     'fit':
       'fit': './data/processed/crmp/icrmp/fit/fit.csv'

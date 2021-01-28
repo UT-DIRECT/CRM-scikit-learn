@@ -3,8 +3,13 @@ import numpy as np
 import pandas as pd
 
 from src.data.read_crmp import producers, true_params
-from src.helpers.figures import plot_helper
+from src.helpers.figures import (
+    contour_params, initial_and_final_params_from_df, plot_helper
+)
 from src.visualization import INPUTS
+from src.simulations import (
+    number_of_gains, number_of_producers, number_of_time_constants
+)
 
 
 sensitivity_analysis_file = INPUTS['crmp']['icrmp']['predict']['sensitivity_analysis']
@@ -12,7 +17,7 @@ FIG_DIR = INPUTS['crmp']['figures_dir']
 
 
 def plot_parameter_convergence():
-    sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
+    sensitivity_analysis_df = pd.read_csv(sensitivity_analysis_file)
     for i in range(len(producers)):
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
@@ -23,9 +28,8 @@ def plot_parameter_convergence():
         y_f = producer_rows_df['tau_final']
         x = np.array([x_i, x_f]).T
         y = np.array([y_i, y_f]).T
-        true_params = true_params[producer]
-        x_true = true_params[0]
-        y_true = true_params[1]
+        x_true = true_params[i + 1][0]
+        y_true = true_params[i + 1][1]
         initial = plt.scatter(x_i, y_i, s=40, c='g', marker='o', label='Initial')
         final = plt.scatter(x_f, y_f, s=40, c='r', marker='x', label='Final')
         for i in range(len(x)):
@@ -53,26 +57,29 @@ def plot_parameter_convergence():
 
 
 def initial_guesses_and_mean_squared_error():
-    sensitivity_analysis_df = pd.read_csv(N_sensitivity_analysis_file)
+    sensitivity_analysis_df = pd.read_csv(sensitivity_analysis_file)
     for i in range(len(producers)):
         producer = i + 1
-        producer_rows_df = sensitivity_analysis_df.loc[sensitivity_analysis_df['Producer'] == producer]
-        x = producer_rows_df['f1_initial'].to_numpy()
-        x = np.reshape(x, (101, 11))
-        y = producer_rows_df['tau_initial'].to_numpy()
-        y = np.reshape(y, (101, 11))
-        z = producer_rows_df['MSE'].to_numpy()
-        # z = np.sqrt(z)
-        z = np.log(z)
-        z = np.reshape(z, (101, 11))
+        producer_rows_df = sensitivity_analysis_df.loc[
+            sensitivity_analysis_df['Producer'] == producer
+        ]
+
+        x, y, z = contour_params(
+            producer_rows_df , x_column='f1_initial', y_column='tau_initial',
+            z_column='MSE'
+        )
         plt.contourf(x, y, z)
         plt.colorbar()
-        x, y = true_params[producer]
-        actual = plt.scatter(x, y, c='red', label='Actual')
-        plt.legend(handles=[actual])
+
+        x_true, y_true  = true_params[producer]
+        actual = plt.scatter(x_true, y_true, c='red', label='Actual')
+
+        plt.legend(handles=[actual], loc='upper left')
         title = 'ICRMP: Producer {} Intial Guesses with ln(MSE)'.format(producer)
         xlabel = 'f1'
         ylabel = 'Tau'
+        plt.tight_layout()
+        plt.ylim(0, 100)
         plot_helper(
             FIG_DIR,
             title=title,

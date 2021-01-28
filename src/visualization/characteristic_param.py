@@ -87,7 +87,7 @@ def characteristic_well_vs_actual_well():
 
 
 def best_characteristic_param():
-    df = pd.read_csv(characteristic_params_file )
+    df = pd.read_csv(characteristic_params_file)
     df = df.drop('Producer', axis=1)
     df = df.groupby(['tau_initial', 'f1_initial'], axis=0).agg({
         'tau_final': 'first',
@@ -98,7 +98,7 @@ def best_characteristic_param():
 
 
 def initial_guesses_and_mse_from_prediction():
-    df = pd.read_csv(q_predict_sensitivity_analysis_file)
+    df = pd.read_csv(characteristic_params_file)
     for i in range(number_of_producers):
         producer = i + 1
         df_producer_rows = df.loc[
@@ -154,6 +154,6 @@ def initial_guesses_and_mse_from_prediction_in_aggregate():
 
 characteristic_params_convergence_plot()
 characteristic_well_vs_actual_well()
-best_characteristic_param()
-initial_guesses_and_mse_from_prediction()
+# best_characteristic_param()
+# initial_guesses_and_mse_from_prediction()
 initial_guesses_and_mse_from_prediction_in_aggregate()
