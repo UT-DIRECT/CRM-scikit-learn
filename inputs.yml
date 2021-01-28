@@ -16,7 +16,6 @@
       'characteristic_params': './data/processed/crmp/crmp/predict/characteristic_params.csv'
       'characteristic_params_predictions': './data/processed/crmp/crmp/predict/characteristic_params_predictions.csv'
       'characteristic_objective_function': './data/processed/crmp/crmp/predict/characteristic_objective_function.csv'
-    'tau_at_zero': './data/processed/crmp/crmp/predict/tau_at_zero.csv'
   'icrmp':
     'fit':
       'fit': './data/processed/crmp/icrmp/fit/fit.csv'

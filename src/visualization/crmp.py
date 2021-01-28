@@ -161,4 +161,3 @@ def production_rate_with_predictions():
 # production_rate_estimators_and_time_steps()
 # production_rate_good_estimators_and_time_steps()
 # production_rate_with_predictions()
-# tau_at_zero()

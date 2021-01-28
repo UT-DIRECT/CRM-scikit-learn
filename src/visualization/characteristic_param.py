@@ -99,7 +99,6 @@ def best_characteristic_param():
 
 def initial_guesses_and_mse_from_prediction():
     df = pd.read_csv(characteristic_params_file)
-    print(df.head)
     for i in range(number_of_producers):
         producer = i + 1
         df_producer_rows = df.loc[
@@ -143,7 +142,7 @@ def initial_guesses_and_mse_from_prediction_in_aggregate():
     plt.colorbar()
     title = 'CRMP: Initial Guesses with ln(MSE)s from Prediction in Aggregate'
     plt.tight_layout()
-    # plt.ylim(0, 100)
+    plt.ylim(0, 100)
     plot_helper(
         FIG_DIR,
         title=title,
