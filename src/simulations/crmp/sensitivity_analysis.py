@@ -53,8 +53,8 @@ def convergence_sensitivity_analysis():
         test_length = len(y_test)
         train_time = t[:train_length]
         test_time = t[train_length:]
-        plt.plot(train_time, y_train, c='r')
-        plt.plot(test_time, y_test, c='g')
+        fit = plt.plot(train_time, y_train, c='r', label='Fit')
+        predict = plt.plot(test_time, y_test, c='g', label='Predict')
         for p0 in param_grid['p0']:
             crmp = CRMP(p0=p0)
             crmp = crmp.fit(X_train, y_train)
@@ -93,6 +93,7 @@ def convergence_sensitivity_analysis():
         plt.title(producer_names[i])
         plt.xlabel('Time')
         plt.ylabel('Production Rate')
+        plt.legend()
         plt.show()
 
     # Fitting
