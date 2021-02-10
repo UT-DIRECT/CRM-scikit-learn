@@ -1,6 +1,7 @@
 import numpy as np
 
-from scipy.optimize import fmin_slsqp
+from lmfit import Model, Parameters
+
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
 
@@ -20,7 +21,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         self.n_gains = len(X) - 1
         self.ensure_p0()
         self._q2_constructor()
-        params = self._fit_production_rate(X, y)
+        params = self.fit_production_rate()
         self.tau_ = params[0]
         self.gains_ = params[1:]
         return self
@@ -64,22 +65,18 @@ class CRMP(BaseEstimator, RegressorMixin):
         self.q2 = eval(_q2)
 
 
-    def _sum_residuals(self, params):
-        tau = params[0]
-        gains = params[1:]
-        return sum((self.y_ - self.q2(self.X_, tau, *gains)) ** 2)
+    def fit_production_rate(self):
+        model = Model(self.q2, independent_vars=['X'])
+        params = Parameters()
+        params.add('tau', value=5, min=1.e-06, max=100)
+        params.add('f1', value=5, min=0, max=1)
+        params.add('f2', value=5, min=0, max=1)
+        params.add('bound', value=0, vary=False, expr='1-f1-f2')
 
+        results = model.fit(self.y_, X=self.X_, params=params)
 
-    def _constraints(self, params):
-        tau = params[0]
-        gains = params[1:]
-        return 1 - sum(gains)
-
-
-    def _fit_production_rate(self, X, y):
-        # The CRMP function is part of the _sum_residuals function
-        params = fmin_slsqp(
-            self._sum_residuals, self.p0, f_eqcons=self._constraints,
-            bounds=self.bounds, iter=1000, iprint=0
-        )
-        return params
+        pars = []
+        pars.append(results.values['tau'])
+        pars.append(results.values['f1'])
+        pars.append(results.values['f2'])
+        return pars
