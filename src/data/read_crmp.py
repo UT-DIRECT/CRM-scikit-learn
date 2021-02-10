@@ -12,6 +12,7 @@ def _insert_zero(column):
 def read_crmp(data_file):
     data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
     time = data[0]
+    time = np.append(time, 151)
     fixed_inj1 = data[1]
     net_fixed_inj1 = data[2]
     fixed_inj2 = data[3]
