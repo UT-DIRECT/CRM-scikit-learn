@@ -1,6 +1,6 @@
 import numpy as np
 
-from lmfit import Model, Parameters
+from lmfit import Minimizer, Model, Parameters
 
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
@@ -19,6 +19,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         self.X_ = X
         self.y_ = y
         self.n_gains = len(X) - 1
+        self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         self.ensure_p0()
         self._q2_constructor()
         params = self.fit_production_rate()
@@ -68,9 +69,9 @@ class CRMP(BaseEstimator, RegressorMixin):
     def fit_production_rate(self):
         model = Model(self.q2, independent_vars=['X'])
         params = Parameters()
-        params.add('tau', value=5, min=1.e-06, max=100)
-        params.add('f1', value=5, min=0, max=1)
-        params.add('f2', value=5, min=0, max=1)
+        params.add('tau', value=self.p0[0], min=1.e-06, max=100)
+        params.add('f1', value=self.p0[1], min=0, max=1)
+        params.add('f2', value=self.p0[2], min=0, max=1)
         params.add('bound', value=0, vary=False, expr='1-f1-f2')
 
         results = model.fit(self.y_, X=self.X_, params=params)
