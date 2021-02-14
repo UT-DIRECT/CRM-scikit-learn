@@ -69,9 +69,9 @@ class CRMP(BaseEstimator, RegressorMixin):
         model = Model(self.q2, independent_vars=['X'])
         params = Parameters()
         params.add('tau', value=5, min=1.e-06, max=100)
-        params.add('f1', value=5, min=0, max=1)
-        params.add('f2', value=5, min=0, max=1)
-        params.add('bound', value=0, vary=False, expr='1-f1-f2')
+        params.add('f1', value=0.5, min=0, max=1)
+        params.add('f2', value=0.5, min=0, max=1)
+        params.add('bound', value=0, min=0, max=1, expr='1-f1-f2')
 
         results = model.fit(self.y_, X=self.X_, params=params)
 
