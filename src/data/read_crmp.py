@@ -38,6 +38,8 @@ features = read_crmp(data_file)
     q_2, N_2, q_3, N_3, q_4, N_4
 ] = features
 
+time = _insert_zero(time)
+
 producers = np.array([q_1, q_2, q_3, q_4])
 producers_new = []
 for i in range(len(producers)):
