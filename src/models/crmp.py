@@ -1,6 +1,6 @@
 import numpy as np
 
-from lmfit import Minimizer, Model, Parameters
+from lmfit import Model, Parameters
 
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
