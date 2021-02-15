@@ -12,7 +12,6 @@ def _insert_zero(column):
 def read_crmp(data_file):
     data = np.loadtxt(data_file, delimiter=',', skiprows=1).T
     time = data[0]
-    time = np.append(time, 151)
     fixed_inj1 = data[1]
     net_fixed_inj1 = data[2]
     fixed_inj2 = data[3]
@@ -38,6 +37,8 @@ features = read_crmp(data_file)
     time, fixed_inj1, net_fixed_inj1, fixed_inj2, net_fixed_inj2, q_1, N_1,
     q_2, N_2, q_3, N_3, q_4, N_4
 ] = features
+
+time = _insert_zero(time)
 
 producers = np.array([q_1, q_2, q_3, q_4])
 producers_new = []
