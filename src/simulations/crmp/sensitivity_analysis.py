@@ -35,15 +35,6 @@ objective_function_data = {
 
 def convergence_sensitivity_analysis():
     t = time[1:]
-    # f1 = np.linspace(0, 1, 6)
-    # tau = np.linspace(0, 100, 10)
-    # f2 = np.ones(6) - f1
-    # param_grid = {'p0': []}
-    # for i in tau:
-    #     if i == 0:
-    #         i = 1e-06
-    #     for j in range(len(f1)):
-    #         param_grid['p0'].append([i, f1[j], f2[j]])
     for i in range(number_of_producers):
         X, y = production_rate_dataset(producers[i], *injectors)
         X_train, X_test, y_train, y_test = train_test_split(
@@ -132,5 +123,23 @@ def objective_function():
     objective_function_df.to_csv(objective_function_file)
 
 
-convergence_sensitivity_analysis()
+def minimum_train_size():
+    data_sizes = np.linspace(1, 75, 75).astype(int)
+    for data_size in data_sizes:
+        X, y = production_rate_dataset(producers[3], *injectors)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, train_size=data_size, shuffle=False
+        )
+        crmp = CRMP(p0=[5, 0.5, 0.5])
+        crmp = crmp.fit(X_train, y_train)
+        y_hat = crmp.predict(X_train)
+        r2, mse = fit_statistics(y_hat, y_train)
+        if mse < 1e-03:
+            print(data_size)
+            print(mse)
+            return
+
+
+# convergence_sensitivity_analysis()
 # objective_function()
+minimum_train_size()
