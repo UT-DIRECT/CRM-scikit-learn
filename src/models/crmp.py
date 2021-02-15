@@ -70,9 +70,13 @@ class CRMP(BaseEstimator, RegressorMixin):
         model = Model(self.q2, independent_vars=['X'])
         params = Parameters()
         params.add('tau', value=self.p0[0], min=1.e-06, max=100)
-        params.add('f1', value=self.p0[1], min=0, max=1)
-        params.add('f2', value=self.p0[2], min=0, max=1)
-        params.add('bound', value=0, vary=False, expr='1-f1-f2')
+
+        bound = '1'
+        for i in range(self.n_gains):
+            gain = self.gains[i]
+            params.add(gain, value=self.p0[i + 1], min=0, max=1)
+            bound += '-{}'.format(gain)
+        params.add('bound', value=0, min=0, max=1, expr=bound)
 
         results = model.fit(self.y_, X=self.X_, params=params, method='powell')
         # Currently 'nelder' method is working the best.
@@ -81,6 +85,6 @@ class CRMP(BaseEstimator, RegressorMixin):
 
         pars = []
         pars.append(results.values['tau'])
-        pars.append(results.values['f1'])
-        pars.append(results.values['f2'])
+        for gain in self.gains:
+            pars.append(results.values[gain])
         return pars

@@ -28,7 +28,7 @@ class TestCRMP():
         assert(0 <= f1 <= 1)
         assert(0 <= f2 <= 1)
         sum_of_gains = f1 + f2
-        assert(abs(1 - sum_of_gains) <= 1.e-5)
+        assert(abs(1 - sum_of_gains) <= 1.e-3)
 
 
     def test_fit_three_injectors(self):
@@ -45,7 +45,7 @@ class TestCRMP():
         assert(0 <= f2 <= 1)
         assert(0 <= f3 <= 1)
         sum_of_gains = f1 + f2 + f3
-        assert(abs(1 - sum_of_gains) <= 1.e-5)
+        assert(abs(1 - sum_of_gains) <= 1.e-3)
 
 
     def test_fit_X_y_different_shape(self):

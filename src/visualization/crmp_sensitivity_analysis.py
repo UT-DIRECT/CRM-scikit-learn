@@ -239,9 +239,9 @@ def objective_function_with_convergence():
         )
 
 
-# parameter_convergence()
+parameter_convergence()
 # fitted_params_and_mean_squared_error_fitting()
 # fitted_params_and_mean_squared_error_prediction()
-initial_guesses_and_mse_from_prediction()
+# initial_guesses_and_mse_from_prediction()
 # objective_function_contour_plot()
 # objective_function_with_convergence()
