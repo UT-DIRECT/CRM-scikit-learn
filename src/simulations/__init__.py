@@ -7,7 +7,9 @@ step_sizes = np.linspace(2, 12, num=11).astype(int)
 number_of_producers = len(producers)
 
 number_of_gains = 6
+# number_of_gains = 11
 number_of_time_constants = 11
+# number_of_time_constants = 201
 f1 = np.linspace(0, 1, number_of_gains)
 tau = np.linspace(0, 100, number_of_time_constants)
 f2 = np.ones(number_of_gains) - f1
