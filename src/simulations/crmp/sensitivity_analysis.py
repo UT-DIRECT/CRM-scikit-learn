@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from src.config import INPUTS
 from src.data.read_crmp import injectors, producers, producer_names, time
 from src.helpers.analysis import fit_statistics
-from src.helpers.features import production_rate_dataset
+from src.helpers.features import production_rate_dataset, producer_rows_from_df
 from src.helpers.figures import plot_helper
 from src.helpers.models import model_namer, test_model
 from src.models.crmp import CRMP
@@ -35,7 +35,7 @@ objective_function_data = {
 
 def convergence_sensitivity_analysis():
     t = time[1:]
-    for i in range(number_of_producers):
+    for i in range(3, 4):
         X, y = production_rate_dataset(producers[i], *injectors)
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.5, shuffle=False
@@ -44,15 +44,16 @@ def convergence_sensitivity_analysis():
         test_length = len(y_test)
         train_time = t[:train_length]
         test_time = t[train_length:]
-        fit = plt.plot(train_time, y_train, c='r', label='Fit')
-        predict = plt.plot(test_time, y_test, c='g', label='Predict')
+        plt.plot(train_time, y_train, c='r', label='Fit')
+        plt.plot(test_time, y_test, c='g', label='Predict')
+        plt.plot(t, y, c='k', label='Actual')
         for p0 in param_grid['p0']:
             crmp = CRMP(p0=p0)
             crmp = crmp.fit(X_train, y_train)
 
             # Fitting
             y_hat = crmp.predict(X_train)
-            plt.plot(train_time, y_hat, alpha=0.2, c='r')
+            plt.plot(train_time, y_hat, alpha=0.01, c='r', linewidth=2)
             r2, mse = fit_statistics(y_hat, y_train)
             fit_data['Producer'].append(i + 1)
             fit_data['Model'].append(model_namer(crmp))
@@ -67,7 +68,7 @@ def convergence_sensitivity_analysis():
 
             # Prediction
             y_hat = crmp.predict(X_test)
-            plt.plot(test_time, y_hat, alpha=0.2, c='g')
+            plt.plot(test_time, y_hat, alpha=0.01, c='g', linewidth=2)
             r2, mse = fit_statistics(y_hat, y_test)
             predict_data['Producer'].append(i + 1)
             predict_data['Model'].append(model_namer(crmp))
@@ -80,7 +81,7 @@ def convergence_sensitivity_analysis():
             predict_data['r2'].append(r2)
             predict_data['MSE'].append(mse)
 
-        plt.vlines(76, 0, 1000, linewidth=3)
+        plt.vlines(76, 0, 1000, linewidth=1, alpha=0.8)
         plt.title(producer_names[i])
         plt.xlabel('Time')
         plt.ylabel('Production Rate')
@@ -89,11 +90,11 @@ def convergence_sensitivity_analysis():
 
     # Fitting
     fit_df = pd.DataFrame(fit_data)
-    fit_df.to_csv(fit_ouput_file)
+    # fit_df.to_csv(fit_ouput_file)
 
     # Prediction
     predict_df = pd.DataFrame(predict_data)
-    predict_df.to_csv(predict_output_file)
+    # predict_df.to_csv(predict_output_file)
 
 
 def objective_function():
@@ -124,7 +125,7 @@ def objective_function():
 
 
 def minimum_train_size():
-    data_sizes = np.linspace(1, 75, 75).astype(int)
+    data_sizes = np.linspace(1, 148, 148).astype(int)
     for data_size in data_sizes:
         X, y = production_rate_dataset(producers[3], *injectors)
         X_train, X_test, y_train, y_test = train_test_split(
@@ -132,14 +133,41 @@ def minimum_train_size():
         )
         crmp = CRMP(p0=[5, 0.5, 0.5])
         crmp = crmp.fit(X_train, y_train)
-        y_hat = crmp.predict(X_train)
-        r2, mse = fit_statistics(y_hat, y_train)
-        if mse < 1e-03:
+        y_hat = crmp.predict(X_test)
+        r2, mse = fit_statistics(y_hat, y_test)
+        if np.log(mse) < 11.0581424463:
             print(data_size)
             print(mse)
             return
 
 
-# convergence_sensitivity_analysis()
+def smallest_error_by_well():
+    objective_function_file = INPUTS['crmp']['crmp']['predict']['objective_function']
+    objective_function_df = pd.read_csv(objective_function_file )
+    for i in range(number_of_producers):
+        producer = i + 1
+        producer_rows_df = producer_rows_from_df(objective_function_df, producer)
+        min_mse = producer_rows_df['MSE'].min()
+        print(min_mse)
+        print(np.log(min_mse))
+        print()
+        print()
+        print()
+
+
+def get_basic_producer_statistics():
+    for i in range(number_of_producers):
+        producer = producers[i]
+        print('Producer {}'.format(i + 1))
+        print(producer.std())
+        print(producer.mean())
+        print()
+        print()
+
+
+
+convergence_sensitivity_analysis()
 # objective_function()
-minimum_train_size()
+# minimum_train_size()
+# smallest_error_by_well()
+# get_basic_producer_statistics()
