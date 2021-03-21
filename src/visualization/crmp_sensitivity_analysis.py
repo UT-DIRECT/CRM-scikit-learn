@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from src.data.read_crmp import producers, true_params
+from src.helpers.features import producer_rows_from_df
 from src.helpers.figures import (
     contour_params, initial_and_final_params_from_df, plot_helper
 )
@@ -34,15 +35,11 @@ xlabel ='f1'
 ylabel ='tau'
 
 
-def _producer_rows_from_df(df, producer):
-    return df.loc[df['Producer'] == producer]
-
-
 def parameter_convergence():
     for i in range(len(producers)):
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
-        producer_rows_df = _producer_rows_from_df(
+        producer_rows_df = producer_rows_from_df(
             q_fitting_sensitivity_analysis_df,
             producer
         )
@@ -58,7 +55,7 @@ def parameter_convergence():
             plt.plot(x[j], y[j], c='k', alpha=0.15)
         actual = plt.scatter(
             x_true, y_true, s=200, c='b', marker='X',
-            label='Actual'
+            label='True Value'
         )
         # actual = plt.scatter(
         #     x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
@@ -84,7 +81,7 @@ def parameter_convergence():
 def fitted_params_and_mean_squared_error_fitting():
     for i in range(len(producers)):
         producer = i + 1
-        producer_rows_df = _producer_rows_from_df(
+        producer_rows_df = producer_rows_from_df(
             q_fitting_sensitivity_analysis_df,
             producer
         )
@@ -112,7 +109,7 @@ def fitted_params_and_mean_squared_error_fitting():
 def fitted_params_and_mean_squared_error_prediction():
     for i in range(len(producers)):
         producer = i + 1
-        producer_rows_df = _producer_rows_from_df(
+        producer_rows_df = producer_rows_from_df(
             q_predictions_sensitivity_analysis_df,
             producer
         )
@@ -170,7 +167,7 @@ def initial_guesses_and_mse_from_prediction():
 def objective_function_contour_plot():
     for i in range(number_of_producers):
         producer = i + 1
-        producer_df = _producer_rows_from_df(
+        producer_df = producer_rows_from_df(
             objective_function_df, producer
         )
         x, y, z = contour_params(
@@ -182,53 +179,10 @@ def objective_function_contour_plot():
         title = 'CRMP: Producer {} Objective Function'.format(producer)
         x_true, y_true = true_params[producer]
         actual = plt.scatter(
-            x_true, y_true, s=100, c='r', label='Actual', alpha=0.4
+            x_true, y_true, s=100, c='r', label='True Value', alpha=0.4
         )
         plt.legend(handles=[actual], loc='upper left')
         plt.tight_layout()
-        plt.ylim(0, 100)
-        plot_helper(
-            FIG_DIR,
-            title=title,
-            xlabel=xlabel,
-            ylabel=ylabel,
-            save=True
-        )
-
-
-def objective_function_with_convergence():
-    df = objective_function_df
-    for i in range(number_of_producers):
-        producer = i + 1
-        producer_df = _producer_rows_from_df(
-            objective_function_df, producer
-        )
-        x, y, z = contour_params(
-            producer_df, x_column='f1', y_column='tau',
-            z_column='MSE'
-        )
-        plt.contourf(x, y, z, 15, alpha=1.0)
-        plt.colorbar()
-        producer_df = _producer_rows_from_df(
-            q_predictions_sensitivity_analysis_df, producer
-        )
-        x, y = initial_and_final_params_from_df(producer_df)
-        for j in range(len(x)):
-            initial = plt.scatter(
-                x[j][0], y[j][0], s=40, c='g', marker='o', label='Initial'
-            )
-            final = plt.scatter(
-                x[j][1], y[j][1], s=40, c='r', marker='x', label='Final'
-            )
-            plt.plot(x[j], y[j], c='k', alpha=0.15)
-        title = 'CRMP: Producer {} Objective Function with Convergence'.format(producer)
-        x_true, y_true = true_params[producer]
-        actual = plt.scatter(
-            x_true, y_true, s=100, c='r', label='Actual', alpha=0.5
-        )
-        plt.legend(handles=[actual, initial, final], loc='upper left')
-        plt.tight_layout()
-        plt.xlim(0, 1)
         plt.ylim(0, 100)
         plot_helper(
             FIG_DIR,
@@ -244,4 +198,3 @@ parameter_convergence()
 # fitted_params_and_mean_squared_error_prediction()
 # initial_guesses_and_mse_from_prediction()
 # objective_function_contour_plot()
-# objective_function_with_convergence()
