@@ -193,8 +193,34 @@ def objective_function_contour_plot():
         )
 
 
-parameter_convergence()
+def gradient_across_parameter_space_prediction_data():
+    for i in range(number_of_producers):
+        producer = i + 1
+        producer_df = producer_rows_from_df(
+            objective_function_df, producer
+        )
+        x, y, z = contour_params(
+            producer_df , x_column='f1', y_column='tau',
+            z_column='MSE'
+        )
+        dz = np.gradient(z)[0]
+        plt.contourf(x, y, dz, alpha=1.0)
+        plt.colorbar()
+        title = 'CRMP: Producer {} Gradient Across Parameter Space for MSEs from Prediction'.format(producer)
+        plt.tight_layout()
+        plt.ylim(0, 100)
+        plot_helper(
+            FIG_DIR,
+            title=title,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            save=True
+        )
+
+
+# parameter_convergence()
 # fitted_params_and_mean_squared_error_fitting()
 # fitted_params_and_mean_squared_error_prediction()
 # initial_guesses_and_mse_from_prediction()
-# objective_function_contour_plot()
+objective_function_contour_plot()
+# gradient_across_parameter_space_prediction_data()
