@@ -13,11 +13,11 @@ from src.simulations import (
 )
 
 
-q_fitting_sensitivity_analysis_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
-q_fitting_sensitivity_analysis_df = pd.read_csv(q_fitting_sensitivity_analysis_file)
+fitting_sensitivity_analysis_file = INPUTS['crmp']['crmp']['fit']['sensitivity_analysis']
+fitting_sensitivity_analysis_df = pd.read_csv(fitting_sensitivity_analysis_file)
 
-q_predictions_sensitivity_analysis_file = INPUTS['crmp']['crmp']['predict']['sensitivity_analysis']
-q_predictions_sensitivity_analysis_df = pd.read_csv(q_predictions_sensitivity_analysis_file)
+predictions_sensitivity_analysis_file = INPUTS['crmp']['crmp']['predict']['sensitivity_analysis']
+predictions_sensitivity_analysis_df = pd.read_csv(predictions_sensitivity_analysis_file)
 
 best_guesses_fit_file = INPUTS['crmp']['crmp']['fit']['best_guesses']
 best_guesses_fit_df = pd.read_csv(best_guesses_fit_file)
@@ -40,7 +40,7 @@ def parameter_convergence():
         plt.figure(figsize=[7, 4.8])
         producer = i + 1
         producer_rows_df = producer_rows_from_df(
-            q_fitting_sensitivity_analysis_df,
+            fitting_sensitivity_analysis_df,
             producer
         )
         x, y = initial_and_final_params_from_df(producer_rows_df)
@@ -82,7 +82,7 @@ def fitted_params_and_mean_squared_error_fitting():
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = producer_rows_from_df(
-            q_fitting_sensitivity_analysis_df,
+            fitting_sensitivity_analysis_df,
             producer
         )
         x, y, z = contour_params(
@@ -110,7 +110,7 @@ def fitted_params_and_mean_squared_error_prediction():
     for i in range(len(producers)):
         producer = i + 1
         producer_rows_df = producer_rows_from_df(
-            q_predictions_sensitivity_analysis_df,
+            predictions_sensitivity_analysis_df,
             producer
         )
         x, y, z = contour_params(
@@ -135,7 +135,7 @@ def fitted_params_and_mean_squared_error_prediction():
 
 
 def initial_guesses_and_mse_from_prediction():
-    df = q_fitting_sensitivity_analysis_df
+    df = fitting_sensitivity_analysis_df
     for i in range(number_of_producers):
         producer = i + 1
         df_producer_rows = df.loc[
