@@ -46,6 +46,9 @@ wfsim-features:
 real-data-features:
 	$(PYTHON) src.features.build_real_data_features
 
+clair-data-features:
+	$(PYTHON) src.features.build_clair_data_features
+
 ## Rum all the models
 simulate: simulate-crmp simulate-koval
 
