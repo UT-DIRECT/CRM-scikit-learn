@@ -9,6 +9,7 @@ processed_data_file = INPUTS['real_data']['data']
 
 producer_sheets = ['A01', 'A02', 'A03', 'A05', 'A09', 'A10', 'A12']
 injector_sheets = ['A04', 'A08', 'A11', 'A13']
+column_names = []
 df = pd.DataFrame()
 
 
@@ -29,14 +30,19 @@ for sheet_name in producer_sheets:
     oil_data = data_from_column(producer_df, 'Oil Vol')
     water_data = data_from_column(producer_df, 'Water Vol')
     production_data = oil_data + water_data
-    df['P' + sheet_name] = construct_column_of_length(production_data, length)
+    column_name = 'P' + sheet_name
+    df[column_name] = construct_column_of_length(production_data, length)
+    column_names.append(column_name)
 
 for sheet_name in injector_sheets:
     injector_df = pd.read_excel(raw_data_file, sheet_name=sheet_name)
     water_data = injector_df['Water Vol'][1:]
     zeros = np.zeros(length - len(water_data))
-    df['I' + sheet_name] = construct_column_of_length(water_data, length)
+    column_name = 'I' + sheet_name
+    df[column_name] = construct_column_of_length(water_data, length)
+    column_names.append(column_name)
 
 df.fillna(0, inplace=True)
+df[column_names] = df[column_names].clip(0)
 
 df.to_csv(processed_data_file)
