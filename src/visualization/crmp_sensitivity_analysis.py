@@ -204,9 +204,9 @@ def gradient_across_parameter_space_prediction_data():
             z_column='MSE'
         )
         dz = np.gradient(z)[0]
-        plt.contourf(x, y, dz, alpha=1.0)
+        plt.contourf(x, y, dz, 15, alpha=1.0)
         plt.colorbar()
-        title = 'CRMP: Producer {} Gradient Across Parameter Space for MSEs from Prediction'.format(producer)
+        title = 'CRMP: Producer {} ln(Gradient) Across Parameter Space for MSEs from Prediction'.format(producer)
         plt.tight_layout()
         plt.ylim(0, 100)
         plot_helper(
@@ -218,9 +218,9 @@ def gradient_across_parameter_space_prediction_data():
         )
 
 
-# parameter_convergence()
+parameter_convergence()
 # fitted_params_and_mean_squared_error_fitting()
 # fitted_params_and_mean_squared_error_prediction()
 # initial_guesses_and_mse_from_prediction()
-objective_function_contour_plot()
+# objective_function_contour_plot()
 # gradient_across_parameter_space_prediction_data()

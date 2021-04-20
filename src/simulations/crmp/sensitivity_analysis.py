@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import matplotlib as mpl
 mpl.use('tkagg')
 import matplotlib.pyplot as plt
@@ -38,7 +40,7 @@ def convergence_sensitivity_analysis():
     for i in range(number_of_producers):
         X, y = production_rate_dataset(producers[i], *injectors)
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.5, shuffle=False
+            X, y, train_size=0.5, shuffle=False
         )
         train_length = len(y_train)
         test_length = len(y_test)
@@ -48,7 +50,7 @@ def convergence_sensitivity_analysis():
         # plt.plot(test_time, y_test, c='g', label='Predict')
         # plt.plot(t, y, c='k', label='Actual')
         for p0 in param_grid['p0']:
-            crmp = CRMP(p0=p0)
+            crmp = CRMP(p0=deepcopy(p0))
             crmp = crmp.fit(X_train, y_train)
 
             # Fitting
@@ -166,8 +168,8 @@ def get_basic_producer_statistics():
 
 
 
-# convergence_sensitivity_analysis()
-objective_function()
+convergence_sensitivity_analysis()
+# objective_function()
 # minimum_train_size()
 # smallest_error_by_well()
 # get_basic_producer_statistics()
