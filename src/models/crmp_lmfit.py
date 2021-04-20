@@ -79,9 +79,6 @@ class CRMP(BaseEstimator, RegressorMixin):
         params.add('bound', value=0, min=0, max=1, expr=bound)
 
         results = model.fit(self.y_, X=self.X_, params=params, method='powell')
-        # Currently 'nelder' method is working the best.
-        # Brute force works well too, but is far too slow, takes a minute plus
-        # per well. Powell it is.
 
         pars = []
         pars.append(results.values['tau'])
