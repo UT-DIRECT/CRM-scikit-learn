@@ -37,6 +37,7 @@ objective_function_data = {
 
 def convergence_sensitivity_analysis():
     t = time[1:]
+    iterations = 0
     for i in range(number_of_producers):
         X, y = production_rate_dataset(producers[i], *injectors)
         X_train, X_test, y_train, y_test = train_test_split(
@@ -82,6 +83,9 @@ def convergence_sensitivity_analysis():
             predict_data['f2_final'].append(crmp.gains_[1])
             predict_data['r2'].append(r2)
             predict_data['MSE'].append(mse)
+
+            iterations += 1
+            print(iterations)
 
         # plt.vlines(76, 0, 1000, linewidth=1, alpha=0.8)
         # plt.title(producer_names[i])
