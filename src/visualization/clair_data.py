@@ -2,11 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from sklearn.model_selection import train_test_split
+
 from src.config import INPUTS
 from src.data.read_clair import (
     injectors, producers, producer_names, producer_starting_indicies, time
 )
+from src.helpers.features import production_rate_dataset, producer_rows_from_df
 from src.helpers.figures import plot_helper
+from src.models.crmp import CRMP
 
 FIG_DIR = INPUTS['real_data']['figures_dir']
 fit_file = INPUTS['real_data']['fit']['sensitivity_analysis']
@@ -34,7 +38,7 @@ def plot_production_rate():
 
 
 def production_history_with_fit_and_predict():
-    df = pd.read_csv(predict_output_file)
+    df = pd.read_csv(predict_file)
     starting_index = producer_starting_indicies[1]
     producer = producers[1][starting_index:]
     injectors_tmp = [injector[starting_index:] for injector in injectors]
@@ -57,7 +61,9 @@ def production_history_with_fit_and_predict():
         train_length = len(y_train)
         test_length = len(y_test)
         train_time = t[:train_length]
-        test_time = t[train_length:]
+        test_time = t[train_length:][1:]
+        plt.plot(train_time, y_train, c='r', label='Fit')
+        plt.plot(test_time, y_test, c='g', label='Predict')
         plt.plot(t, producer, c='k')
         for index, row in producer_df.iterrows():
             tau = row['tau_final']
@@ -74,14 +80,15 @@ def production_history_with_fit_and_predict():
 
             # Prediction
             y_hat = crmp.predict(X_test)
-            plt.plot(test_time[1:], y_hat, alpha=0.02, c='g', linewidth=2)
+            plt.plot(test_time, y_hat, alpha=0.02, c='g', linewidth=2)
+
         plt.vlines(test_time[0], 0, 1.1 * max(producer), linewidth=2, alpha=0.8)
         plot_helper(
             FIG_DIR,
             title=producer_names[i],
             xlabel='Time',
             ylabel='Production Rate',
-            # legend=tmp_producer_names,
+            legend=True,
             save=True
         )
 
