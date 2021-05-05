@@ -167,6 +167,6 @@ def constraint_analysis():
         print()
 
 
-# convergence_sensitivity_analysis()
-# converged_parameter_statistics()
-# constraint_analysis()
+convergence_sensitivity_analysis()
+converged_parameter_statistics()
+constraint_analysis()

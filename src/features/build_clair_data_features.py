@@ -29,7 +29,10 @@ for sheet_name in producer_sheets:
         df['Date'] = [producer_df['Date'][i + 1] for i in range(length)]
     oil_data = data_from_column(producer_df, 'Oil Vol')
     water_data = data_from_column(producer_df, 'Water Vol')
-    production_data = oil_data + water_data
+    production_data = (oil_data + water_data).clip(0)
+    production_data = production_data.replace({0: np.nan})
+    production_data.fillna(production_data.mean(), inplace=True)
+    print(production_data)
     column_name = 'P' + sheet_name
     df[column_name] = construct_column_of_length(production_data, length)
     column_names.append(column_name)
