@@ -17,6 +17,13 @@ def data_from_column(df, column_name):
     return df[column_name][1:]
 
 
+def calculate_production_data(df):
+    oil_data = data_from_column(df, 'Oil Vol')
+    water_data = data_from_column(df, 'Water Vol')
+    production_data = oil_data + water_data
+    return production_data
+
+
 def construct_column_of_length(data, length_of_column):
     zeros = np.zeros(length_of_column - len(data))
     return np.append(zeros, data.to_numpy())
@@ -27,12 +34,7 @@ for sheet_name in producer_sheets:
     if sheet_name == 'A01':
         length = len(producer_df['Date'][1:])
         df['Date'] = [producer_df['Date'][i + 1] for i in range(length)]
-    oil_data = data_from_column(producer_df, 'Oil Vol')
-    water_data = data_from_column(producer_df, 'Water Vol')
-    production_data = (oil_data + water_data).clip(0)
-    production_data = production_data.replace({0: np.nan})
-    production_data.fillna(production_data.mean(), inplace=True)
-    print(production_data)
+    production_data = calculate_production_data(producer_df)
     column_name = 'P' + sheet_name
     df[column_name] = construct_column_of_length(production_data, length)
     column_names.append(column_name)
@@ -40,7 +42,6 @@ for sheet_name in producer_sheets:
 for sheet_name in injector_sheets:
     injector_df = pd.read_excel(raw_data_file, sheet_name=sheet_name)
     water_data = injector_df['Water Vol'][1:]
-    zeros = np.zeros(length - len(water_data))
     column_name = 'I' + sheet_name
     df[column_name] = construct_column_of_length(water_data, length)
     column_names.append(column_name)
