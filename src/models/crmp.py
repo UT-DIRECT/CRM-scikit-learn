@@ -1,14 +1,10 @@
 import warnings
 import numpy as np
-# import autograd.numpy as np
 
-from autograd import grad
-from lmfit import Model, Parameters
 from scipy.optimize import minimize
 
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
-
 
 warnings.filterwarnings('ignore')
 
