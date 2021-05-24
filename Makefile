@@ -43,7 +43,13 @@ crmp-features:
 wfsim-features:
 	$(PYTHON) src.features.build_wfsim_features
 
-## Rum all the models
+real-data-features:
+	$(PYTHON) src.features.build_real_data_features
+
+clair-data-features:
+	$(PYTHON) src.features.build_clair_data_features
+
+## Run all the models
 simulate: simulate-crmp simulate-koval
 
 ## Run all the plots
@@ -81,6 +87,12 @@ crmp-characteristic-param:
 
 crmp-characteristic-param-plots:
 	$(PYTHON) src.visualization.characteristic_param
+
+crmp-clair-data:
+	$(PYTHON) src.simulations.crmp.clair_data
+
+clair-plots:
+	$(PYTHON) src.visualization.clair_data
 
 ## Entire ICRMP workflow
 icrmp: simulate-icrmp icrmp-plots

@@ -1,9 +1,12 @@
+import warnings
 import numpy as np
 
-from lmfit import Model, Parameters
+from scipy.optimize import minimize
 
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
+
+warnings.filterwarnings('ignore')
 
 
 class CRMP(BaseEstimator, RegressorMixin):
@@ -19,26 +22,28 @@ class CRMP(BaseEstimator, RegressorMixin):
         self.X_ = X
         self.y_ = y
         self.n_gains = len(X) - 1
+        self.n = len(X)
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         self.ensure_p0()
-        self._q2_constructor()
-        params = self.fit_production_rate()
-        self.tau_ = params[0]
-        self.gains_ = params[1:]
+        self.bounds = self.ensure_bounds()
+        x = self.fit_production_rate()
+        self.tau_ = x[0]
+        self.gains_ = x[1:]
         return self
 
 
     def ensure_p0(self):
         if self.p0 == []:
-            self.p0 = (1. / self.n_gains * np.ones(self.n_gains + 1))
+            self.p0 = (1. / self.n_gains * np.ones(self.n))
             self.p0[0] = 5
+        else:
+            self.p0[0] += 10.
 
 
-    @property
-    def bounds(self):
-        lower_bounds = np.zeros(self.n_gains + 1)
+    def ensure_bounds(self):
+        lower_bounds = np.zeros(self.n)
+        upper_bounds = np.ones(self.n)
         lower_bounds[0] = 1e-6
-        upper_bounds = np.ones(self.n_gains + 1)
         upper_bounds[0] = 100
         return np.array([lower_bounds, upper_bounds]).T.tolist()
 
@@ -46,45 +51,41 @@ class CRMP(BaseEstimator, RegressorMixin):
     def predict(self, X):
         X = X.T
         check_is_fitted(self)
-        return self.q2(X, self.tau_, *self.gains_)
+        return self.production_rate(X, self.tau_, *self.gains_)
 
 
-    def _q2_constructor(self):
-        gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
-        _q2 = 'lambda X, tau'
+    def production_rate(self, X, tau, *gains):
+        q2 = X[0] * np.exp(-1 / tau)
+        injectors_sum = 0
+        for i in range(self.n_gains):
+            injectors_sum += X[i + 1] * gains[i]
+        q2 += (1 - np.exp(-1 / tau)) * injectors_sum
+        return q2
 
-        for gain in gains:
-            _q2 += ', {}'.format(gain)
 
-        _q2 += ': X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * ('
+    def objective(self, x):
+        tau = x[0]
+        gains = x[1:]
+        return np.linalg.norm(
+            self.y_ - self.production_rate(self.X_, tau, *gains)
+        )
 
-        for i in range(len(gains)):
-            _q2 += 'X[{}] * {} + '.format((i + 1), gains[i])
 
-        _q2 = _q2[:-2] + ')'
+    def constraint(self, x):
+        gains = x[1:]
+        return 1 - sum(gains)
 
-        self.q2 = eval(_q2)
+
+    @staticmethod
+    def hess(x, *args):
+        n = len(x)
+        return np.zeros((n, n))
 
 
     def fit_production_rate(self):
-        model = Model(self.q2, independent_vars=['X'])
-        params = Parameters()
-        params.add('tau', value=self.p0[0], min=1.e-06, max=100)
-
-        bound = '1'
-        for i in range(self.n_gains):
-            gain = self.gains[i]
-            params.add(gain, value=self.p0[i + 1], min=0, max=1)
-            bound += '-{}'.format(gain)
-        params.add('bound', value=0, min=0, max=1, expr=bound)
-
-        results = model.fit(self.y_, X=self.X_, params=params, method='powell')
-        # Currently 'nelder' method is working the best.
-        # Brute force works well too, but is far too slow, takes a minute plus
-        # per well. Powell it is.
-
-        pars = []
-        pars.append(results.values['tau'])
-        for gain in self.gains:
-            pars.append(results.values[gain])
-        return pars
+        return minimize(
+            self.objective, self.p0, hess=self.hess, method='trust-constr',
+            bounds=self.bounds,
+            constraints=({'type': 'ineq', 'fun': self.constraint}),
+            options={'maxiter': 1000}
+        ).x

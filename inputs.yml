@@ -13,9 +13,6 @@
       'objective_function': './data/processed/crmp/crmp/predict/objective_function.csv'
       'sensitivity_analysis': './data/processed/crmp/crmp/predict/sensitivity_analysis.csv'
       'best_guesses': './data/processed/crmp/crmp/predict/best_guesses.csv'
-      'characteristic_params': './data/processed/crmp/crmp/predict/characteristic_params.csv'
-      'characteristic_params_predictions': './data/processed/crmp/crmp/predict/characteristic_params_predictions.csv'
-      'characteristic_objective_function': './data/processed/crmp/crmp/predict/characteristic_objective_function.csv'
   'icrmp':
     'fit':
       'fit': './data/processed/crmp/icrmp/fit/fit.csv'
@@ -33,3 +30,12 @@
   'koval_fitting': './data/processed/wfsim/koval_fitting.csv'
   'koval_predictions': './data/processed/wfsim/koval_predictions.csv'
   'koval_predictions_metrics': './data/processed/wfsim/koval_predictions_metrics.csv'
+'real_data':
+  'raw_data': './data/raw/Clairrawdata.xls'
+  'data': './data/processed/real_data/real_data.csv'
+  'figures_dir': './reports/figures/real_data/'
+  'fit':
+    'fit': './data/processed/real_data/crmp/fit/fit.csv'
+    'sensitivity_analysis': './data/processed/real_data/fit/sensitivity_analysis.csv'
+  'predict':
+    'sensitivity_analysis': './data/processed/real_data/predict/sensitivity_analysis.csv'

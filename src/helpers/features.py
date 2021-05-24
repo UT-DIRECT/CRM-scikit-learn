@@ -51,15 +51,22 @@ def koval_dataset(W_t, f_w):
 
 def white_noise(column):
     length = len(column)
-    sigma = column.std()
-    gaussian_noise = np.random.normal(loc=0, scale=sigma, size=length)
-    exponential_decline_scaling = np.linspace(0.1, 2, num=length)
+    rolling_stds = column.rolling(7).std()
+    # sigma = column.std()
+    # gaussian_noise = np.random.normal(loc=0, scale=sigma, size=length)
+    # exponential_decline_scaling = np.linspace(0.1, 2, num=length)
     for i in range(length):
-        column[i] += abs(gaussian_noise[i])
-        column[i] *= 1 / exponential_decline_scaling[i]
-        # Multiplying by 1/exponential_decline_scaling increases the value of
-        # the dataset by 3; therefore we multiply by 1/3 below.
-    return column * 1 / 3
+        sigma = rolling_stds[i]
+        if np.isnan(sigma):
+            continue
+        gaussian_noise = np.random.normal(loc=0, scale=rolling_stds[i])
+        column[i] += gaussian_noise
+    #     if column[i] < 0:
+    #         column[i] = 0
+    #     # column[i] *= 1 / exponential_decline_scaling[i]
+    #     # Multiplying by 1/exponential_decline_scaling increases the value of
+    #     # the dataset by 3; therefore we multiply by 1/3 below.
+    return column
 
 
 def net_flow(production):
@@ -70,3 +77,7 @@ def net_flow(production):
         else:
             net.append(net[-1] + prod)
     return net
+
+
+def producer_rows_from_df(df, producer):
+    return df.loc[df['Producer'] == producer]

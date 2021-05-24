@@ -13,7 +13,7 @@ df.columns = [
     'time', 'fixed_inj1', 'fixed_inj2',
     'Prod1', 'Prod2', 'Prod3', 'Prod4'
 ]
-# columns = df.columns[1:]
+# columns = df.columns[2:]
 # for column in columns:
 #     df[column] = white_noise(df[column])
 
