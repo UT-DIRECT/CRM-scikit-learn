@@ -156,13 +156,7 @@ def constraint_analysis():
             sum_of_gains += gains
             if gains > 1.01:
                 constraint_violation_counter += 1
-            # elif 1 > gains or abs(gains - 1) < 0.01:
-            #     print('{}, {}, {}, {}, {}, {}'.format(
-            #             row['tau_final'], f1, f2 ,f3 , f4, row['MSE']
-            #         )
-            #     )
         print('Constraint Violations: ', constraint_violation_counter)
-        # print('Average Tau: ', producer_df.mean(axis=1))
         print('Average Gains Sum: ', (sum_of_gains / length))
         print()
 
