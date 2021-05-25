@@ -1,16 +1,19 @@
-import matplotlib.pyplot as plt
+import warnings
 import numpy as np
 
-from scipy.optimize import fmin_slsqp
+from scipy.optimize import minimize
+
 from sklearn.base import BaseEstimator, RegressorMixin
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+from sklearn.utils.validation import check_X_y, check_is_fitted
+
+warnings.filterwarnings('ignore')
 
 
 class CRMP(BaseEstimator, RegressorMixin):
 
 
-    def __init__(self):
-        return
+    def __init__(self, p0=[]):
+        self.p0 = p0
 
 
     def fit(self, X=None, y=None):
@@ -18,60 +21,69 @@ class CRMP(BaseEstimator, RegressorMixin):
         X = X.T
         self.X_ = X
         self.y_ = y
-        n_gains = len(X) - 1
-        self.p0 = (1. / n_gains * np.ones(n_gains + 1))
-        self.p0[0] = 5
-        self._q2_constructor(n_gains)
-        lower_bounds = np.zeros(n_gains + 1)
-        lower_bounds[0] = 1
-        upper_bounds = np.ones(n_gains + 1)
-        upper_bounds[0] = 30
-        self.bounds = np.array([lower_bounds, upper_bounds]).T.tolist()
-        params = self._fit_production_rate(X, y)
-        self.tau_ = params[0]
-        self.gains_ = params[1:]
+        self.n_gains = len(X) - 1
+        self.n = len(X)
+        self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
+        self.ensure_p0()
+        self.bounds = self.ensure_bounds()
+        x = self.fit_production_rate()
+        self.tau_ = x[0]
+        self.gains_ = x[1:]
         return self
+
+
+    def ensure_p0(self):
+        if self.p0 == []:
+            self.p0 = (1. / self.n_gains * np.ones(self.n))
+            self.p0[0] = 5
+
+
+    def ensure_bounds(self):
+        lower_bounds = np.zeros(self.n)
+        upper_bounds = np.ones(self.n)
+        lower_bounds[0] = 1e-6
+        upper_bounds[0] = 100
+        return np.array([lower_bounds, upper_bounds]).T.tolist()
 
 
     def predict(self, X):
         X = X.T
         check_is_fitted(self)
-        return self.q2(X, self.tau_, *self.gains_)
+        return self.production_rate(X, self.tau_, *self.gains_)
 
 
-    def _q2_constructor(self, n_gains):
-        gains = ['f{}'.format(i + 1) for i in range(n_gains)]
-        _q2 = 'lambda X, tau'
-
-        for gain in gains:
-            _q2 += ', {}'.format(gain)
-
-        _q2 += ': X[0] * np.exp(-1 / tau) + (1 - np.exp(-1 / tau)) * ('
-
-        for i in range(len(gains)):
-            _q2 += 'X[{}] * {} + '.format((i + 1), gains[i])
-
-        _q2 = _q2[:-2] + ')'
-
-        self.q2 = eval(_q2)
+    def production_rate(self, X, tau, *gains):
+        q2 = X[0] * np.exp(-1 / tau)
+        injectors_sum = 0
+        for i in range(self.n_gains):
+            injectors_sum += X[i + 1] * gains[i]
+        q2 += (1 - np.exp(-1 / tau)) * injectors_sum
+        return q2
 
 
-    def _sum_residuals(self, params):
-        tau = params[0]
-        gains = params[1:]
-        return sum((self.y_ - self.q2(self.X_, tau, *gains)) ** 2)
+    def objective(self, x):
+        tau = x[0]
+        gains = x[1:]
+        return np.linalg.norm(
+            self.y_ - self.production_rate(self.X_, tau, *gains)
+        )
 
 
-    def _constraints(self, params):
-        tau = params[0]
-        gains = params[1:]
+    def constraint(self, x):
+        gains = x[1:]
         return 1 - sum(gains)
 
 
-    def _fit_production_rate(self, X, y):
-        # The CRMP function is part of the _sum_residuals function
-        params = fmin_slsqp(
-            self._sum_residuals, self.p0, f_eqcons=self._constraints,
-            bounds=self.bounds, iter=1000, iprint=0
-        )
-        return params
+    @staticmethod
+    def hess(x, *args):
+        n = len(x)
+        return np.zeros((n, n))
+
+
+    def fit_production_rate(self):
+        return minimize(
+            self.objective, self.p0, hess=self.hess, method='trust-constr',
+            bounds=self.bounds,
+            constraints=({'type': 'ineq', 'fun': self.constraint}),
+            options={'maxiter': 1000}
+        ).x
