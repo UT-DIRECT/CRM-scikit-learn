@@ -86,8 +86,8 @@ def production_history_with_fit_and_predict():
         plot_helper(
             FIG_DIR,
             title=producer_names[i],
-            xlabel='Time',
-            ylabel='Production Rate',
+            xlabel='Time [days]',
+            ylabel='Production Rate [bbls/day]',
             legend=True,
             save=True
         )
