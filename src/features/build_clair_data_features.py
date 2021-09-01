@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 
@@ -12,6 +14,8 @@ injector_sheets = ['A04', 'A08', 'A11', 'A13']
 column_names = []
 df = pd.DataFrame()
 
+
+date_format = "%Y-%m-%d"
 
 def data_from_column(df, column_name):
     return df[column_name][1:]
@@ -32,8 +36,9 @@ def construct_column_of_length(data, length_of_column):
 for sheet_name in producer_sheets:
     producer_df = pd.read_excel(raw_data_file, sheet_name=sheet_name)
     if sheet_name == 'A01':
+        start_date = producer_df['Date'][1]
         length = len(producer_df['Date'][1:])
-        df['Date'] = [producer_df['Date'][i + 1] for i in range(length)]
+        df['Time'] = [(producer_df['Date'][i + 1] - start_date).days for i in range(length)]
     production_data = calculate_production_data(producer_df)
     column_name = 'P' + sheet_name
     df[column_name] = construct_column_of_length(production_data, length)

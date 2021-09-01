@@ -47,16 +47,16 @@ def convergence_sensitivity_analysis():
         test_length = len(y_test)
         train_time = t[:train_length]
         test_time = t[train_length:]
-        # plt.plot(train_time, y_train, c='r', label='Fit')
-        # plt.plot(test_time, y_test, c='g', label='Predict')
-        # plt.plot(t, y, c='k', label='Actual')
+        plt.plot(train_time, y_train, c='r', label='Fit')
+        plt.plot(test_time, y_test, c='g', label='Predict')
+        plt.plot(t, y, c='k', label='Actual')
         for p0 in param_grid['p0']:
             crmp = CRMP(p0=deepcopy(p0))
             crmp = crmp.fit(X_train, y_train)
 
             # Fitting
             y_hat = crmp.predict(X_train)
-            # plt.plot(train_time, y_hat, alpha=0.01, c='r', linewidth=2)
+            plt.plot(train_time, y_hat, alpha=0.01, c='r', linewidth=2)
             r2, mse = fit_statistics(y_hat, y_train)
             fit_data['Producer'].append(i + 1)
             fit_data['Model'].append(model_namer(crmp))
@@ -71,7 +71,7 @@ def convergence_sensitivity_analysis():
 
             # Prediction
             y_hat = crmp.predict(X_test)
-            # plt.plot(test_time, y_hat, alpha=0.01, c='g', linewidth=2)
+            plt.plot(test_time, y_hat, alpha=0.01, c='g', linewidth=2)
             r2, mse = fit_statistics(y_hat, y_test)
             predict_data['Producer'].append(i + 1)
             predict_data['Model'].append(model_namer(crmp))
@@ -87,12 +87,13 @@ def convergence_sensitivity_analysis():
             iterations += 1
             print(iterations)
 
-        # plt.vlines(76, 0, 1000, linewidth=1, alpha=0.8)
-        # plt.title(producer_names[i])
-        # plt.xlabel('Time')
-        # plt.ylabel('Production Rate')
-        # plt.legend()
-        # plt.show()
+        plt.vlines(76, 0, 1000, linewidth=1, alpha=0.8)
+        plt.title(producer_names[i])
+        plt.xlabel('Time')
+        plt.ylabel('Production Rate')
+        plt.legend()
+        plt.show()
+        break
 
     # Fitting
     fit_df = pd.DataFrame(fit_data)
