@@ -15,17 +15,15 @@ column_names = []
 df = pd.DataFrame()
 
 
-date_format = "%Y-%m-%d"
-
-def data_from_column(df, column_name):
+def get_data_from_column(df, column_name):
     return df[column_name][1:]
 
 
-def calculate_production_data(df):
-    oil_data = data_from_column(df, 'Oil Vol')
-    water_data = data_from_column(df, 'Water Vol')
-    production_data = oil_data + water_data
-    return production_data
+def get_total_oil_and_water_production_data(df):
+    oil_prod = get_data_from_column(df, 'Oil Vol')
+    water_prod = get_data_from_column(df, 'Water Vol')
+    total_prod = oil_prod + water_prod
+    return [total_prod, oil_prod, water_prod]
 
 
 def construct_column_of_length(data, length_of_column):
@@ -39,10 +37,16 @@ for sheet_name in producer_sheets:
         start_date = producer_df['Date'][1]
         length = len(producer_df['Date'][1:])
         df['Time'] = [(producer_df['Date'][i + 1] - start_date).days for i in range(length)]
-    production_data = calculate_production_data(producer_df)
-    column_name = 'P' + sheet_name
-    df[column_name] = construct_column_of_length(production_data, length)
-    column_names.append(column_name)
+    total_prod, oil_prod, water_prod = get_total_oil_and_water_production_data(producer_df)
+    total_column_name = 'P' + sheet_name
+    oil_column_name = total_column_name + '_oil'
+    water_column_name = total_column_name + '_water'
+    df[total_column_name] = construct_column_of_length(total_prod, length)
+    df[oil_column_name] = construct_column_of_length(oil_prod, length)
+    df[water_column_name] = construct_column_of_length(water_prod, length)
+    column_names.append(total_column_name)
+    column_names.append(oil_column_name)
+    column_names.append(water_column_name)
 
 for sheet_name in injector_sheets:
     injector_df = pd.read_excel(raw_data_file, sheet_name=sheet_name)
