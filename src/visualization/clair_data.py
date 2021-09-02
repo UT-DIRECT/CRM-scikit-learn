@@ -59,12 +59,14 @@ def production_history_with_fit_and_predict():
         producer_length = len(producer)
         t = np.linspace(1, producer_length, producer_length)
         train_length = len(y_train)
-        test_length = len(y_test)
         train_time = t[:train_length]
         test_time = t[train_length:][1:]
-        plt.plot(train_time, y_train, c='r', label='Fit')
-        plt.plot(test_time, y_test, c='g', label='Predict')
+
+        empty = []
+        plt.plot(empty, empty, c='r', label='Fit')
+        plt.plot(empty, empty, c='g', label='Predict')
         plt.plot(t, producer, c='k')
+
         for index, row in producer_df.iterrows():
             tau = row['tau_final']
             f1 = row['f1_final']
