@@ -76,11 +76,11 @@ def production_history_with_fit_and_predict():
 
             # Fitting
             y_hat = crmp.predict(X_train)
-            plt.plot(train_time, y_hat, alpha=0.02, c='r', linewidth=2)
+            plt.plot(train_time, y_hat, '--', alpha=0.02, c='r', linewidth=2)
 
             # Prediction
             y_hat = crmp.predict(X_test)
-            plt.plot(test_time, y_hat, alpha=0.02, c='g', linewidth=2)
+            plt.plot(test_time, y_hat, ':', alpha=0.02, c='g', linewidth=2)
 
         plt.vlines(test_time[0], 0, 1.1 * max(producer), linewidth=2, alpha=0.8)
         plot_helper(
