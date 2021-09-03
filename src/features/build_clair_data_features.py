@@ -36,8 +36,13 @@ for sheet_name in producer_sheets:
     if sheet_name == 'A01':
         start_date = producer_df['Date'][1]
         length = len(producer_df['Date'][1:])
-        df['Time'] = [(producer_df['Date'][i + 1] - start_date).days for i in range(length)]
-    total_prod, oil_prod, water_prod = get_total_oil_and_water_production_data(producer_df)
+        df['Time'] = [
+            (producer_df['Date'][i + 1] - start_date).days
+            for i in range(length)
+        ]
+    total_prod, oil_prod, water_prod = get_total_oil_and_water_production_data(
+        producer_df
+    )
     total_column_name = 'P' + sheet_name
     oil_column_name = total_column_name + '_oil'
     water_column_name = total_column_name + '_water'
