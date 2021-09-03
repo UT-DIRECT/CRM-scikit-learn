@@ -6,7 +6,8 @@ from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
 from src.data.read_clair import (
-    injectors, producers, producer_names, producer_starting_indicies, time
+    injectors, producers, producer_names, producer_starting_indicies,
+    producers_water_production, time
 )
 from src.helpers.features import production_rate_dataset, producer_rows_from_df
 from src.helpers.figures import plot_helper
@@ -37,7 +38,7 @@ def plot_production_rate():
     )
 
 
-def production_history_with_fit_and_predict():
+def plot_production_history_with_fit_and_predict():
     df = pd.read_csv(predict_file)
     starting_index = producer_starting_indicies[1]
     producer = producers[1][starting_index:]
@@ -95,5 +96,24 @@ def production_history_with_fit_and_predict():
         )
 
 
+def plot_fractional_flow_curve():
+    for i in range(len(producer_names)):
+        starting_index = producer_starting_indicies[i]
+        total_prod = producers[i][starting_index:]
+        water_prod = producers_water_production[i][starting_index:]
+        t = time[starting_index:]
+        water_fraction = water_prod / total_prod
+        water_fraction.fillna(0, inplace=True)
+        plt.plot(t, water_fraction)
+        plot_helper(
+            FIG_DIR,
+            title=producer_names[i],
+            xlabel='Time [days]',
+            ylabel='Water Fraction of Total Production [unitless]',
+            save=True
+        )
+
+
 # plot_production_rate()
-production_history_with_fit_and_predict()
+# plot_production_history_with_fit_and_predict()
+plot_fractional_flow_curve()
