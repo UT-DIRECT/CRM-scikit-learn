@@ -12,7 +12,16 @@ producer_starting_indicies = [0, 160, 279, 433, 821, 853, 1074]
 injector_names = ['IA04', 'IA08', 'IA11', 'IA13']
 
 time = data['Time']
-producers = [data[name] for name in producer_names]
-producers_water_production = [data[name + '_water'] for name in producer_names]
-producers_oil_production = [data[name + '_oil'] for name in producer_names]
+producers = [
+    data[name + ' Total, bbls/day']
+    for name in producer_names
+]
+producers_water_production = [
+    data[name + ' Water, bbls/day']
+    for name in producer_names
+]
+producers_oil_production = [
+    data[name + ' Oil, bbls/day']
+    for name in producer_names
+]
 injectors = [data[name] for name in injector_names]

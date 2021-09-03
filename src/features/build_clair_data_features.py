@@ -43,9 +43,10 @@ for sheet_name in producer_sheets:
     total_prod, oil_prod, water_prod = get_total_oil_and_water_production_data(
         producer_df
     )
-    total_column_name = 'P' + sheet_name
-    oil_column_name = total_column_name + '_oil'
-    water_column_name = total_column_name + '_water'
+    producer_name = 'P' + sheet_name
+    total_column_name = producer_name + ' Total, bbls/day'
+    oil_column_name = producer_name + ' Oil, bbls/day'
+    water_column_name = producer_name + ' Water, bbls/day'
     df[total_column_name] = construct_column_of_length(total_prod, length)
     df[oil_column_name] = construct_column_of_length(oil_prod, length)
     df[water_column_name] = construct_column_of_length(water_prod, length)
