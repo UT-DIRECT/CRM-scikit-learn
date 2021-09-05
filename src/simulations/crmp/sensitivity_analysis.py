@@ -93,7 +93,6 @@ def convergence_sensitivity_analysis():
         plt.ylabel('Production Rate')
         plt.legend()
         plt.show()
-        break
 
     # Fitting
     fit_df = pd.DataFrame(fit_data)
