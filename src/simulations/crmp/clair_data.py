@@ -137,30 +137,5 @@ def converged_parameter_statistics():
         print()
 
 
-def constraint_analysis():
-    df = pd.read_csv(predict_output_file)
-    length = len(p0s)
-    print(length)
-    print()
-    for i in range(len(producer_names)):
-        print(producer_names[i])
-        constraint_violation_counter = 0
-        sum_of_gains = 0
-        producer_df = producer_rows_from_df(df, i+1)
-        for index, row in producer_df.iterrows():
-            f1 = row['f1_final']
-            f2 = row['f2_final']
-            f3 = row['f3_final']
-            f4 = row['f4_final']
-            gains = f1 + f2 + f3 + f4
-            sum_of_gains += gains
-            if gains > 1.01:
-                constraint_violation_counter += 1
-        print('Constraint Violations: ', constraint_violation_counter)
-        print('Average Gains Sum: ', (sum_of_gains / length))
-        print()
-
-
 convergence_sensitivity_analysis()
 converged_parameter_statistics()
-constraint_analysis()
