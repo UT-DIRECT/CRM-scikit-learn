@@ -83,9 +83,13 @@ class CRMP(BaseEstimator, RegressorMixin):
 
 
     def fit_production_rate(self):
+        # 10000 iterations is what I need to get reliable convergence, so if
+        # I am not getting reliable convergence, first check the number of
+        # iterations. I sometimes reduce the number of iterations to make
+        # prototyping faster.
         return minimize(
             self.objective, self.p0, hess=self.hess, method='trust-constr',
             bounds=self.bounds,
             constraints=({'type': 'ineq', 'fun': self.constraint}),
-            options={'maxiter': 1000}
+            options={'maxiter': 10000}
         ).x
