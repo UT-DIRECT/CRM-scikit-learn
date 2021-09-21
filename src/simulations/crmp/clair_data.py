@@ -3,7 +3,8 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import BaggingRegressor
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 from src.config import INPUTS
 from src.data.read_clair import (
@@ -137,5 +138,31 @@ def converged_parameter_statistics():
         print()
 
 
-convergence_sensitivity_analysis()
-converged_parameter_statistics()
+def train_bagging_regressor_with_crmp():
+    for i in range(1):
+        starting_index = producer_starting_indicies[i]
+        producer = producers[i][starting_index:]
+        injectors_tmp = [injector[starting_index:] for injector in injectors]
+        X, y = production_rate_dataset(producer, *injectors_tmp)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, train_size=0.7, shuffle=False
+        )
+        bgr = BaggingRegressor(
+            base_estimator=CRMP(), bootstrap=True, n_jobs=-1, random_state=0
+        )
+        parameters = {
+            'n_estimators': [10, 50, 100],
+            'max_samples': np.linspace(0.5, 1, 6)
+        }
+        gcv = GridSearchCV(bgr, parameters)
+        gcv.fit(X_train, y_train)
+        y_hat = gcv.predict(X_test)
+        r2, mse = fit_statistics(y_hat, y_test)
+        print(r2)
+        print(mse)
+        print(gcv.best_params_)
+
+
+# convergence_sensitivity_analysis()
+# converged_parameter_statistics()
+train_bagging_regressor_with_crmp()
