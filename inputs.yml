@@ -32,7 +32,8 @@
   'koval_predictions_metrics': './data/processed/wfsim/koval_predictions_metrics.csv'
 'real_data':
   'raw_data': './data/raw/Clairrawdata.xls'
-  'data': './data/processed/real_data/real_data.csv'
+  'producer': './data/processed/real_data/producer_data.csv'
+  'injector': './data/processed/real_data/injector_data.csv'
   'figures_dir': './reports/figures/real_data/'
   'fit':
     'fit': './data/processed/real_data/crmp/fit/fit.csv'
