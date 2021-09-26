@@ -49,8 +49,12 @@ columns = [
 ]
 numerical_columns = columns[1:]
 injectors_df.fillna(0, inplace=True)
-injectors_df.drop(injectors_df.columns.difference(columns), 1, inplace=True)
+injectors_df.drop(injectors_df.columns:.difference(columns), 1, inplace=True)
 injectors_df[numerical_columns] = injectors_df[numerical_columns].clip(0)
+injectors_df = injectors_df.iloc[:-1]
+injectors_date = injectors_df['Date'].astype(str)
+injectors_date = injectors_date.str.slice(start=0, stop=10)
+injectors_df['Date'] = injectors_date
 
 producers_df.to_csv(producer_data_file)
 injectors_df.to_csv(injector_data_file)
