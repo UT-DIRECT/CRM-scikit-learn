@@ -5,13 +5,19 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
-from src.data.read_clair import (
-    injectors, producers, producer_names, producer_starting_indicies,
-    producers_water_production, time
-)
 from src.helpers.features import production_rate_dataset, producer_rows_from_df
 from src.helpers.figures import plot_helper
 from src.models.crmp import CRMP
+from src.simulations import injector_names, producer_names
+
+
+injector_data_file = INPUTS['real_data']['injector']
+producer_data_file = INPUTS['real_data']['producer']
+injectors_df = pd.read_csv(injector_data_file)
+producers_df = pd.read_csv(producer_data_file)
+
+injectors_df['Date'] = pd.to_datetime(injectors_df['Date'])
+producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 FIG_DIR = INPUTS['real_data']['figures_dir']
 fit_file = INPUTS['real_data']['fit']['sensitivity_analysis']
@@ -22,20 +28,38 @@ predict_df = pd.read_csv(predict_file)
 
 
 def plot_production_rate():
-    tmp_producer_names = ['PA09', 'PA12']
+    tmp_producer_names = producer_names
     for name in tmp_producer_names:
-        i = producer_names.index(name)
-        print(i)
-        producer = producers[i]
-        starting_index = producer_starting_indicies[i]
-        plt.plot(time[starting_index:], producer[starting_index:])
-    plot_helper(
-        FIG_DIR,
-        xlabel='Date',
-        ylabel='Production Rate',
-        legend=tmp_producer_names,
-        save=True
-    )
+        producer = producers_df.loc[
+            producers_df['Name'] == name
+        ]
+        production_rate = producer['total rate']
+        t = np.linspace(0, len(production_rate), len(production_rate))
+        plt.plot(t, production_rate)
+        plot_helper(
+            FIG_DIR,
+            xlabel='Time [days]',
+            ylabel='Production Rate [bbls/day]',
+            title=name,
+            save=True
+        )
+
+
+def plot_injection_rates():
+    for name in injector_names:
+        injector = injectors_df.loc[
+            injectors_df['Name'] == name
+        ]
+        injection_rate = injector['Water Vol']
+        t = np.linspace(0, len(injection_rate), len(injection_rate))
+        plt.plot(t, injection_rate)
+        plot_helper(
+            FIG_DIR,
+            xlabel='Time [days]',
+            ylabel='Injection Rate [bbls/day]',
+            title=name,
+            save=True
+        )
 
 
 def plot_production_history_with_fit_and_predict():
@@ -115,5 +139,6 @@ def plot_fractional_flow_curve():
 
 
 # plot_production_rate()
+plot_injection_rates()
 # plot_production_history_with_fit_and_predict()
-plot_fractional_flow_curve()
+# plot_fractional_flow_curve()
