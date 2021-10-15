@@ -1,4 +1,7 @@
 import numpy as np
+import pandas as pd
+
+from src.simulations import injector_names
 
 
 def production_rate_features(q, *I):
@@ -32,6 +35,52 @@ def production_rate_dataset(q, *I):
         production_rate_features(q, *I),
         target_vector(q)
     ]
+
+
+def get_real_producer_data(df, name):
+    producer = df.loc[df['Name'] == name, ['Date', 'Total Vol']]
+    producer[name] = producer['Total Vol']
+    producer.drop(columns=['Total Vol'], inplace=True)
+    return producer
+
+
+def construct_real_production_rate_dataset(q, I):
+    return [
+        construct_real_production_rate_features(q, I),
+        construct_real_target_vector(q)
+    ]
+
+
+def construct_real_target_vector(q):
+    producer_name = q.columns[1]
+    producer = q[producer_name][1:]
+    return producer
+
+
+def construct_column_of_length(data, length_of_column):
+    if length_of_column > len(data):
+        zeros = np.zeros(length_of_column - len(data))
+        return np.append(zeros, data.to_numpy())
+    else:
+        return data[-length_of_column:]
+
+
+def construct_real_production_rate_features(q, I):
+    df = pd.DataFrame()
+    df['Date'] = q['Date']
+    producer_name = q.columns[1]
+    df[producer_name] = q[producer_name]
+    length = len(df.index)
+    for name in injector_names:
+        injector = I.loc[
+            I['Name'] == name,
+            'Water Vol'
+        ]
+        injector_column = construct_column_of_length(injector, length)
+        df[name] = injector_column
+    df.drop(columns=['Date'], inplace=True)
+    df.fillna(0, inplace=True)
+    return df.iloc[:-1]
 
 
 def net_production_dataset(N, q, *I):

@@ -7,14 +7,24 @@ from sklearn.ensemble import BaggingRegressor
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 from src.config import INPUTS
-from src.data.read_clair import (
-    injectors, producers, producer_names, producer_starting_indicies, time
-)
 from src.helpers.analysis import fit_statistics
-from src.helpers.features import production_rate_dataset, producer_rows_from_df
+
+from src.helpers.features import (
+    get_real_producer_data, production_rate_dataset, producer_rows_from_df,
+    construct_real_production_rate_dataset
+)
 from src.helpers.models import model_namer
 from src.models.crmp import CRMP
+from src.simulations import injector_names, producer_names
 
+
+injector_data_file = INPUTS['real_data']['injector']
+producer_data_file = INPUTS['real_data']['producer']
+injectors_df = pd.read_csv(injector_data_file)
+producers_df = pd.read_csv(producer_data_file)
+
+injectors_df['Date'] = pd.to_datetime(injectors_df['Date'])
+producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 fit_ouput_file = INPUTS['real_data']['fit']['sensitivity_analysis']
 predict_output_file = INPUTS['real_data']['predict']['sensitivity_analysis']
@@ -50,20 +60,37 @@ for i in tau:
                         p0s.append((i, j, k, l, m))
 
 p0s = set(p0s)
-p0s = [[100.0, 0.2, 0.6000000000000001, 0.0, 0.2], [80.0, 0.0, 0.0, 0.2, 0.8], [40.0, 0.4, 0.0, 0.2, 0.4], [40.0, 0.4, 0.2, 0.4, 0.0], [100.0, 0.2, 0.0, 0.4, 0.4], [90.0, 0.8, 0.0, 0.0, 0.2], [30.0, 0.4, 0.0, 0.4, 0.2], [50.0, 0.4, 0.0, 0.2, 0.4], [30.0, 0.0, 0.0, 1.0, 0.0], [70.0, 0.2, 0.4, 0.0, 0.4], [1e-06, 0.2, 0.0, 0.8, 0.0], [30.0, 0.0, 0.8, 0.0, 0.2], [90.0, 0.0, 0.2, 0.8, 0.0], [90.0, 0.2, 0.2, 0.6000000000000001, 0.0], [10.0, 0.2, 0.6000000000000001, 0.2, 0.0], [30.0, 0.2, 0.6000000000000001, 0.2, 0.0], [50.0, 0.0, 0.6000000000000001, 0.0, 0.4], [40.0, 0.2, 0.0, 0.0, 0.8], [50.0, 0.0, 1.0, 0.0, 0.0], [90.0, 0.2, 0.0, 0.6000000000000001, 0.2]]
+p0s = [
+    [100.0, 0.2, 0.6000000000000001, 0.0, 0.2], [80.0, 0.0, 0.0, 0.2, 0.8],
+    [40.0, 0.4, 0.0, 0.2, 0.4], [40.0, 0.4, 0.2, 0.4, 0.0],
+    [100.0, 0.2, 0.0, 0.4, 0.4], [90.0, 0.8, 0.0, 0.0, 0.2],
+    [30.0, 0.4, 0.0, 0.4, 0.2], [50.0, 0.4, 0.0, 0.2, 0.4],
+    [30.0, 0.0, 0.0, 1.0, 0.0], [70.0, 0.2, 0.4, 0.0, 0.4],
+    [1e-06, 0.2, 0.0, 0.8, 0.0], [30.0, 0.0, 0.8, 0.0, 0.2],
+    [90.0, 0.0, 0.2, 0.8, 0.0], [90.0, 0.2, 0.2, 0.6000000000000001, 0.0],
+    [10.0, 0.2, 0.6000000000000001, 0.2, 0.0],
+    [30.0, 0.2, 0.6000000000000001, 0.2, 0.0],
+    [50.0, 0.0, 0.6000000000000001, 0.0, 0.4], [40.0, 0.2, 0.0, 0.0, 0.8],
+    [50.0, 0.0, 1.0, 0.0, 0.0], [90.0, 0.2, 0.0, 0.6000000000000001, 0.2]
+]
 
 
 
 
 def convergence_sensitivity_analysis():
     for i in range(len(producer_names)):
-        starting_index = producer_starting_indicies[i]
-        producer = producers[i][starting_index:]
-        injectors_tmp = [injector[starting_index:] for injector in injectors]
-        X, y = production_rate_dataset(producer, *injectors_tmp)
+        name = producer_names[i]
+        print(name)
+        producer = get_real_producer_data(producers_df, name)
+        injectors = injectors_df[['Name', 'Date', 'Water Vol']]
+        X, y = construct_real_production_rate_dataset(producer, injectors)
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.5, shuffle=False
+            X, y, train_size=0.7, shuffle=False
         )
+        X_train = X_train.to_numpy()
+        X_test = X_test.to_numpy()
+        y_train = y_train.to_numpy()
+        y_test = y_test.to_numpy()
         for p0 in p0s:
             crmp = CRMP(p0=deepcopy(p0))
             crmp = crmp.fit(X_train, y_train)
@@ -140,10 +167,10 @@ def converged_parameter_statistics():
 
 def train_bagging_regressor_with_crmp():
     for i in range(1):
-        starting_index = producer_starting_indicies[i]
-        producer = producers[i][starting_index:]
-        injectors_tmp = [injector[starting_index:] for injector in injectors]
-        X, y = production_rate_dataset(producer, *injectors_tmp)
+        name = producer_names[i]
+        producer = get_real_producer_data(producers_df, name)
+        injectors = injectors_df[['Name', 'Date', 'Water Vol']]
+        X, y = construct_real_production_rate_dataset(producer, injectors)
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=0.7, shuffle=False
         )
@@ -151,7 +178,7 @@ def train_bagging_regressor_with_crmp():
             base_estimator=CRMP(), bootstrap=True, n_jobs=-1, random_state=0
         )
         parameters = {
-            'n_estimators': [10, 50, 100],
+            'n_estimators': [10],
             'max_samples': np.linspace(0.5, 1, 6)
         }
         gcv = GridSearchCV(bgr, parameters)
@@ -163,6 +190,6 @@ def train_bagging_regressor_with_crmp():
         print(gcv.best_params_)
 
 
-# convergence_sensitivity_analysis()
-# converged_parameter_statistics()
-train_bagging_regressor_with_crmp()
+convergence_sensitivity_analysis()
+converged_parameter_statistics()
+# train_bagging_regressor_with_crmp()
