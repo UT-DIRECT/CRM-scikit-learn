@@ -28,6 +28,7 @@ columns = [
     'Av BHT', 'Av WHP', 'total rate'
 ]
 numerical_columns = columns[1:]
+producers_df.replace([np.inf, -np.inf], np.nan, inplace=True)
 producers_df.fillna(0, inplace=True)
 producers_df.drop(producers_df.columns.difference(columns), 1, inplace=True)
 producers_df[numerical_columns] = producers_df[numerical_columns].clip(0)
@@ -48,8 +49,9 @@ columns = [
     'Av WHP', 'Cum WHP', 'Cum Volume'
 ]
 numerical_columns = columns[1:]
+injectors_df.replace([np.inf, -np.inf], np.nan, inplace=True)
 injectors_df.fillna(0, inplace=True)
-injectors_df.drop(injectors_df.columns:.difference(columns), 1, inplace=True)
+injectors_df.drop(injectors_df.columns.difference(columns), 1, inplace=True)
 injectors_df[numerical_columns] = injectors_df[numerical_columns].clip(0)
 injectors_df = injectors_df.iloc[:-1]
 injectors_date = injectors_df['Date'].astype(str)
