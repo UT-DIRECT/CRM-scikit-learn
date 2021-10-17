@@ -6,7 +6,7 @@ from scipy.optimize import minimize
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
 
-from src.models import CRMP
+from src.models.crmp import CRMP
 
 warnings.filterwarnings('ignore')
 
@@ -37,8 +37,8 @@ class CrmpBHP(CRMP):
         if self.p0 == []:
             self.p0 = (1. / self.n_gains * np.ones(self.n))
             self.p0[0] = 5
-        else:
-            self.p0[0] += 10.
+            self.p0[1] = 1e-6
+            self.p0[2] = 10e9
 
 
     # FIXME: Make sure code works by just using the parent function
@@ -47,7 +47,7 @@ class CrmpBHP(CRMP):
         upper_bounds = np.ones(self.n)
         lower_bounds[0] = 1e-6
         upper_bounds[0] = 100
-        lower_bounds[1] = 1e-7
+        lower_bounds[1] = 1e-12
         upper_bounds[1] = 1e-4
         lower_bounds[2] = 1e9
         upper_bounds[2] = 2 * 104e9
