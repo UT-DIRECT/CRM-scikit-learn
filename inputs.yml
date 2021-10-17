@@ -38,5 +38,7 @@
   'fit':
     'fit': './data/processed/real_data/crmp/fit/fit.csv'
     'sensitivity_analysis': './data/processed/real_data/fit/sensitivity_analysis.csv'
+    'bhp_sensitivity_analysis': './data/processed/real_data/fit/bhp_sensitivity_analysis.csv'
   'predict':
     'sensitivity_analysis': './data/processed/real_data/predict/sensitivity_analysis.csv'
+    'bhp_sensitivity_analysis': './data/processed/real_data/predict/bhp_sensitivity_analysis.csv'

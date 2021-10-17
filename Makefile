@@ -91,6 +91,9 @@ crmp-characteristic-param-plots:
 crmp-clair-data:
 	$(PYTHON) src.simulations.crmp.clair_data
 
+crmpbhp-clair-data:
+	$(PYTHON) src.simulations.crmpbhp.clair_data
+
 clair-plots:
 	$(PYTHON) src.visualization.clair_data
 
