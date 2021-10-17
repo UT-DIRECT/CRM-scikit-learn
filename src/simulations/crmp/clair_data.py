@@ -15,6 +15,7 @@ from src.helpers.features import (
 )
 from src.helpers.models import model_namer
 from src.models.crmp import CRMP
+from src.models.crmpbhp import CrmpBHP
 from src.simulations import injector_names, producer_names
 
 
@@ -26,7 +27,7 @@ producers_df = pd.read_csv(producer_data_file)
 injectors_df['Date'] = pd.to_datetime(injectors_df['Date'])
 producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
-fit_ouput_file = INPUTS['real_data']['fit']['sensitivity_analysis']
+fit_output_file = INPUTS['real_data']['fit']['sensitivity_analysis']
 predict_output_file = INPUTS['real_data']['predict']['sensitivity_analysis']
 fit_data = {
     'Producer': [], 'Model': [], 'tau_initial': [], 'tau_final': [],
@@ -73,8 +74,6 @@ p0s = [
     [50.0, 0.0, 0.6000000000000001, 0.0, 0.4], [40.0, 0.2, 0.0, 0.0, 0.8],
     [50.0, 0.0, 1.0, 0.0, 0.0], [90.0, 0.2, 0.0, 0.6000000000000001, 0.2]
 ]
-
-
 
 
 def convergence_sensitivity_analysis():
@@ -133,7 +132,7 @@ def convergence_sensitivity_analysis():
 
     # Fitting
     fit_df = pd.DataFrame(fit_data)
-    fit_df.to_csv(fit_ouput_file)
+    fit_df.to_csv(fit_output_file)
 
     # Prediction
     predict_df = pd.DataFrame(predict_data)
@@ -190,6 +189,6 @@ def train_bagging_regressor_with_crmp():
         print(gcv.best_params_)
 
 
-convergence_sensitivity_analysis()
-converged_parameter_statistics()
+# convergence_sensitivity_analysis()
+# converged_parameter_statistics()
 # train_bagging_regressor_with_crmp()
