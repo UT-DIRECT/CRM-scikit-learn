@@ -19,16 +19,15 @@ class CrmpBHP(CRMP):
         X = X.T
         self.X_ = X
         self.y_ = y
-        self.n_gains = len(X) - 3
+        self.n_gains = len(X) - 2
         self.n = len(X)
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         self.ensure_p0()
         self.bounds = self.ensure_bounds()
         x = self.fit_production_rate()
         self.tau_ = x[0]
-        self.c_t_ = x[1]
-        self.V_p_ = x[2]
-        self.gains_ = x[3:]
+        self.J_ = x[1]
+        self.gains_ = x[2:]
         return self
 
 
@@ -37,8 +36,7 @@ class CrmpBHP(CRMP):
         if self.p0 == []:
             self.p0 = (1. / self.n_gains * np.ones(self.n))
             self.p0[0] = 5
-            self.p0[1] = 1e-6
-            self.p0[2] = 10e9
+            self.p0[1] = 2
 
 
     # FIXME: Make sure code works by just using the parent function
@@ -48,9 +46,7 @@ class CrmpBHP(CRMP):
         lower_bounds[0] = 1e-6
         upper_bounds[0] = 100
         lower_bounds[1] = 1e-12
-        upper_bounds[1] = 1e-4
-        lower_bounds[2] = 1e9
-        upper_bounds[2] = 2 * 104e9
+        upper_bounds[1] = 30
         return np.array([lower_bounds, upper_bounds]).T.tolist()
 
 
@@ -58,13 +54,13 @@ class CrmpBHP(CRMP):
         X = X.T
         check_is_fitted(self)
         return self.production_rate(
-            X, self.tau_, self.c_t_, self.V_p_, *self.gains_
+            X, self.tau_, self.J_, *self.gains_
         )
 
 
-    def production_rate(self, X, tau, c_t, V_p, *gains):
+    def production_rate(self, X, tau, J, *gains):
         q2 = X[0] * np.exp(-1 / tau)
-        pressure_change_term = X[1] * c_t * V_p
+        pressure_change_term = X[1] * J
         injectors_sum = 0
         for i in range(self.n_gains):
             injectors_sum += X[i + 2] * gains[i]
@@ -74,16 +70,15 @@ class CrmpBHP(CRMP):
 
     def objective(self, x):
         tau = x[0]
-        c_t = x[1]
-        V_p = x[2]
-        gains = x[3:]
+        J = x[1]
+        gains = x[2:]
         return np.linalg.norm(
-            self.y_ - self.production_rate(self.X_, tau, c_t, V_p, *gains)
+            self.y_ - self.production_rate(self.X_, tau, J, *gains)
         )
 
 
     def constraint(self, x):
-        gains = x[3:]
+        gains = x[2:]
         return 1 - sum(gains)
 
 
