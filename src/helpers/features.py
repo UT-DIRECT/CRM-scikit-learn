@@ -37,16 +37,21 @@ def production_rate_dataset(q, *I):
     ]
 
 
-def get_real_producer_data(df, name):
-    producer = df.loc[df['Name'] == name, ['Date', 'Total Vol']]
+def get_real_producer_data(df, name, bhp=False):
+    columns = ['Date', 'Total Vol']
+    if bhp:
+        columns.append('Av BHP')
+    producer = df.loc[df['Name'] == name, columns]
+    producer = construct_change_in_pressure_column(producer)
     producer[name] = producer['Total Vol']
-    producer.drop(columns=['Total Vol'], inplace=True)
+    producer.drop(columns=['Total Vol', 'Av BHP'], inplace=True)
+    df.fillna(0, inplace=True)
     return producer
 
 
-def construct_real_production_rate_dataset(q, I):
+def construct_real_production_rate_dataset(q, I, bhp):
     return [
-        construct_real_production_rate_features(q, I),
+        construct_real_production_rate_features(q, I, bhp),
         construct_real_target_vector(q)
     ]
 
@@ -65,11 +70,29 @@ def construct_column_of_length(data, length_of_column):
         return data[-length_of_column:]
 
 
-def construct_real_production_rate_features(q, I):
-    df = pd.DataFrame()
-    df['Date'] = q['Date']
-    producer_name = q.columns[1]
-    df[producer_name] = q[producer_name]
+def construct_real_production_rate_features(q, I, bhp):
+    df = pd.DataFrame(q)
+    df - construct_bhp_column(df, bhp)
+    df = construct_injection_rate_columns(df, I)
+    df.drop(columns=['Date'], inplace=True)
+    df.fillna(0, inplace=True)
+    return df.iloc[:-1]
+
+
+def construct_bhp_column(df, bhp):
+    if bhp is not None:
+        df['delta_p'] = bhp
+    return df
+
+
+def construct_change_in_pressure_column(df):
+    bhp = df['Av BHP']
+    delta_p = bhp[:-1] - bhp[1:]
+    df['delta_p'] = delta_p
+    return df
+
+
+def construct_injection_rate_columns(df, I):
     length = len(df.index)
     for name in injector_names:
         injector = I.loc[
@@ -78,9 +101,7 @@ def construct_real_production_rate_features(q, I):
         ]
         injector_column = construct_column_of_length(injector, length)
         df[name] = injector_column
-    df.drop(columns=['Date'], inplace=True)
-    df.fillna(0, inplace=True)
-    return df.iloc[:-1]
+    return df
 
 
 def net_production_dataset(N, q, *I):
