@@ -39,17 +39,23 @@ def production_rate_dataset(q, *I):
 
 def get_real_producer_data(df, name, bhp=False):
     columns = ['Date', 'Total Vol']
-    if bhp:
-        columns.append('Av BHP')
     producer = df.loc[df['Name'] == name, columns]
-    producer = construct_change_in_pressure_column(producer)
     producer[name] = producer['Total Vol']
-    producer.drop(columns=['Total Vol', 'Av BHP'], inplace=True)
-    df.fillna(0, inplace=True)
+    producer.drop(columns=['Total Vol'], inplace=True)
+    producer = get_bhp_data_for_producer(df, producer, name, bhp)
+    producer.fillna(0, inplace=True)
     return producer
 
 
-def construct_real_production_rate_dataset(q, I, bhp):
+def get_bhp_data_for_producer(df, producer, name, bhp):
+    if bhp:
+        producer['Av BHP'] = df.loc[df['Name'] == name, 'Av BHP']
+        producer = construct_change_in_pressure_column(producer)
+        producer.drop(columns=['Av BHP'], inplace=True)
+    return producer
+
+
+def construct_real_production_rate_dataset(q, I, bhp=None):
     return [
         construct_real_production_rate_features(q, I, bhp),
         construct_real_target_vector(q)
@@ -64,15 +70,16 @@ def construct_real_target_vector(q):
 
 def construct_column_of_length(data, length_of_column):
     if length_of_column > len(data):
-        zeros = np.zeros(length_of_column - len(data))
-        return np.append(zeros, data.to_numpy())
+        zeros = np.zeros(length_of_column - len(data) - 1)
+        return np.append(np.append(zeros, data.to_numpy()), 0)
     else:
-        return data[-length_of_column:]
+        return data[-(length_of_column + 1):-1]
 
 
 def construct_real_production_rate_features(q, I, bhp):
     df = pd.DataFrame(q)
-    df - construct_bhp_column(df, bhp)
+    if bhp is not None:
+        df = construct_bhp_column(df, bhp)
     df = construct_injection_rate_columns(df, I)
     df.drop(columns=['Date'], inplace=True)
     df.fillna(0, inplace=True)
