@@ -97,5 +97,5 @@ class CrmpBHP(CRMP):
             self.objective, self.p0, hess=self.hess, method='trust-constr',
             bounds=self.bounds,
             constraints=({'type': 'ineq', 'fun': self.constraint}),
-            options={'maxiter': 100}
+            options={'maxiter': 10000}
         ).x

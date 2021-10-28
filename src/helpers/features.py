@@ -49,7 +49,10 @@ def get_real_producer_data(df, name, bhp=False):
 
 def get_bhp_data_for_producer(df, producer, name, bhp):
     if bhp:
-        producer['Av BHP'] = df.loc[df['Name'] == name, 'Av BHP']
+        producer['Av BHP'] = (df.loc[df['Name'] == name, 'Av BHP']).replace(0, np.nan)
+        pd.set_option('display.max_rows', df.shape[0]+1)
+        producer['Av BHP'].interpolate(inplace=True)
+        producer['Av BHP'].fillna(method='bfill', inplace=True)
         producer = construct_change_in_pressure_column(producer)
         producer.drop(columns=['Av BHP'], inplace=True)
     return producer

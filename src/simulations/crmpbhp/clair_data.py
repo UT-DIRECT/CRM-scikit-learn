@@ -59,8 +59,8 @@ p0s = [
 
 
 def evaluate_crmp_bhp_model():
-    for i in range(len(producer_names)):
-        name = producer_names[i]
+    iteration = 0
+    for name in producer_names:
         print('Producer Name: ', name)
         producer = get_real_producer_data(producers_df, name, bhp=True)
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
@@ -75,13 +75,15 @@ def evaluate_crmp_bhp_model():
         y_train = y_train.to_numpy()
         y_test = y_test.to_numpy()
         for p0 in p0s:
+            iteration += 1
+            print('Iteration: {}'.format(iteration))
             crmpbhp = CrmpBHP(p0=deepcopy(p0))
             crmpbhp = crmpbhp.fit(X_train, y_train)
 
             # Fitting
             y_hat = crmpbhp.predict(X_train)
             r2, mse = fit_statistics(y_hat, y_train)
-            fit_data['Producer'].append(i + 1)
+            fit_data['Producer'].append(name)
             fit_data['Model'].append(model_namer(crmpbhp))
             fit_data['tau_initial'].append(p0[0])
             fit_data['tau_final'].append(crmpbhp.tau_)
@@ -99,7 +101,7 @@ def evaluate_crmp_bhp_model():
             # Prediction
             y_hat = crmpbhp.predict(X_test)
             r2, mse = fit_statistics(y_hat, y_test)
-            predict_data['Producer'].append(i + 1)
+            predict_data['Producer'].append(name)
             predict_data['Model'].append(model_namer(crmpbhp))
             predict_data['tau_initial'].append(p0[0])
             predict_data['tau_final'].append(crmpbhp.tau_)
@@ -123,4 +125,26 @@ def evaluate_crmp_bhp_model():
     predict_df.to_csv(predict_output_file)
 
 
-evaluate_crmp_bhp_model()
+def get_converged_parameter_statistics():
+    df = pd.read_csv(predict_output_file)
+    for name in producer_names:
+        producer_df = df.loc[df['Producer'] == name]
+        print('tau: ', producer_df['tau_final'].mean())
+        print('tau std: ', producer_df['tau_final'].std())
+        print('f1: ', producer_df['f1_final'].mean())
+        print('f1 std: ', producer_df['f1_final'].std())
+        print('f2: ', producer_df['f2_final'].mean())
+        print('f2 std: ', producer_df['f2_final'].std())
+        print('f3: ', producer_df['f3_final'].mean())
+        print('f3 std: ', producer_df['f3_final'].std())
+        print('f4: ', producer_df['f4_final'].mean())
+        print('f4 std: ', producer_df['f4_final'].std())
+        print('MSE: ', producer_df['MSE'].mean())
+        print('MSE std: ', producer_df['MSE'].std())
+        print()
+        print()
+        print()
+
+
+# evaluate_crmp_bhp_model()
+get_converged_parameter_statistics()
