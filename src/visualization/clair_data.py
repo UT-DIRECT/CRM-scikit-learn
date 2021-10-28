@@ -51,7 +51,8 @@ def plot_injection_rates():
             injectors_df['Name'] == name
         ]
         injection_rate = injector['Water Vol']
-        t = np.linspace(0, len(injection_rate), len(injection_rate))
+        l = len(injection_rate)
+        t = np.linspace(0, l, l)
         plt.plot(t, injection_rate)
         plot_helper(
             FIG_DIR,
@@ -138,7 +139,77 @@ def plot_fractional_flow_curve():
         )
 
 
+def plot_average_hour_production_rate():
+    t = np.linspace(1, 1317, 1317)
+    for name in producer_names:
+        producer = producers_df.loc[producers_df['Name'] == name]
+        production_rate = producer['Total Vol']
+        on_line_hours = producer['On-Line']
+        hourly_production_rate = production_rate / on_line_hours
+        hourly_production_rate.fillna(0, inplace=True)
+        hourly_production_rate.replace(np.inf, 0, inplace=True)
+        l = len(hourly_production_rate)
+        plt.plot(t[-l:], hourly_production_rate)
+        y_max = 1.1 * max(hourly_production_rate)
+        print(y_max)
+        plt.ylim(0, y_max)
+        plot_helper(
+            FIG_DIR,
+            title=name,
+            xlabel='Time [days]',
+            ylabel='Hourly Production Rate [bbls/hour]',
+            save=True
+        )
+
+
+def plot_on_line_hours_per_day():
+    for name in producer_names:
+        producer = producers_df.loc[producers_df['Name'] == name]
+        production_rate = producer['Total Vol']
+        on_line_hours = producer['On-Line']
+        plt.hist(on_line_hours, bins=5)
+        plot_helper(
+            FIG_DIR,
+            title=name,
+            xlabel='Time [days]',
+            save=True
+        )
+
+
+def plot_histogram_of_production_rates():
+    for name in producer_names:
+        producer = producers_df.loc[producers_df['Name'] == name]
+        production_rate = producer[producer['Total Vol'] != 0]['Total Vol']
+        plt.hist(production_rate, bins=10)
+        plot_helper(
+            FIG_DIR,
+            title=name,
+            xlabel='Production Rate [bbls/day]',
+            save=True
+        )
+
+
+def plot_bhp():
+    for name in producer_names:
+        producer = producers_df.loc[producers_df['Name'] == name]
+        bhp = producer['Av BHP']
+        l = len(bhp)
+        t = np.linspace(1, l, l)
+        plt.plot(t, bhp)
+        plot_helper(
+            FIG_DIR,
+            title=name,
+            xlabel='Time [days]',
+            ylabel='Bottom Hole Pressure [psi]',
+            save=True
+        )
+
+
 # plot_production_rate()
 plot_injection_rates()
 # plot_production_history_with_fit_and_predict()
 # plot_fractional_flow_curve()
+# plot_average_hour_production_rate()
+# plot_on_line_hours_per_day()
+# plot_histogram_of_production_rates()
+# plot_bhp()
