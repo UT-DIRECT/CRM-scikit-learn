@@ -5,7 +5,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
-from src.helpers.features import production_rate_dataset, producer_rows_from_df
+from src.helpers.features import (
+    construct_change_in_pressure_column, get_real_producer_data,
+    production_rate_dataset, producer_rows_from_df
+)
 from src.helpers.figures import plot_helper
 from src.models.crmp import CRMP
 from src.simulations import injector_names, producer_names
@@ -205,11 +208,28 @@ def plot_bhp():
         )
 
 
+def plot_delta_bhp():
+    for name in producer_names:
+        producer = get_real_producer_data(producers_df, name, bhp=True)
+        delta_p = producer['delta_p']
+        l = len(delta_p)
+        t = np.linspace(1, l, l)
+        plt.plot(t, delta_p)
+        plot_helper(
+            FIG_DIR,
+            title=name,
+            xlabel='Time [days]',
+            ylabel='Change in Bottom Hole Pressure [psi]',
+            save=True
+        )
+
+
 # plot_production_rate()
-plot_injection_rates()
+# plot_injection_rates()
 # plot_production_history_with_fit_and_predict()
 # plot_fractional_flow_curve()
 # plot_average_hour_production_rate()
 # plot_on_line_hours_per_day()
 # plot_histogram_of_production_rates()
 # plot_bhp()
+plot_delta_bhp()
