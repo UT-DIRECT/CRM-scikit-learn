@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 import numpy as np
 import pandas as pd
 
@@ -26,8 +29,8 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 
 def evaluate_linear_regression_model():
-    for i in range(len(producer_names)):
-        name = producer_names[i]
+    for name in producer_names:
+        # name = producer_names[i]
         print('Producer Name: ', name)
         producer = get_real_producer_data(producers_df, name, bhp=True)
         producer['On-Line'] = producers_df.loc[producers_df['Name'] == name, 'On-Line']
@@ -36,31 +39,28 @@ def evaluate_linear_regression_model():
         producer['Drawdown'] = producer['Av WHP'] - producer['Av BHP']
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
         df = construct_injection_rate_columns(producer, injectors)
-        df['Time'] = (df['Date'] - df['Date'][0]).astype(int) / 8.64e13
+        l = len(df['On-Line'])
+        df['Time'] = np.linspace(1, l, l)
         df.fillna(0, inplace=True)
         df.drop(columns=['Date'], inplace=True)
         X = df.iloc[:-1]
         y = producer[name].iloc[1:]
-        print(X.head())
-        print(y.head())
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=0.7, shuffle=False
         )
-        # model = linear_model.LinearRegression()
-        model = ensemble.RandomForestRegressor()
+        model = linear_model.ElasticNet(max_iter=10000)
+        # model = ensemble.RandomForestRegressor()
         model = model.fit(X_train, y_train)
         y_hat = model.predict(X_test)
-        # parameters = {
-        #     'alpha': np.linspace(0, 1, 11),
-        #     # 'l1_ratio': np.linspace(0, 1, 11),
-        # }
-        # gcv = GridSearchCV(model, parameters)
-        # gcv.fit(X_train, y_train)
-        # y_hat = gcv.predict(X_test)
+        parameters = {
+            'alpha': np.linspace(0, 1, 11),
+            'l1_ratio': np.linspace(0, 1, 11),
+        }
+        gcv = GridSearchCV(model, parameters)
+        gcv.fit(X_train, y_train)
+        y_hat = gcv.predict(X_test)
         r2, mse = fit_statistics(y_hat, y_test)
-        print('r2: ', r2)
         print('MSE: ', mse)
-        break
 
 
 evaluate_linear_regression_model()
