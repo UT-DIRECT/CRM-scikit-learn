@@ -97,7 +97,9 @@ def construct_bhp_column(df, bhp):
 
 def construct_change_in_pressure_column(df):
     bhp = df['Av BHP']
-    delta_p = bhp[:-1] - bhp[1:]
+    l = len(bhp)
+    delta_p =  bhp[1:] - bhp[:-1].values
+    delta_p = construct_column_of_length(delta_p, l)
     df['delta_p'] = delta_p
     return df
 
