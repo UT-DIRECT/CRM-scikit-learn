@@ -19,8 +19,8 @@ class CRMP(BaseEstimator, RegressorMixin):
     def fit(self, X=None, y=None):
         X, y = check_X_y(X, y)
         X = X.T
-        self.X_ = X
-        self.y_ = y
+        self.X = X
+        self.y = y
         self.n_gains = len(X) - 1
         self.n = len(X)
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
@@ -67,7 +67,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         tau = x[0]
         gains = x[1:]
         return np.linalg.norm(
-            self.y_ - self.production_rate(self.X_, tau, *gains)
+            self.y - self.production_rate(self.X, tau, *gains)
         )
 
 
