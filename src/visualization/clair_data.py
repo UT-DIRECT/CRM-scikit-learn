@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -9,6 +11,7 @@ from src.helpers.features import (
     construct_change_in_pressure_column, get_real_producer_data,
     production_rate_dataset, producer_rows_from_df
 )
+from src.helpers.features import impute_training_data
 from src.helpers.figures import plot_helper
 from src.models.crmp import CRMP
 from src.simulations import injector_names, producer_names
@@ -224,6 +227,25 @@ def plot_delta_bhp():
         )
 
 
+def plot_imputed_and_original_production_rate():
+    for name in producer_names:
+        producer = get_real_producer_data(producers_df, name)
+        original_data = deepcopy(producer[name])
+        l = len(producer)
+        y = np.zeros(l)
+        impute_training_data(producer, y, name)[0]
+        t = np.linspace(1, l, l)
+        plt.plot(t, original_data)
+        plt.plot(t, producer[name])
+        plot_helper(
+            FIG_DIR,
+            title='{}: Imputed Production Data'.format(name),
+            xlabel='Time [days]',
+            ylabel='Producer Rate [bbls/day]',
+            save=True
+        )
+
+
 # plot_production_rate()
 # plot_injection_rates()
 # plot_production_history_with_fit_and_predict()
@@ -232,4 +254,5 @@ def plot_delta_bhp():
 # plot_on_line_hours_per_day()
 # plot_histogram_of_production_rates()
 # plot_bhp()
-plot_delta_bhp()
+# plot_delta_bhp()
+plot_imputed_and_original_production_rate()

@@ -10,8 +10,8 @@ from src.config import INPUTS
 from src.helpers.analysis import fit_statistics
 
 from src.helpers.features import (
-    get_real_producer_data, production_rate_dataset, producer_rows_from_df,
-    construct_real_production_rate_dataset
+    get_real_producer_data, impute_training_data, production_rate_dataset,
+    producer_rows_from_df, construct_real_production_rate_dataset
 )
 from src.helpers.models import model_namer
 from src.models.crmp import CRMP
@@ -77,6 +77,7 @@ p0s = [
 
 
 def convergence_sensitivity_analysis():
+    iteration = 0
     for i in range(len(producer_names)):
         name = producer_names[i]
         print(name)
@@ -86,11 +87,14 @@ def convergence_sensitivity_analysis():
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=0.7, shuffle=False
         )
+        X_train, y_train = impute_training_data(X_train, y_train, name)
         X_train = X_train.to_numpy()
         X_test = X_test.to_numpy()
         y_train = y_train.to_numpy()
         y_test = y_test.to_numpy()
         for p0 in p0s:
+            iteration += 1
+            print('Iteration: {}'.format(iteration))
             crmp = CRMP(p0=deepcopy(p0))
             crmp = crmp.fit(X_train, y_train)
 
@@ -189,6 +193,6 @@ def train_bagging_regressor_with_crmp():
         print(gcv.best_params_)
 
 
-# convergence_sensitivity_analysis()
-# converged_parameter_statistics()
+convergence_sensitivity_analysis()
+converged_parameter_statistics()
 # train_bagging_regressor_with_crmp()

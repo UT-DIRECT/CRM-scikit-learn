@@ -58,6 +58,14 @@ def get_bhp_data_for_producer(df, producer, name, bhp):
     return producer
 
 
+def impute_training_data(X, y, name):
+    X[name] = X[name].replace(0, np.nan)
+    X[name].interpolate(method='linear', inplace=True)
+    X[name].fillna(method='bfill', inplace=True)
+    y[:-1] = X[name][1:]
+    return (X, y)
+
+
 def construct_real_production_rate_dataset(q, I, bhp=None):
     return [
         construct_real_production_rate_features(q, I, bhp),
