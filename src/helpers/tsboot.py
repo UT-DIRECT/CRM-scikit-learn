@@ -17,6 +17,18 @@ def mb_bootstrap(X, y, b_length):
     return (sample_X, sample_y)
 
 
+def mb_bootstrap_indicies(n_population, block_size):
+    indices = np.linspace(0, n_population - 1, n_population).astype(np.int8)
+    n_blocks = n_population - block_size + 1
+    size = floor(n_population / block_size)
+    blocks = _get_blocks(indices, block_size)
+    sample_blocks = _get_sampled_blocks(n_blocks, size)
+    sampled_indices = []
+    for block in sample_blocks:
+        sampled_indices += [i for i in blocks[block]]
+    return sampled_indices
+
+
 def _get_sampled_blocks(n_blocks, size):
     block_indicies = np.linspace(0, n_blocks - 1, n_blocks).astype(np.int8)
     sample_blocks = np.random.choice(block_indicies, size=size)

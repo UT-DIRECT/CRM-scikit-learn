@@ -139,6 +139,10 @@ predict-koval:
 koval-plots:
 	$(PYTHON) src.visualization.koval
 
+## Run MBBaggingRegressor
+simulate-mbbagging:
+	$(PYTHON) src.simulations.mbbaggingregressor.simulate
+
 ## Run tests
 test:
 	pytest -q tests/
