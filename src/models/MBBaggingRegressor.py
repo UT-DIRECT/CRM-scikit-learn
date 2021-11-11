@@ -1,7 +1,17 @@
+# From: https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_bagging.py
 """Bagging meta-estimator."""
 
 # Author: Gilles Louppe <g.louppe@gmail.com>
 # License: BSD 3 clause
+
+# BSD 3-Clause License
+#
+# Copyright (c) 2007-2021 The scikit-learn developers.
+# All rights reserved.
+
+# As of November 11th, 2021, the code in this files borrows/directly uses code
+# from the file and author mentioned above. Please see the link for the
+# original code.
 
 
 import itertools
@@ -13,15 +23,10 @@ from joblib import Parallel
 
 from sklearn.ensemble import BaggingRegressor
 from sklearn.ensemble._bagging import _generate_indices, _partition_estimators
-from sklearn.metrics import r2_score, accuracy_score
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.utils import check_random_state, column_or_1d, deprecated
 from sklearn.utils import indices_to_mask
-from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.random import sample_without_replacement
-from sklearn.utils.validation import has_fit_parameter, check_is_fitted, _check_sample_weight
-# from sklearn.utils.fixes import *
+from sklearn.utils.validation import has_fit_parameter, _check_sample_weight
 
 from src.helpers.fixes import delayed
 from src.helpers.tsboot import mb_bootstrap_indicies

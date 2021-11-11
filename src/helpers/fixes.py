@@ -1,3 +1,4 @@
+# From: https://github.com/scikit-learn/scikit-learn/blob/793e90b344aeee90432b47515410c5666097f0e6/sklearn/utils/fixes.py
 """Compatibility fixes for older version of python, numpy and scipy
 
 If you add content to this file, please give the version of the package
@@ -9,6 +10,16 @@ at which the fix is no longer needed.
 #          Lars Buitinck
 #
 # License: BSD 3 clause
+
+# BSD 3-Clause License
+#
+# Copyright (c) 2007-2021 The scikit-learn developers.
+# All rights reserved.
+
+
+# As of November 11th, 2021, the code in this files borrows/directly uses code
+# from the file and author mentioned above. Please see the link for the
+# original code.
 
 from functools import update_wrapper
 import functools
