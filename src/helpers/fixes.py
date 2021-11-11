@@ -18,23 +18,8 @@ import numpy as np
 import scipy.sparse as sp
 import scipy
 import scipy.stats
-from scipy.sparse.linalg import lsqr as sparse_lsqr  # noqa
 import threadpoolctl
 from sklearn._config import config_context, get_config
-# from sklearn.externals._packaging.version import parse as parse_version
-
-
-# np_version = parse_version(np.__version__)
-# sp_version = parse_version(scipy.__version__)
-
-
-# if sp_version >= parse_version("1.4"):
-from scipy.sparse.linalg import lobpcg
-# else:
-#     # Backport of lobpcg functionality from scipy 1.4.0, can be removed
-#     # once support for sp_version < parse_version('1.4') is dropped
-#     # mypy error: Name 'lobpcg' already defined (possibly by an import)
-#     from sklearn.externals._lobpcg import lobpcg  # type: ignore  # noqa
 
 
 def _object_dtype_isnan(X):
@@ -157,34 +142,7 @@ class loguniform(scipy.stats.reciprocal):
 def _take_along_axis(arr, indices, axis):
     """Implements a simplified version of np.take_along_axis if numpy
     version < 1.15"""
-    # if np_version >= parse_version("1.15"):
     return np.take_along_axis(arr=arr, indices=indices, axis=axis)
-    # else:
-    #     if axis is None:
-    #         arr = arr.flatten()
-
-    #     if not np.issubdtype(indices.dtype, np.intp):
-    #         raise IndexError("`indices` must be an integer array")
-    #     if arr.ndim != indices.ndim:
-    #         raise ValueError(
-    #             "`indices` and `arr` must have the same number of dimensions"
-    #         )
-
-    #     shape_ones = (1,) * indices.ndim
-    #     dest_dims = list(range(axis)) + [None] + list(range(axis + 1, indices.ndim))
-
-    #     # build a fancy index, consisting of orthogonal aranges, with the
-    #     # requested index inserted at the right location
-    #     fancy_index = []
-    #     for dim, n in zip(dest_dims, arr.shape):
-    #         if dim is None:
-    #             fancy_index.append(indices)
-    #         else:
-    #             ind_shape = shape_ones[:dim] + (-1,) + shape_ones[dim + 1 :]
-    #             fancy_index.append(np.arange(n).reshape(ind_shape))
-
-    #     fancy_index = tuple(fancy_index)
-    #     return arr[fancy_index]
 
 
 # remove when https://github.com/joblib/joblib/issues/1071 is fixed
@@ -225,45 +183,6 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None, axis
     out : ndarray of shape (num, n_start) or (num,)
         The output array with `n_start=start.shape[0]` columns.
     """
-    # if np_version < parse_version("1.16"):
-    #     start = np.asanyarray(start) * 1.0
-    #     stop = np.asanyarray(stop) * 1.0
-    #     dt = np.result_type(start, stop, float(num))
-    #     if dtype is None:
-    #         dtype = dt
-
-    #     if start.ndim == 0 == stop.ndim:
-    #         return np.linspace(
-    #             start=start,
-    #             stop=stop,
-    #             num=num,
-    #             endpoint=endpoint,
-    #             retstep=retstep,
-    #             dtype=dtype,
-    #         )
-
-    #     if start.ndim != 1 or stop.ndim != 1 or start.shape != stop.shape:
-    #         raise ValueError("start and stop must be 1d array-like of same shape.")
-    #     n_start = start.shape[0]
-    #     out = np.empty((num, n_start), dtype=dtype)
-    #     step = np.empty(n_start, dtype=np.float)
-    #     for i in range(n_start):
-    #         out[:, i], step[i] = np.linspace(
-    #             start=start[i],
-    #             stop=stop[i],
-    #             num=num,
-    #             endpoint=endpoint,
-    #             retstep=True,
-    #             dtype=dtype,
-    #         )
-    #     if axis != 0:
-    #         out = np.moveaxis(out, 0, axis)
-
-    #     if retstep:
-    #         return out, step
-    #     else:
-    #         return out
-    # else:
     return np.linspace(
         start=start,
         stop=stop,

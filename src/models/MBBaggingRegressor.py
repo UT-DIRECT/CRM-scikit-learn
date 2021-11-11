@@ -7,15 +7,11 @@
 import itertools
 import numbers
 import numpy as np
-from abc import ABCMeta, abstractmethod
 from warnings import warn
 
 from joblib import Parallel
 
-from sklearn.base import ClassifierMixin, RegressorMixin
-from sklearn.ensemble import (
-    BaggingRegressor, BaseEnsemble
-)
+from sklearn.ensemble import BaggingRegressor
 from sklearn.ensemble._bagging import _generate_indices, _partition_estimators
 from sklearn.metrics import r2_score, accuracy_score
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
