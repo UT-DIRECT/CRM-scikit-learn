@@ -27,6 +27,7 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 def train_bagging_regressor_with_crmp():
     for name in producer_names:
+        # Constructing dataset
         print(name)
         producer = get_real_producer_data(producers_df, name)
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
@@ -34,6 +35,8 @@ def train_bagging_regressor_with_crmp():
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=0.7, shuffle=False
         )
+
+        # Setting up estimator
         bgr = MBBaggingRegressor(
             base_estimator=CRMP(), bootstrap=True, n_jobs=-1, random_state=0
         )
@@ -42,8 +45,12 @@ def train_bagging_regressor_with_crmp():
             'block_size': [5, 10]
         }
         gcv = GridSearchCV(bgr, parameters)
+
+        # Fitting and predicting with estimator
         gcv.fit(X_train, y_train)
         y_hat = gcv.predict(X_test)
+
+        # Finding r2 and mse of the prediction
         r2, mse = fit_statistics(y_hat, y_test)
         print(r2)
         print(mse)
