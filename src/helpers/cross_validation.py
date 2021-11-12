@@ -1,5 +1,6 @@
 import numpy as np
 
+from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.linear_model import (BayesianRidge, ElasticNet, ElasticNetCV,
         Lasso, LassoCV, LinearRegression)
 
@@ -61,3 +62,88 @@ def train_model_with_cv(X, y, model, train_split):
             alpha=fitted_model.alpha_, l1_ratio=fitted_model.l1_ratio_
         )
     return trained_model
+
+
+def percentiles_of_interval(interval):
+    p_lower = 50 - interval / 2.
+    p_upper = 50 + interval / 2.
+    return (p_lower, p_upper)
+
+
+def confidence_interval_bounds(interval, data):
+    p_lower, p_upper = percentile_bounds(interval)
+    lower = np.percentile(data, p_lower)
+    upper = np.percentile(data, p_upper)
+    return (lower, upper)
+
+
+def average_indicator_for_interval(y_hats, y_test, interval):
+    counter = 0
+    length = len(y_test)
+    p_lower, p_upper = percentile_bounds(interval)
+    for i in range(len(y_test)):
+        y_hat_i = y_hats[:, i]
+        lower = np.percentile(y_hat_i, p_lower)
+        upper = np.percentile(y_hat_i, p_upper)
+        if lower < y_test[i] <= upper:
+            counter += 1
+    return counter / length
+
+
+def average_indicator(y_hats, y_test, intervals):
+    average_indicator_values = [
+        average_indicator_for_interval(y_hats, y_test, interval)
+        for interval in intervals
+    ]
+    average_indicator_values[0] = 0.
+    average_indicator_values[-1] = 1.
+    return average_indicator_values
+
+
+def accuracy(average_indicator_values, intervals):
+    accuracy = []
+    for indicator, interval in zip(average_indicator_values, intervals):
+        if indicator >= interval:
+            accuracy.append(1)
+        else:
+            accuracy.append(0)
+
+    A = sum(accuracy) / len(accuracy)
+    return A
+
+
+def precision(accuracy, average_indicator_values, intervals):
+    precision = 1
+    summation = 0
+    for a, indicator, interval in zip(
+            accuracy, average_indicator_values, intervals
+    ):
+        summation += a * (indicator - interval)
+
+    precision -= 2 * summation / len(accuracy)
+    return precision
+
+
+def goodness_score(y_hats, y_test):
+    intervals = np.linspace(0, 100, 11)
+    average_indicator_values = average_indicator(
+        y_hats, y_test, intervals
+    )
+
+    accuracy = accuracy(average_indicator_values, intervals)
+    goodness = 1
+    summation = 0
+    for a, indicator, interval in zip(
+            accuracy, average_indicator_values, intervals
+    ):
+        summation += (3 * a - 2) * (indicator - interval)
+
+    goodness -= summation / len(accuracy)
+    return goodness
+
+
+# From: https://johnfoster.pge.utexas.edu/blog/posts/hackathon/
+def scorer(y_test, y_hat, y_hats):
+    mape = 1 - mean_absolute_percentage_error(y_test, y_hat)
+    goodness = goodness_score(y_test, y_hats)
+    return 0.5 * mape + 0.5 * goodness
