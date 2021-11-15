@@ -77,7 +77,7 @@ def confidence_interval_bounds(interval, data):
     return (lower, upper)
 
 
-def average_indicator_for_interval(y_hats, y_test, interval):
+def indicator_for_interval(y_hats, y_test, interval):
     counter = 0
     length = len(y_test)
     p_lower, p_upper = percentiles_of_interval(interval)
@@ -93,7 +93,7 @@ def average_indicator_for_interval(y_hats, y_test, interval):
 
 def average_indicator(y_hats, y_test, intervals):
     average_indicator_values = [
-        average_indicator_for_interval(y_hats, y_test, interval)
+        indicator_for_interval(y_hats, y_test, interval)
         for interval in intervals
     ]
     average_indicator_values[0] = 0.
@@ -109,7 +109,6 @@ def accuracy_score(average_indicator_values, intervals):
         else:
             accuracies.append(0)
 
-    # A = sum(accuracies) / len(accuracies)
     return accuracies
 
 
