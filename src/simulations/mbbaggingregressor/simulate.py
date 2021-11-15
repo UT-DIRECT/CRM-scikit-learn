@@ -10,6 +10,7 @@ from src.helpers.features import (
     get_real_producer_data, impute_training_data, production_rate_dataset,
     producer_rows_from_df, construct_real_production_rate_dataset
 )
+from src.helpers.cross_validation import scorer
 from src.helpers.models import model_namer
 from src.models.crmp import CRMP
 from src.models.MBBaggingRegressor import MBBaggingRegressor
@@ -35,16 +36,20 @@ def train_bagging_regressor_with_crmp():
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=0.7, shuffle=False
         )
+        X_train = X_train.to_numpy()
+        X_test = X_test.to_numpy()
+        y_train = y_train.to_numpy()
+        y_test = y_test.to_numpy()
 
         # Setting up estimator
         bgr = MBBaggingRegressor(
             base_estimator=CRMP(), bootstrap=True, n_jobs=-1, random_state=0
         )
-        parameters = {
-            'n_estimators': [10],
+        param_grid = {
+            'n_estimators': [5, 10],
             'block_size': [5, 10]
         }
-        gcv = GridSearchCV(bgr, parameters)
+        gcv = GridSearchCV(bgr, param_grid=param_grid, scoring=scorer)
 
         # Fitting and predicting with estimator
         gcv.fit(X_train, y_train)
