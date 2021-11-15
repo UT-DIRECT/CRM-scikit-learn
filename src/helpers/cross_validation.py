@@ -148,18 +148,11 @@ def scorer(estimator, X, y):
     y_hat = estimator.predict(X)
     y_hats = []
     base_estimator = estimator.base_estimator
-    crmp = CRMP()
-    crmp = crmp.fit(X, y)
     for e in estimator.estimators_:
-        tau = e.tau_
-        gains = e.gains_
-        crmp.tau_ = tau
-        crmp.gains_ = gains
-        y_hat_i = crmp.predict(X)
+        y_hat_i = e.predict(X)
         y_hats.append(y_hat_i)
     y_hats = np.asarray(y_hats)
     mape = 1 - mean_absolute_percentage_error(y, y_hat)
     goodness = goodness_score(y, y_hats)
     score = 0.5 * mape + 0.5 * goodness
-    print(score)
     return score
