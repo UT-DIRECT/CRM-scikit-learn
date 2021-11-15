@@ -1,11 +1,11 @@
 import numpy as np
 
-from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.linear_model import (BayesianRidge, ElasticNet, ElasticNetCV,
         Lasso, LassoCV, LinearRegression)
 
-from .analysis import fit_statistics
-from .models import test_model
+from src.helpers.analysis import fit_statistics, mean_absolute_percentage_error
+from src.helpers.models import test_model
+from src.models.crmp import CRMP
 
 
 TRAINING_SPLIT = 0.8
@@ -71,7 +71,7 @@ def percentiles_of_interval(interval):
 
 
 def confidence_interval_bounds(interval, data):
-    p_lower, p_upper = percentile_bounds(interval)
+    p_lower, p_upper = percentiles_of_interval(interval)
     lower = np.percentile(data, p_lower)
     upper = np.percentile(data, p_upper)
     return (lower, upper)
@@ -80,8 +80,9 @@ def confidence_interval_bounds(interval, data):
 def average_indicator_for_interval(y_hats, y_test, interval):
     counter = 0
     length = len(y_test)
-    p_lower, p_upper = percentile_bounds(interval)
-    for i in range(len(y_test)):
+    p_lower, p_upper = percentiles_of_interval(interval)
+    for i in range(length):
+        # y_hat_i = np.array([y_hat[i] for y_hat in y_hats])
         y_hat_i = y_hats[:, i]
         lower = np.percentile(y_hat_i, p_lower)
         upper = np.percentile(y_hat_i, p_upper)
@@ -100,19 +101,19 @@ def average_indicator(y_hats, y_test, intervals):
     return average_indicator_values
 
 
-def accuracy(average_indicator_values, intervals):
-    accuracy = []
+def accuracy_score(average_indicator_values, intervals):
+    accuracies = []
     for indicator, interval in zip(average_indicator_values, intervals):
         if indicator >= interval:
-            accuracy.append(1)
+            accuracies.append(1)
         else:
-            accuracy.append(0)
+            accuracies.append(0)
 
-    A = sum(accuracy) / len(accuracy)
-    return A
+    # A = sum(accuracies) / len(accuracies)
+    return accuracies
 
 
-def precision(accuracy, average_indicator_values, intervals):
+def precision_score(accuracy, average_indicator_values, intervals):
     precision = 1
     summation = 0
     for a, indicator, interval in zip(
@@ -124,26 +125,41 @@ def precision(accuracy, average_indicator_values, intervals):
     return precision
 
 
-def goodness_score(y_hats, y_test):
+def goodness_score(y_true, y_hats):
     intervals = np.linspace(0, 100, 11)
     average_indicator_values = average_indicator(
-        y_hats, y_test, intervals
+        y_hats, y_true, intervals
     )
 
-    accuracy = accuracy(average_indicator_values, intervals)
+    accuracies = accuracy_score(average_indicator_values, intervals)
     goodness = 1
     summation = 0
     for a, indicator, interval in zip(
-            accuracy, average_indicator_values, intervals
+            accuracies, average_indicator_values, intervals
     ):
         summation += (3 * a - 2) * (indicator - interval)
 
-    goodness -= summation / len(accuracy)
+    goodness -= summation / len(accuracies)
     return goodness
 
 
 # From: https://johnfoster.pge.utexas.edu/blog/posts/hackathon/
-def scorer(y_test, y_hat, y_hats):
-    mape = 1 - mean_absolute_percentage_error(y_test, y_hat)
-    goodness = goodness_score(y_test, y_hats)
-    return 0.5 * mape + 0.5 * goodness
+def scorer(estimator, X, y):
+    y_hat = estimator.predict(X)
+    y_hats = []
+    base_estimator = estimator.base_estimator
+    crmp = CRMP()
+    crmp = crmp.fit(X, y)
+    for e in estimator.estimators_:
+        tau = e.tau_
+        gains = e.gains_
+        crmp.tau_ = tau
+        crmp.gains_ = gains
+        y_hat_i = crmp.predict(X)
+        y_hats.append(y_hat_i)
+    y_hats = np.asarray(y_hats)
+    mape = 1 - mean_absolute_percentage_error(y, y_hat)
+    goodness = goodness_score(y, y_hats)
+    score = 0.5 * mape + 0.5 * goodness
+    print(score)
+    return score
