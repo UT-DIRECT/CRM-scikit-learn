@@ -79,6 +79,7 @@ p0s = [
 def convergence_sensitivity_analysis():
     iteration = 0
     for i in range(len(producer_names)):
+    # for i in [3]:
         name = producer_names[i]
         print(name)
         producer = get_real_producer_data(producers_df, name)
@@ -87,7 +88,7 @@ def convergence_sensitivity_analysis():
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=0.7, shuffle=False
         )
-        X_train, y_train = impute_training_data(X_train, y_train, name)
+        # X_train, y_train = impute_training_data(X_train, y_train, name)
         X_train = X_train.to_numpy()
         X_test = X_test.to_numpy()
         y_train = y_train.to_numpy()
@@ -100,7 +101,7 @@ def convergence_sensitivity_analysis():
 
             # Fitting
             y_hat = crmp.predict(X_train)
-            r2, mse = fit_statistics(y_hat, y_train)
+            r2, mse = fit_statistics(y_hat, y_train, shutin=True)
             fit_data['Producer'].append(i + 1)
             fit_data['Model'].append(model_namer(crmp))
             fit_data['tau_initial'].append(p0[0])
@@ -118,7 +119,7 @@ def convergence_sensitivity_analysis():
 
             # Prediction
             y_hat = crmp.predict(X_test)
-            r2, mse = fit_statistics(y_hat, y_test)
+            r2, mse = fit_statistics(y_hat, y_test, shutin=True)
             predict_data['Producer'].append(i + 1)
             predict_data['Model'].append(model_namer(crmp))
             predict_data['tau_initial'].append(p0[0])
@@ -148,23 +149,25 @@ def converged_parameter_statistics():
     for i in range(len(producer_names)):
         producer_df = producer_rows_from_df(df, i+1)
         print(producer_names[i])
-        print('tau: ', producer_df['tau_final'].mean())
-        print('tau std: ', producer_df['tau_final'].std())
-        print('f1: ', producer_df['f1_final'].mean())
-        print('f1 std: ', producer_df['f1_final'].std())
-        print('f2: ', producer_df['f2_final'].mean())
-        print('f2 std: ', producer_df['f2_final'].std())
-        print('f3: ', producer_df['f3_final'].mean())
-        print('f3 std: ', producer_df['f3_final'].std())
-        print('f4: ', producer_df['f4_final'].mean())
-        print('f4 std: ', producer_df['f4_final'].std())
+        # print('tau: ', producer_df['tau_final'].mean())
+        # print('tau std: ', producer_df['tau_final'].std())
+        # print('f1: ', producer_df['f1_final'].mean())
+        # print('f1 std: ', producer_df['f1_final'].std())
+        # print('f2: ', producer_df['f2_final'].mean())
+        # print('f2 std: ', producer_df['f2_final'].std())
+        # print('f3: ', producer_df['f3_final'].mean())
+        # print('f3 std: ', producer_df['f3_final'].std())
+        # print('f4: ', producer_df['f4_final'].mean())
+        # print('f4 std: ', producer_df['f4_final'].std())
         print('MSE: ', producer_df['MSE'].mean())
         print('MSE std: ', producer_df['MSE'].std())
-        print()
-        print()
-        print()
-        print()
-        print()
+        # print('r2: ', producer_df['r2'].mean())
+        # print('r2 std: ', producer_df['r2'].std())
+        # print()
+        # print()
+        # print()
+        # print()
+        # print()
         print()
 
 
@@ -193,6 +196,36 @@ def train_bagging_regressor_with_crmp():
         print(gcv.best_params_)
 
 
-convergence_sensitivity_analysis()
-converged_parameter_statistics()
+def multi_stage_prediction():
+    print('multi_stage_prediction')
+    for i in range(len(producer_names)):
+        name = producer_names[i]
+        print(name)
+        producer = get_real_producer_data(producers_df, name)
+        injectors = injectors_df[['Name', 'Date', 'Water Vol']]
+        X, y = construct_real_production_rate_dataset(producer, injectors)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, train_size=0.5, shuffle=False
+        )
+        # X_train, y_train = impute_training_data(X_train, y_train, name)
+        X_train = X_train.to_numpy()
+        X_test = X_test.to_numpy()
+        y_train = y_train.to_numpy()
+        y_test = y_test.to_numpy()
+        crmp = CrmpBHP(p0=[50.0, 0.0, 0.6000000000000001, 0.0, 0.4])
+        crmp = crmp.fit(X_train, y_train)
+        # y_hat = crmp.predict(X_test[:30])
+        y_hat = []
+        for i in range(30):
+            y_hat.append(crmp.predict(X_test[i]))
+            X_test[i + 1][0] = y_hat[i]
+        r2, mse = fit_statistics(y_hat, y_test[:30], shutin=True)
+        print('r2: ', r2)
+        print(f'mse: {mse:.0f}')
+        print()
+
+
+# convergence_sensitivity_analysis()
+# converged_parameter_statistics()
 # train_bagging_regressor_with_crmp()
+multi_stage_prediction()
