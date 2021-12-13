@@ -36,8 +36,8 @@ class CRMP(BaseEstimator, RegressorMixin):
         if self.p0 == []:
             self.p0 = (1. / self.n_gains * np.ones(self.n))
             self.p0[0] = 5
-        else:
-            self.p0[0] += 10.
+        elif self.p0[0] < 1e-3:
+            self.p0[0] = 1e-3
 
 
     def ensure_bounds(self):
