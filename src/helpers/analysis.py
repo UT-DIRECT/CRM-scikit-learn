@@ -4,13 +4,24 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.utils.validation import check_consistent_length, check_array
 
 
-def fit_statistics(y_hat, y):
-    if len(y_hat) < 2:
+def fit_statistics(y_hat, y, shutin=False):
+    if shutin:
+        y_hat, y = remove_shutins(y_hat, y)
+    if len(y_hat) == 0:
+        return (0, 0)
+    elif len(y_hat) < 2:
         r2 = np.nan
     else:
         r2 = r2_score(y_hat, y)
     mse = mean_squared_error(y_hat, y)
     return (r2, mse)
+
+
+def remove_shutins(y_hat, y):
+    shutins = np.where(y == 0)[0]
+    y = np.delete(y, shutins)
+    y_hat = np.delete(y_hat, shutins)
+    return (y_hat, y)
 
 
 # From: https://stackoverflow.com/questions/65216794/importerror-when-importing-metric-from-sklearn
