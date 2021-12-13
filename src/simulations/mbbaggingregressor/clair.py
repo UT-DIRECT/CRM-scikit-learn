@@ -86,7 +86,6 @@ def train_bagging_regressor_with_crmp():
             legend=True,
             save=True
         )
-        raise
 
 
 train_bagging_regressor_with_crmp()
