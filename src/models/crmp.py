@@ -1,4 +1,5 @@
 import warnings
+from numba import jit
 import numpy as np
 
 from scipy.optimize import minimize
@@ -12,7 +13,9 @@ warnings.filterwarnings('ignore')
 class CRMP(BaseEstimator, RegressorMixin):
 
 
-    def __init__(self, p0=[]):
+    def __init__(self, q0=0, delta_t=1, p0=[]):
+        self.q0 = q0
+        self.delta_t = delta_t
         self.p0 = p0
 
 
@@ -21,8 +24,8 @@ class CRMP(BaseEstimator, RegressorMixin):
         X = X.T
         self.X_ = X
         self.y_ = y
-        self.n_gains = len(X) - 1
-        self.n = len(X)
+        self.n_gains = len(X)
+        self.n = self.n_gains + 1
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         self.ensure_p0()
         self.bounds = self.ensure_bounds()
@@ -43,7 +46,7 @@ class CRMP(BaseEstimator, RegressorMixin):
     def ensure_bounds(self):
         lower_bounds = np.zeros(self.n)
         upper_bounds = np.ones(self.n)
-        lower_bounds[0] = 1e-6
+        lower_bounds[0] = 0.5
         upper_bounds[0] = 100
         return np.array([lower_bounds, upper_bounds]).T.tolist()
 
@@ -55,11 +58,14 @@ class CRMP(BaseEstimator, RegressorMixin):
 
 
     def production_rate(self, X, tau, *gains):
-        q2 = X[0] * np.exp(-1 / tau)
-        injectors_sum = 0
-        for i in range(self.n_gains):
-            injectors_sum += X[i + 1] * gains[i]
-        q2 += (1 - np.exp(-1 / tau)) * injectors_sum
+        X = X.T
+        l = len(X)
+        q2 = np.empty(l)
+        q0 = self.q0
+        injection = (1 - np.exp(-self.delta_t / tau)) * (X * gains)
+        for i in range(l):
+            q2[i] = q0 * np.exp(-self.delta_t / tau) + np.sum(injection[i])
+            q0 = q2[i]
         return q2
 
 
@@ -88,7 +94,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         # iterations. I sometimes reduce the number of iterations to make
         # prototyping faster.
         return minimize(
-            self.objective, self.p0, hess=self.hess, method='trust-constr',
+            self.objective, self.p0, method='SLSQP',
             bounds=self.bounds,
             constraints=({'type': 'ineq', 'fun': self.constraint}),
             options={'maxiter': 10000}
