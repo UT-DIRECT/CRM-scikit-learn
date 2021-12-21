@@ -10,12 +10,24 @@ from sklearn.utils.validation import check_X_y, check_is_fitted
 warnings.filterwarnings('ignore')
 
 
+@jit(nopython=True, cache=True)
+def _production_rate(X, q0, delta_t, tau, gains):
+    X = X.T
+    l = len(X)
+    q2 = np.empty(l)
+    injection = (1 - np.exp(-delta_t / tau)) * (X * gains)
+    for i in range(l):
+        q2[i] = q0 * np.exp(-delta_t / tau) + np.sum(injection[i])
+        q0 = q2[i]
+    return q2
+
+
 class CRMP(BaseEstimator, RegressorMixin):
 
 
     def __init__(self, q0=0, delta_t=1, p0=[]):
         self.q0 = q0
-        self.delta_t = delta_t
+        self.delta_t = np.int8(delta_t)
         self.p0 = p0
 
 
@@ -58,15 +70,8 @@ class CRMP(BaseEstimator, RegressorMixin):
 
 
     def production_rate(self, X, tau, *gains):
-        X = X.T
-        l = len(X)
-        q2 = np.empty(l)
-        q0 = self.q0
-        injection = (1 - np.exp(-self.delta_t / tau)) * (X * gains)
-        for i in range(l):
-            q2[i] = q0 * np.exp(-self.delta_t / tau) + np.sum(injection[i])
-            q0 = q2[i]
-        return q2
+        gains = np.array(gains)
+        return _production_rate(X, self.q0, self.delta_t, tau, gains)
 
 
     def objective(self, x):
