@@ -1,5 +1,6 @@
 import pandas as pd
 
+from crmp import Koval
 from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
@@ -8,7 +9,6 @@ from src.helpers.cross_validation import forward_walk_splitter
 from src.helpers.analysis import fit_statistics
 from src.helpers.features import koval_dataset, production_rate_dataset
 from src.helpers.models import load_models, model_namer, test_model
-from src.models.koval import Koval
 from src.simulations import step_sizes
 
 

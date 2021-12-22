@@ -3,6 +3,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 
+from crmp import CRMP
 from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
@@ -12,7 +13,6 @@ from src.data.read_clair import (
 from src.helpers.analysis import fit_statistics
 from src.helpers.features import production_rate_dataset, producer_rows_from_df
 from src.helpers.models import model_namer
-from src.models.crmp import CRMP
 
 
 fit_ouput_file = INPUTS['real_data']['fit']['sensitivity_analysis']

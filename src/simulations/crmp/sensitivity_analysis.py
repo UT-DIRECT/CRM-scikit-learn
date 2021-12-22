@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from crmp import CRMP
 from sklearn.model_selection import train_test_split
 
 from src.config import INPUTS
@@ -14,7 +15,6 @@ from src.helpers.analysis import fit_statistics
 from src.helpers.features import production_rate_dataset, producer_rows_from_df
 from src.helpers.figures import plot_helper
 from src.helpers.models import model_namer, test_model
-from src.models.crmp import CRMP
 from src.simulations import number_of_producers, param_grid
 
 
@@ -47,16 +47,16 @@ def convergence_sensitivity_analysis():
         test_length = len(y_test)
         train_time = t[:train_length]
         test_time = t[train_length:]
-        plt.plot(train_time, y_train, c='r', label='Fit')
-        plt.plot(test_time, y_test, c='g', label='Predict')
-        plt.plot(t, y, c='k', label='Actual')
+        # plt.plot(train_time, y_train, c='r', label='Fit')
+        # plt.plot(test_time, y_test, c='g', label='Predict')
+        # plt.plot(t, y, c='k', label='Actual')
         for p0 in param_grid['p0']:
             crmp = CRMP(p0=deepcopy(p0))
             crmp = crmp.fit(X_train, y_train)
 
             # Fitting
             y_hat = crmp.predict(X_train)
-            plt.plot(train_time, y_hat, alpha=0.01, c='r', linewidth=2)
+            # plt.plot(train_time, y_hat, alpha=0.01, c='r', linewidth=2)
             r2, mse = fit_statistics(y_hat, y_train)
             fit_data['Producer'].append(i + 1)
             fit_data['Model'].append(model_namer(crmp))
@@ -71,7 +71,7 @@ def convergence_sensitivity_analysis():
 
             # Prediction
             y_hat = crmp.predict(X_test)
-            plt.plot(test_time, y_hat, alpha=0.01, c='g', linewidth=2)
+            # plt.plot(test_time, y_hat, alpha=0.01, c='g', linewidth=2)
             r2, mse = fit_statistics(y_hat, y_test)
             predict_data['Producer'].append(i + 1)
             predict_data['Model'].append(model_namer(crmp))
@@ -87,12 +87,12 @@ def convergence_sensitivity_analysis():
             iterations += 1
             print(iterations)
 
-        plt.vlines(76, 0, 1000, linewidth=1, alpha=0.8)
-        plt.title(producer_names[i])
-        plt.xlabel('Time')
-        plt.ylabel('Production Rate')
-        plt.legend()
-        plt.show()
+        # plt.vlines(76, 0, 1000, linewidth=1, alpha=0.8)
+        # plt.title(producer_names[i])
+        # plt.xlabel('Time')
+        # plt.ylabel('Production Rate')
+        # plt.legend()
+        # plt.show()
 
     # Fitting
     fit_df = pd.DataFrame(fit_data)
@@ -171,9 +171,25 @@ def get_basic_producer_statistics():
         print()
 
 
+def fit_individual_initial_guesses():
+    producer = producers[2]
+    X, y = production_rate_dataset(producer, *injectors)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, train_size=0.5, shuffle=False
+    )
+    crmp = CRMP(p0=[1e-03, 0.4, 0.6])
+    crmp = crmp.fit(X_train, y_train)
+    y_hat = crmp.predict(X_train)
+    r2, mse = fit_statistics(y_hat, y_train)
+    print(crmp.tau_)
+    print(crmp.gains_)
+    print(mse)
+
+
 
 convergence_sensitivity_analysis()
 # objective_function()
 # minimum_train_size()
 # smallest_error_by_well()
 # get_basic_producer_statistics()
+# fit_individual_initial_guesses()
