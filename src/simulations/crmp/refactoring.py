@@ -3,10 +3,10 @@ import pstats
 from pstats import SortKey
 
 from sklearn.model_selection import train_test_split
+from crmp import CRMP
 
 from src.data.read_crmp import injectors, producers
 from src.helpers.features import production_rate_dataset
-from src.models.crmp import CRMP
 from src.simulations import number_of_producers
 
 
@@ -25,12 +25,13 @@ def fit_all_producers():
         print()
 
 
-cProfile.run('fit_all_producers()', 'output.dat')
-
-with open('output_time.txt', 'w') as f:
-    p = pstats.Stats('output.dat', stream=f)
-    p.sort_stats('time').print_stats()
-
-with open('output_calls.txt', 'w') as f:
-    p = pstats.Stats('output.dat', stream=f)
-    p.sort_stats('calls').print_stats()
+fit_all_producers()
+# cProfile.run('fit_all_producers()', 'output.dat')
+#
+# with open('output_time.txt', 'w') as f:
+#     p = pstats.Stats('output.dat', stream=f)
+#     p.sort_stats('time').print_stats()
+#
+# with open('output_calls.txt', 'w') as f:
+#     p = pstats.Stats('output.dat', stream=f)
+#     p.sort_stats('calls').print_stats()
