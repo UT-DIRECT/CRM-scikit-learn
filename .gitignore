@@ -93,3 +93,8 @@ models/*
 
 # Mypy cache
 .mypy_cache/
+
+# Miscellaneous
+output.dat
+output_calls.txt
+output_time.txt
