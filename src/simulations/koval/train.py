@@ -3,7 +3,7 @@ import dill as pickle
 import numpy as np
 import pandas as pd
 
-from koval import Koval
+from crmp import Koval
 from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 from sklearn.model_selection import train_test_split

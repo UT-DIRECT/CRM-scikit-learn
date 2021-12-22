@@ -2,8 +2,8 @@ import cProfile
 import pstats
 from pstats import SortKey
 
-from sklearn.model_selection import train_test_split
 from crmp import CRMP
+from sklearn.model_selection import train_test_split
 
 from src.data.read_crmp import injectors, producers
 from src.helpers.features import production_rate_dataset
