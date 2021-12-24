@@ -7,11 +7,11 @@ from src.simulations import injector_names
 def production_rate_features(q, *I):
     size = q[:-1].size
     if len(I) == 0:
-        return np.array(q[:size])
+        return np.zeros(q[:size])
     else:
         injectors = [i[:size] for i in I]
         return np.array([
-            q[:size], *injectors
+            *injectors
         ]).T
 
 

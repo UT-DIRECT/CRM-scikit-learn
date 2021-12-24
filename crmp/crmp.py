@@ -1,4 +1,5 @@
 import warnings
+from numba import jit
 import numpy as np
 
 from scipy.optimize import minimize
@@ -9,20 +10,34 @@ from sklearn.utils.validation import check_X_y, check_is_fitted
 warnings.filterwarnings('ignore')
 
 
+@jit(nopython=True, cache=True)
+def _production_rate(X, q0, delta_t, tau, gains):
+    X = X.T
+    l = len(X)
+    q2 = np.empty(l)
+    injection = (1 - np.exp(-delta_t / tau)) * (X * gains)
+    for i in range(l):
+        q2[i] = q0 * np.exp(-delta_t / tau) + np.sum(injection[i])
+        q0 = q2[i]
+    return q2
+
+
 class CRMP(BaseEstimator, RegressorMixin):
 
 
-    def __init__(self, p0=[]):
+    def __init__(self, q0=0, delta_t=1, p0=[]):
+        self.q0 = q0
+        self.delta_t = np.int8(delta_t)
         self.p0 = p0
 
 
     def fit(self, X=None, y=None):
         X, y = check_X_y(X, y)
         X = X.T
-        self.X_ = X
-        self.y_ = y
-        self.n_gains = len(X) - 1
-        self.n = len(X)
+        self.X = X
+        self.y = y
+        self.n_gains = len(X)
+        self.n = self.n_gains + 1
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         self.ensure_p0()
         self.bounds = self.ensure_bounds()
@@ -36,12 +51,14 @@ class CRMP(BaseEstimator, RegressorMixin):
         if self.p0 == []:
             self.p0 = (1. / self.n_gains * np.ones(self.n))
             self.p0[0] = 5
+        elif self.p0[0] < 1e-03:
+            self.p0[0] = 1e-03
 
 
     def ensure_bounds(self):
         lower_bounds = np.zeros(self.n)
         upper_bounds = np.ones(self.n)
-        lower_bounds[0] = 1e-6
+        lower_bounds[0] = 0.5
         upper_bounds[0] = 100
         return np.array([lower_bounds, upper_bounds]).T.tolist()
 
@@ -53,19 +70,15 @@ class CRMP(BaseEstimator, RegressorMixin):
 
 
     def production_rate(self, X, tau, *gains):
-        q2 = X[0] * np.exp(-1 / tau)
-        injectors_sum = 0
-        for i in range(self.n_gains):
-            injectors_sum += X[i + 1] * gains[i]
-        q2 += (1 - np.exp(-1 / tau)) * injectors_sum
-        return q2
+        gains = np.array(gains)
+        return _production_rate(X, self.q0, self.delta_t, tau, gains)
 
 
     def objective(self, x):
         tau = x[0]
         gains = x[1:]
         return np.linalg.norm(
-            self.y_ - self.production_rate(self.X_, tau, *gains)
+            self.y - self.production_rate(self.X, tau, *gains)
         )
 
 
@@ -81,9 +94,13 @@ class CRMP(BaseEstimator, RegressorMixin):
 
 
     def fit_production_rate(self):
+        # 10000 iterations is what I need to get reliable convergence, so if
+        # I am not getting reliable convergence, first check the number of
+        # iterations. I sometimes reduce the number of iterations to make
+        # prototyping faster.
         return minimize(
-            self.objective, self.p0, hess=self.hess, method='trust-constr',
+            self.objective, self.p0, method='SLSQP',
             bounds=self.bounds,
             constraints=({'type': 'ineq', 'fun': self.constraint}),
-            options={'maxiter': 1000}
+            options={'maxiter': 10000}
         ).x

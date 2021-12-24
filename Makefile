@@ -53,7 +53,7 @@ clair-data-features:
 simulate: simulate-crmp simulate-koval
 
 ## Run all the plots
-plots: crmp-plots icrmp-plots koval-plots crmp-sensitivity-analysis-plots
+plots: crmp-plots koval-plots crmp-sensitivity-analysis-plots
 
 ## Entire CRMP workflow
 crmp: simulate-crmp crmp-plots
@@ -96,32 +96,6 @@ crmpbhp-clair-data:
 
 clair-plots:
 	$(PYTHON) src.visualization.clair_data
-
-## Entire ICRMP workflow
-icrmp: simulate-icrmp icrmp-plots
-
-## Run the ICRMP models
-simulate-icrmp: train-icrmp predict-icrmp
-
-## Run and train ICRMP
-train-icrmp:
-	$(PYTHON) src.simulations.icrmp.train
-
-## Run ICRMP to make predictions
-predict-icrmp:
-	$(PYTHON) src.simulations.icrmp.predict
-
-## Make the ICRMP plots
-icrmp-plots:
-	$(PYTHON) src.visualization.icrmp
-
-## Run Sensitivity Analysis on CRMP
-icrmp-sensitivity-analysis:
-	$(PYTHON) src.simulations.icrmp.sensitivity_analysis
-
-## Plot Sensitivity Analysis results for CRMP
-icrmp-sensitivity-analysis-plot:
-	$(PYTHON) src.visualization.icrmp_sensitivity_analysis
 
 ## Entire Koval workflow
 koval: simulate-koval koval-plots

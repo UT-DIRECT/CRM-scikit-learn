@@ -3,6 +3,7 @@ import dill as pickle
 import numpy as np
 import pandas as pd
 
+from crmp import Koval
 from sklearn.linear_model import (BayesianRidge, ElasticNetCV, LassoCV,
         LinearRegression)
 from sklearn.model_selection import train_test_split
@@ -14,7 +15,6 @@ from src.helpers.cross_validation import (forward_walk_splitter,
         train_model_with_cv)
 from src.helpers.features import koval_dataset, production_rate_dataset
 from src.helpers.models import model_namer, serialized_model_path, is_CV_model
-from src.models.koval import Koval
 
 koval_fitting_file = INPUTS['wfsim']['koval_fitting']
 koval_fitting_data = {

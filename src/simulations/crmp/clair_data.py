@@ -3,6 +3,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 
+from crmp import CRMP
 from sklearn.ensemble import BaggingRegressor
 from sklearn.model_selection import GridSearchCV, train_test_split
 
