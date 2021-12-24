@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+import matplotlib as mpl
+mpl.use('tkagg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -246,6 +248,36 @@ def plot_imputed_and_original_production_rate():
         )
 
 
+def plot_production_rate_and_injection_rate():
+    for producer_name in ['PA12']:
+        producer = get_real_producer_data(producers_df, producer_name)
+        injectors = []
+        for name in injector_names:
+            injector = injectors_df.loc[
+                injectors_df['Name'] == name,
+                ['Water Vol', 'Date']
+            ]
+            injectors.append(injector)
+        plt.plot(producer['Date'], producer[producer_name], alpha=0.5)
+        for i in range(len(injectors)):
+            injector = injectors[i]
+            plt.plot(
+                injector['Date'], injector['Water Vol'], alpha=0.5,
+                label='Injector {}'.format(i + 1)
+            )
+        dates = producer['Date'].tolist()
+        middle_date = dates[int(len(dates) * 0.40)]
+        plt.vlines(middle_date, 0, 50000, linewidth=1, alpha=0.8)
+        print(middle_date)
+        plt.gcf().autofmt_xdate()
+        plt.title(producer_name)
+        plt.xlabel('Dates')
+        plt.ylabel('Production Rate [bbls/day]')
+        plt.legend()
+        plt.show()
+
+
+
 # plot_production_rate()
 # plot_injection_rates()
 # plot_production_history_with_fit_and_predict()
@@ -255,4 +287,5 @@ def plot_imputed_and_original_production_rate():
 # plot_histogram_of_production_rates()
 # plot_bhp()
 # plot_delta_bhp()
-plot_imputed_and_original_production_rate()
+# plot_imputed_and_original_production_rate()
+plot_production_rate_and_injection_rate()
