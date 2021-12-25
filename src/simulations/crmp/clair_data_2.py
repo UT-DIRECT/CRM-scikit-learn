@@ -15,8 +15,6 @@ from src.helpers.features import (
     producer_rows_from_df, construct_real_production_rate_dataset
 )
 from src.helpers.models import model_namer
-from src.models.crmp import CRMP
-from src.models.crmpbhp import CrmpBHP
 from src.simulations import injector_names, producer_names
 
 
@@ -85,9 +83,9 @@ def convergence_sensitivity_analysis():
         print(name)
         producer = get_real_producer_data(producers_df, name)
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
-        X, y = construct_real_production_rate_dataset(producer, injectors)
+        X, y = construct_real_production_rate_dataset(producer, injectors, bhp=None)
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, train_size=0.7, shuffle=False
+            X, y, train_size=0.50, shuffle=False
         )
         # X_train, y_train = impute_training_data(X_train, y_train, name)
         X_train = X_train.to_numpy()
@@ -226,7 +224,7 @@ def multi_stage_prediction():
         print()
 
 
-# convergence_sensitivity_analysis()
-# converged_parameter_statistics()
+convergence_sensitivity_analysis()
+converged_parameter_statistics()
 # train_bagging_regressor_with_crmp()
-multi_stage_prediction()
+# multi_stage_prediction()
