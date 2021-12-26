@@ -36,7 +36,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         X = X.T
         self.X = X
         self.y = y
-        self.n_gains = len(X)
+        self.n_gains = len(X) - 1
         self.n = self.n_gains + 1
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
         self.ensure_p0()
@@ -44,6 +44,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         x = self.fit_production_rate()
         self.tau_ = x[0]
         self.gains_ = x[1:]
+        self.q0 = self.y[-1]
         return self
 
 
@@ -59,17 +60,25 @@ class CRMP(BaseEstimator, RegressorMixin):
         lower_bounds = np.zeros(self.n)
         upper_bounds = np.ones(self.n)
         lower_bounds[0] = 0.5
-        upper_bounds[0] = 100
+        upper_bounds[0] = 1000
         return np.array([lower_bounds, upper_bounds]).T.tolist()
 
 
     def predict(self, X):
         X = X.T
         check_is_fitted(self)
-        return self.production_rate(X, self.tau_, *self.gains_)
+        return self._predict_production_rate(X, self.tau_, *self.gains_)
 
 
-    def production_rate(self, X, tau, *gains):
+    def _fit_production_rate(self, X, tau, *gains):
+        X = X.T
+        gains = np.array(gains)
+        injection = (1 - np.exp(-self.delta_t / tau)) * (X[:, 1:] * gains)
+        q2 = X[:, 0] * np.exp(-self.delta_t / tau) + np.sum(injection, axis=1)
+        return q2
+
+
+    def _predict_production_rate(self, X, tau, *gains):
         gains = np.array(gains)
         return _production_rate(X, self.q0, self.delta_t, tau, gains)
 
@@ -78,7 +87,7 @@ class CRMP(BaseEstimator, RegressorMixin):
         tau = x[0]
         gains = x[1:]
         return np.linalg.norm(
-            self.y - self.production_rate(self.X, tau, *gains)
+            self.y - self._fit_production_rate(self.X, tau, *gains)
         )
 
 
