@@ -11,7 +11,7 @@ def production_rate_features(q, *I):
     else:
         injectors = [i[:size] for i in I]
         return np.array([
-            *injectors
+            q[:size], *injectors
         ]).T
 
 
@@ -91,7 +91,7 @@ def construct_real_production_rate_features(q, I, bhp):
     df = pd.DataFrame(q)
     if bhp is not None:
         df = construct_bhp_column(df, bhp)
-    df = construct_injection_rate_columns(df, I)
+    df = construct_injection_rate_columns(df, q, I)
     df.drop(columns=['Date'], inplace=True)
     df.fillna(0, inplace=True)
     return df.iloc[:-1]
@@ -112,8 +112,8 @@ def construct_change_in_pressure_column(df):
     return df
 
 
-def construct_injection_rate_columns(df, I):
-    length = len(df.index)
+def construct_injection_rate_columns(df, q, I):
+    length = len(q)
     for name in injector_names:
         injector = I.loc[
             I['Name'] == name,
