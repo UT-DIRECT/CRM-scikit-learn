@@ -78,14 +78,13 @@ p0s = [
 def convergence_sensitivity_analysis():
     iteration = 0
     for i in range(len(producer_names)):
-    # for i in [3]:
         name = producer_names[i]
         print(name)
         producer = get_real_producer_data(producers_df, name)
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
         X, y = construct_real_production_rate_dataset(producer, injectors, bhp=None)
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, train_size=0.50, shuffle=False
+            X, y, train_size=0.40, shuffle=False
         )
         # X_train, y_train = impute_training_data(X_train, y_train, name)
         X_train = X_train.to_numpy()
@@ -99,25 +98,25 @@ def convergence_sensitivity_analysis():
             crmp = crmp.fit(X_train, y_train)
 
             # Fitting
-            y_hat = crmp.predict(X_train)
-            r2, mse = fit_statistics(y_hat, y_train, shutin=True)
-            fit_data['Producer'].append(i + 1)
-            fit_data['Model'].append(model_namer(crmp))
-            fit_data['tau_initial'].append(p0[0])
-            fit_data['tau_final'].append(crmp.tau_)
-            fit_data['f1_initial'].append(p0[1])
-            fit_data['f1_final'].append(crmp.gains_[0])
-            fit_data['f2_initial'].append(p0[2])
-            fit_data['f2_final'].append(crmp.gains_[1])
-            fit_data['f3_initial'].append(p0[3])
-            fit_data['f3_final'].append(crmp.gains_[2])
-            fit_data['f4_initial'].append(p0[4])
-            fit_data['f4_final'].append(crmp.gains_[3])
-            fit_data['r2'].append(r2)
-            fit_data['MSE'].append(mse)
+            # y_hat = crmp.predict(X_train)
+            # r2, mse = fit_statistics(y_hat, y_train, shutin=True)
+            # fit_data['Producer'].append(i + 1)
+            # fit_data['Model'].append(model_namer(crmp))
+            # fit_data['tau_initial'].append(p0[0])
+            # fit_data['tau_final'].append(crmp.tau_)
+            # fit_data['f1_initial'].append(p0[1])
+            # fit_data['f1_final'].append(crmp.gains_[0])
+            # fit_data['f2_initial'].append(p0[2])
+            # fit_data['f2_final'].append(crmp.gains_[1])
+            # fit_data['f3_initial'].append(p0[3])
+            # fit_data['f3_final'].append(crmp.gains_[2])
+            # fit_data['f4_initial'].append(p0[4])
+            # fit_data['f4_final'].append(crmp.gains_[3])
+            # fit_data['r2'].append(r2)
+            # fit_data['MSE'].append(mse)
 
             # Prediction
-            y_hat = crmp.predict(X_test)
+            y_hat = crmp.predict(X_test[:, 1:])
             r2, mse = fit_statistics(y_hat, y_test, shutin=True)
             predict_data['Producer'].append(i + 1)
             predict_data['Model'].append(model_namer(crmp))
