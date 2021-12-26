@@ -5,7 +5,6 @@ from sklearn.linear_model import (BayesianRidge, ElasticNet, ElasticNetCV,
 
 from src.helpers.analysis import fit_statistics, mean_absolute_percentage_error
 from src.helpers.models import test_model
-from src.models.crmp import CRMP
 
 
 TRAINING_SPLIT = 0.8
