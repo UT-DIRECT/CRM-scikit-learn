@@ -84,7 +84,7 @@ def convergence_sensitivity_analysis():
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
         X, y = construct_real_production_rate_dataset(producer, injectors, bhp=None)
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, train_size=0.40, shuffle=False
+            X, y, train_size=0.50, shuffle=False
         )
         # X_train, y_train = impute_training_data(X_train, y_train, name)
         X_train = X_train.to_numpy()
@@ -116,8 +116,8 @@ def convergence_sensitivity_analysis():
             # fit_data['MSE'].append(mse)
 
             # Prediction
-            y_hat = crmp.predict(X_test[:, 1:])
-            r2, mse = fit_statistics(y_hat, y_test, shutin=True)
+            y_hat = crmp.predict(X_test[:30, 1:])
+            r2, mse = fit_statistics(y_hat, y_test[:30], shutin=True)
             predict_data['Producer'].append(i + 1)
             predict_data['Model'].append(model_namer(crmp))
             predict_data['tau_initial'].append(p0[0])

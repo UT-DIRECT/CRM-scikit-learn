@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.ensemble import BaggingRegressor
 from sklearn.model_selection import GridSearchCV, train_test_split
 
+from crmp import CrmpBHP
+
 from src.config import INPUTS
 from src.helpers.analysis import fit_statistics
 
@@ -14,8 +16,6 @@ from src.helpers.features import (
     construct_real_production_rate_dataset
 )
 from src.helpers.models import model_namer
-from src.models.crmp import CRMP
-from src.models.crmpbhp import CrmpBHP
 from src.simulations import injector_names, producer_names
 
 
@@ -68,7 +68,7 @@ def evaluate_crmp_bhp_model():
             producer[['Date', name]], injectors, producer['delta_p']
         )
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, train_size=0.5, shuffle=False
+            X, y, train_size=0.40, shuffle=False
         )
         X_train = X_train.to_numpy()
         X_test = X_test.to_numpy()
@@ -81,26 +81,26 @@ def evaluate_crmp_bhp_model():
             crmpbhp = crmpbhp.fit(X_train, y_train)
 
             # Fitting
-            y_hat = crmpbhp.predict(X_train)
-            r2, mse = fit_statistics(y_hat, y_train, shutin=True)
-            fit_data['Producer'].append(name)
-            fit_data['Model'].append(model_namer(crmpbhp))
-            fit_data['tau_initial'].append(p0[0])
-            fit_data['tau_final'].append(crmpbhp.tau_)
-            fit_data['f1_initial'].append(p0[1])
-            fit_data['f1_final'].append(crmpbhp.gains_[0])
-            fit_data['f2_initial'].append(p0[2])
-            fit_data['f2_final'].append(crmpbhp.gains_[1])
-            fit_data['f3_initial'].append(p0[3])
-            fit_data['f3_final'].append(crmpbhp.gains_[2])
-            fit_data['f4_initial'].append(p0[4])
-            fit_data['f4_final'].append(crmpbhp.gains_[3])
-            fit_data['r2'].append(r2)
-            fit_data['MSE'].append(mse)
+            # y_hat = crmpbhp.predict(X_train)
+            # r2, mse = fit_statistics(y_hat, y_train, shutin=True)
+            # fit_data['Producer'].append(name)
+            # fit_data['Model'].append(model_namer(crmpbhp))
+            # fit_data['tau_initial'].append(p0[0])
+            # fit_data['tau_final'].append(crmpbhp.tau_)
+            # fit_data['f1_initial'].append(p0[1])
+            # fit_data['f1_final'].append(crmpbhp.gains_[0])
+            # fit_data['f2_initial'].append(p0[2])
+            # fit_data['f2_final'].append(crmpbhp.gains_[1])
+            # fit_data['f3_initial'].append(p0[3])
+            # fit_data['f3_final'].append(crmpbhp.gains_[2])
+            # fit_data['f4_initial'].append(p0[4])
+            # fit_data['f4_final'].append(crmpbhp.gains_[3])
+            # fit_data['r2'].append(r2)
+            # fit_data['MSE'].append(mse)
 
             # Prediction
-            y_hat = crmpbhp.predict(X_test)
-            r2, mse = fit_statistics(y_hat, y_test, shutin=True)
+            y_hat = crmpbhp.predict(X_test[:30, 1:])
+            r2, mse = fit_statistics(y_hat, y_test[:30], shutin=True)
             predict_data['Producer'].append(name)
             predict_data['Model'].append(model_namer(crmpbhp))
             predict_data['tau_initial'].append(p0[0])
