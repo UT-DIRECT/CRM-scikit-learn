@@ -27,7 +27,7 @@ class CRMP(BaseEstimator, RegressorMixin):
 
     def __init__(self, q0=0, delta_t=1, p0=[]):
         self.q0 = q0
-        self.delta_t = np.int8(delta_t)
+        self.delta_t = np.int(delta_t)
         self.p0 = p0
 
 

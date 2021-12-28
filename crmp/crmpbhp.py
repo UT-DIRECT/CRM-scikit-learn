@@ -1,4 +1,5 @@
 import warnings
+from numba import jit
 import numpy as np
 
 from scipy.optimize import minimize
@@ -6,19 +7,36 @@ from scipy.optimize import minimize
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_is_fitted
 
-from src.models.crmp import CRMP
 
 warnings.filterwarnings('ignore')
 
 
-class CrmpBHP(CRMP):
+@jit(cache=True)
+def _production_rate(X, q0, delta_t, tau, J, gains):
+    X = X.T
+    l = len(X)
+    q2 = np.empty(l)
+    injection = (1 - np.exp(-delta_t / tau)) * np.sum((X[:, 1:] * gains), axis=1) - (J * tau * X[:, 0]) / delta_t
+    for i in range(l):
+        q2[i] = q0 * np.exp(-delta_t / tau) + injection[i]
+        q0 = q2[i]
+    return q2
+
+
+class CrmpBHP(BaseEstimator, RegressorMixin):
+
+
+    def __init__(self, q0=0, delta_t=1, p0=[]):
+        self.q0 = q0
+        self.delta_t = np.int(delta_t)
+        self.p0 = p0
 
 
     def fit(self, X=None, y=None):
         X, y = check_X_y(X, y)
         X = X.T
-        self.X_ = X
-        self.y_ = y
+        self.X = X
+        self.y = y
         self.n_gains = len(X) - 2
         self.n = len(X)
         self.gains = ['f{}'.format(i + 1) for i in range(self.n_gains)]
@@ -28,18 +46,19 @@ class CrmpBHP(CRMP):
         self.tau_ = x[0]
         self.J_ = x[1]
         self.gains_ = x[2:]
+        self.q0 = self.y[-1]
         return self
 
 
-    # FIXME: Make sure code works by just using the parent function
     def ensure_p0(self):
         if self.p0 == []:
             self.p0 = (1. / self.n_gains * np.ones(self.n))
             self.p0[0] = 5
             self.p0[1] = 2
+        elif self.p0[0] < 1e-03:
+            self.p0[0] = 1e-03
 
 
-    # FIXME: Make sure code works by just using the parent function
     def ensure_bounds(self):
         lower_bounds = np.zeros(self.n)
         upper_bounds = np.ones(self.n)
@@ -53,19 +72,22 @@ class CrmpBHP(CRMP):
     def predict(self, X):
         X = X.T
         check_is_fitted(self)
-        return self.production_rate(
+        return self._predict_production_rate(
             X, self.tau_, self.J_, *self.gains_
         )
 
 
-    def production_rate(self, X, tau, J, *gains):
-        q2 = X[0] * np.exp(-1 / tau)
-        pressure_change_term = X[1] * J
-        injectors_sum = 0
-        for i in range(self.n_gains):
-            injectors_sum += X[i + 2] * gains[i]
-        q2 += (1 - np.exp(-1 / tau)) * (injectors_sum - pressure_change_term)
+    def _fit_production_rate(self, X, tau, J, *gains):
+        X = X.T
+        gains = np.array(gains)
+        injection = (1 - np.exp(-self.delta_t / tau)) * np.sum((X[:, 2:] * gains), axis=1) - (J * tau * X[:, 1]) / self.delta_t
+        q2 = X[:, 0] * np.exp(-self.delta_t / tau) + injection
         return q2
+
+
+    def _predict_production_rate(self, X, tau, J, *gains):
+        gains = np.array(gains)
+        return _production_rate(X, self.q0, self.delta_t, tau, J, gains)
 
 
     def objective(self, x):
@@ -73,7 +95,7 @@ class CrmpBHP(CRMP):
         J = x[1]
         gains = x[2:]
         return np.linalg.norm(
-            self.y_ - self.production_rate(self.X_, tau, J, *gains)
+            self.y - self._fit_production_rate(self.X, tau, J, *gains)
         )
 
 
@@ -94,7 +116,7 @@ class CrmpBHP(CRMP):
         # iterations. I sometimes reduce the number of iterations to make
         # prototyping faster.
         return minimize(
-            self.objective, self.p0, hess=self.hess, method='trust-constr',
+            self.objective, self.p0, method='SLSQP',
             bounds=self.bounds,
             constraints=({'type': 'ineq', 'fun': self.constraint}),
             options={'maxiter': 10000}
