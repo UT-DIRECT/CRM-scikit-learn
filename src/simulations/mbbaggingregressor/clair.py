@@ -6,6 +6,8 @@ import pandas as pd
 
 from sklearn.model_selection import GridSearchCV, train_test_split
 
+from crmp import CRMP, CrmpBHP, MBBaggingRegressor
+
 from src.config import INPUTS
 from src.data.read_crmp import injectors, producers, producer_names, time
 from src.helpers.analysis import fit_statistics
@@ -16,9 +18,6 @@ from src.helpers.features import (
 )
 from src.helpers.figures import plot_helper
 from src.helpers.models import model_namer
-from src.models.crmp import CRMP
-from src.models.crmpbhp import CrmpBHP
-from src.models.MBBaggingRegressor import MBBaggingRegressor
 from src.simulations import injector_names, producer_names
 
 
@@ -35,7 +34,7 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 def train_bagging_regressor_with_crmp():
     # producer_names = ['PA01', 'PA02', 'PA03', 'PA09', 'PA10', 'PA12']
     train_sizes = [0.5 , 0.52, 0.57, 0.44, 0.44, 0.40, 0.40]
-    for i in range(1):
+    for i in range(len(producer_names) - 1):
         # Constructing dataset
         name = producer_names[i]
         producer = get_real_producer_data(producers_df, name)
@@ -61,14 +60,13 @@ def train_bagging_regressor_with_crmp():
         )
         bgr.fit(X_train, y_train)
         crmpbhp = CRMP().fit(X_train, y_train)
-        y_fits = crmpbhp.predict(X_train)
+        print(len(y_train))
+        crmpbhp.q0 = y_train[-100]
+        y_fits = crmpbhp.predict(X_train[-100:, 1:])
+        crmpbhp.q0 = y_train[-1]
         y_hats = []
         for e in bgr.estimators_:
-            # y_hat_i = e.predict(X_test[:30])
-            y_hat_i = []
-            for i in range(30):
-                y_hat_i.append(e.predict(X_test[i]))
-                X_test[i + 1][0] = y_hat_i[i]
+            y_hat_i = e.predict(X_test[:30, 1:])
             y_hats.append(y_hat_i)
         y_hats_by_time = np.asarray(y_hats).T
         p10s = []
