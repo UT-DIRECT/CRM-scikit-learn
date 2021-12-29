@@ -16,7 +16,6 @@ from src.helpers.features import (
 )
 from src.helpers.features import impute_training_data
 from src.helpers.figures import plot_helper
-from src.models.crmp import CRMP
 from src.simulations import injector_names, producer_names
 
 
@@ -286,7 +285,7 @@ def plot_production_rate_and_injection_rate():
 # plot_average_hour_production_rate()
 # plot_on_line_hours_per_day()
 # plot_histogram_of_production_rates()
-# plot_bhp()
-# plot_delta_bhp()
+plot_bhp()
+plot_delta_bhp()
 # plot_imputed_and_original_production_rate()
-plot_production_rate_and_injection_rate()
+# plot_production_rate_and_injection_rate()
