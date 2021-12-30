@@ -63,9 +63,9 @@ def train_bagging_regressor_with_crmp():
         print(len(y_train))
         crmpbhp.q0 = y_train[-100]
         y_fits = crmpbhp.predict(X_train[-100:, 1:])
-        crmpbhp.q0 = y_train[-1]
         y_hats = []
         for e in bgr.estimators_:
+            e.q0 = y_train[-1]
             y_hat_i = e.predict(X_test[:30, 1:])
             y_hats.append(y_hat_i)
         y_hats_by_time = np.asarray(y_hats).T
