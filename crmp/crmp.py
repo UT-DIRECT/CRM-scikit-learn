@@ -96,12 +96,6 @@ class CRMP(BaseEstimator, RegressorMixin):
         return 1 - sum(gains)
 
 
-    @staticmethod
-    def hess(x, *args):
-        n = len(x)
-        return np.zeros((n, n))
-
-
     def fit_production_rate(self):
         # 10000 iterations is what I need to get reliable convergence, so if
         # I am not getting reliable convergence, first check the number of
