@@ -32,9 +32,10 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 
 def train_bagging_regressor_with_crmp():
-    # producer_names = ['PA01', 'PA02', 'PA03', 'PA09', 'PA10', 'PA12']
-    train_sizes = [0.5 , 0.52, 0.57, 0.44, 0.44, 0.40, 0.40]
-    for i in range(len(producer_names) - 1):
+    # train_sizes = [0.33, 0.735, 0.49, 0.56, 0.80, 0.45, 0.54]
+    train_sizes = [0.33, 0.735, 0.49, 0.56, 0.80, 0.45, 0.54]
+    # for i in range(len(producer_names) - 1):
+    for i in [3]:
         # Constructing dataset
         name = producer_names[i]
         producer = get_real_producer_data(producers_df, name)
@@ -63,6 +64,8 @@ def train_bagging_regressor_with_crmp():
         print(len(y_train))
         crmpbhp.q0 = y_train[-100]
         y_fits = crmpbhp.predict(X_train[-100:, 1:])
+
+        # Getting all bootstrapped predictions
         y_hats = []
         for e in bgr.estimators_:
             e.q0 = y_train[-1]
@@ -79,6 +82,8 @@ def train_bagging_regressor_with_crmp():
             p10s.append(p10)
             averages.append(average)
             p90s.append(p90)
+
+        # Plotting
         plt.plot(t_fit[-100:], y_train[-100:], color='k')
         plt.plot(t_fit[-100:], y_fits[-100:], color='g', label='Fitting')
         plt.plot(t_test, y_test[:30], color='k', label='True Value')
