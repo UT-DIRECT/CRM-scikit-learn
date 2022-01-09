@@ -50,7 +50,6 @@ def get_real_producer_data(df, name, bhp=False):
 def get_bhp_data_for_producer(df, producer, name, bhp):
     if bhp:
         producer['Av BHP'] = (df.loc[df['Name'] == name, 'Av BHP']).replace(0, np.nan)
-        pd.set_option('display.max_rows', df.shape[0]+1)
         producer['Av BHP'].interpolate(inplace=True)
         producer['Av BHP'].fillna(method='bfill', inplace=True)
         producer = construct_change_in_pressure_column(producer)
@@ -66,9 +65,9 @@ def impute_training_data(X, y, name):
     return (X, y)
 
 
-def construct_real_production_rate_dataset(q, I, bhp=None):
+def construct_real_production_rate_dataset(q, I):
     return [
-        construct_real_production_rate_features(q, I, bhp),
+        construct_real_production_rate_features(q, I),
         construct_real_target_vector(q)
     ]
 
@@ -87,20 +86,12 @@ def construct_column_of_length(data, length_of_column):
         return data[-(length_of_column + 1):-1]
 
 
-def construct_real_production_rate_features(q, I, bhp):
+def construct_real_production_rate_features(q, I):
     df = pd.DataFrame(q)
-    if bhp is not None:
-        df = construct_bhp_column(df, bhp)
     df = construct_injection_rate_columns(df, q, I)
     df.drop(columns=['Date'], inplace=True)
     df.fillna(0, inplace=True)
     return df.iloc[:-1]
-
-
-def construct_bhp_column(df, bhp):
-    if bhp is not None:
-        df['delta_p'] = bhp
-    return df
 
 
 def construct_change_in_pressure_column(df):
