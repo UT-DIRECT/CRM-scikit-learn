@@ -82,13 +82,16 @@ class CrmpBHP(BaseEstimator, RegressorMixin):
         gains = np.array(gains)
         injection = (1 - np.exp(-self.delta_t / tau)) * np.sum((X[:, 2:] * gains), axis=1) - (J * tau * X[:, 1]) / self.delta_t
         q2 = X[:, 0] * np.exp(-self.delta_t / tau) + injection
+        q2[q2<0] = 0
         return q2
 
 
     def _predict_production_rate(self, X, tau, J, *gains):
-        return _production_rate(
+        production_rate = _production_rate(
             X, self.q0, self.delta_t, self.tau_, self.J_, self.gains_
         )
+        production_rate[production_rate<0] = 0
+        return production_rate
 
 
     def objective(self, x):
