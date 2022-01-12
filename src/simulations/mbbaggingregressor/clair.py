@@ -11,7 +11,7 @@ from crmp import CRMP, CrmpBHP, MBBaggingRegressor
 from src.config import INPUTS
 from src.data.read_crmp import injectors, producers, producer_names, time
 from src.helpers.analysis import fit_statistics
-from src.helpers.cross_validation import scorer
+from src.helpers.cross_validation import scorer_for_crmp
 from src.helpers.features import (
     get_real_producer_data, impute_training_data, production_rate_dataset,
     producer_rows_from_df, construct_real_production_rate_dataset
@@ -32,13 +32,14 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 
 def train_bagging_regressor_with_crmp():
-    # train_sizes = [0.33, 0.735, 0.49, 0.56, 0.80, 0.45, 0.54]
-    train_sizes = [0.33, 0.735, 0.49, 0.56, 0.80, 0.45, 0.54]
+    # train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.45, 0.54]
+    train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.66, 0.54]
     # for i in range(len(producer_names) - 1):
     for i in [3]:
         # Constructing dataset
         name = producer_names[i]
-        producer = get_real_producer_data(producers_df, name)
+        print(name)
+        producer = get_real_producer_data(producers_df, name, bhp=True)
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
         X, y = construct_real_production_rate_dataset(
             producer, injectors
@@ -56,14 +57,18 @@ def train_bagging_regressor_with_crmp():
 
         # Setting up estimator
         bgr = MBBaggingRegressor(
-            base_estimator=CRMP(), n_estimators=100, block_size=5,
+            base_estimator=CrmpBHP(), n_estimators=100, block_size=7,
             bootstrap=True, n_jobs=-1, random_state=0
         )
         bgr.fit(X_train, y_train)
-        crmpbhp = CRMP().fit(X_train, y_train)
+        crmpbhp = CrmpBHP().fit(X_train, y_train)
         print(len(y_train))
-        crmpbhp.q0 = y_train[-100]
-        y_fits = crmpbhp.predict(X_train[-100:, 1:])
+        y_fits = []
+        for i in range(len(y_train)):
+            crmpbhp.q0 = X_train[i, 0]
+            y_fits.append(crmpbhp.predict(np.array([X_train[i, 1:]])))
+        # crmpbhp.q0 = y_train[-100]
+        # y_fits = crmpbhp.predict(X_train[-100:, 1:])
 
         # Getting all bootstrapped predictions
         y_hats = []
@@ -92,7 +97,7 @@ def train_bagging_regressor_with_crmp():
         plt.plot(t_test, p90s, color='r', alpha=0.5)
         for hat in y_hats:
             plt.plot(t_test, hat, color='k', alpha=0.1)
-        plt.vlines(train_length - 1, 0, 16000, linewidth=2, alpha=0.8)
+        plt.vlines(train_length - 1, 0, 10000, linewidth=2, alpha=0.8)
         plot_helper(
             FIG_DIR,
             title='{}: 30 Days Prediction'.format(name),
@@ -103,39 +108,4 @@ def train_bagging_regressor_with_crmp():
         )
 
 
-def train_crmpbhp_and_show_prediction():
-    train_sizes = [0.5 , 0.52, 0.57, 0.44, 0.44, 0.40, 0.40]
-    for i in range(len(producer_names)):
-        # Constructing dataset
-        name = producer_names[i]
-        producer = get_real_producer_data(producers_df, name, bhp=True)
-        injectors = injectors_df[['Name', 'Date', 'Water Vol']]
-        X, y = construct_real_production_rate_dataset(
-            producer[['Date', name]], injectors, producer['delta_p']
-        )
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, train_size=train_sizes[i], shuffle=False
-        )
-        X_train = X_train.to_numpy()
-        X_test = X_test.to_numpy()
-        y_train = y_train.to_numpy()
-        y_test = y_test.to_numpy()
-
-        # Setting up estimator
-        crmpbhp = CrmpBHP()
-        crmpbhp.fit(X_train, y_train)
-        y_hat = crmpbhp.predict(X_test[:30])
-        plt.plot(y_test[:30], color='k', label='True Value')
-        plt.plot(y_hat[:30], color='b', label='Predicted Value')
-        plot_helper(
-            FIG_DIR,
-            title='{}: Short Term Prediction with BHP Data'.format(name),
-            xlabel='Days',
-            ylabel='Production Rate [bbls/day]',
-            legend=True,
-            save=True
-        )
-
-
 train_bagging_regressor_with_crmp()
-# train_crmpbhp_and_show_prediction()
