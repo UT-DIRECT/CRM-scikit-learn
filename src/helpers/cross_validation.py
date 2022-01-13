@@ -142,12 +142,14 @@ def goodness_score(y_true, y_hats):
 
 
 # From: https://johnfoster.pge.utexas.edu/blog/posts/hackathon/
-def scorer(estimator, X, y):
-    y_hat = estimator.predict(X)
+def scorer_for_crmp(estimator, X, y):
+    l = len(X)
+    estimator.q0 = X[0, 0]
+    y_hat = estimator.predict(X[:, 1:])
     y_hats = []
-    base_estimator = estimator.base_estimator
     for e in estimator.estimators_:
-        y_hat_i = e.predict(X)
+        e.q0 = X[0, 0]
+        y_hat_i = e.predict(X[:, 1:])
         y_hats.append(y_hat_i)
     y_hats = np.asarray(y_hats)
     mape = 1 - mean_absolute_percentage_error(y, y_hat)

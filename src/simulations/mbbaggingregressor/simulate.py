@@ -4,14 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import (
+    GridSearchCV, train_test_split, TimeSeriesSplit
+)
 
 from crmp import CRMP, CrmpBHP, MBBaggingRegressor
 
 from src.config import INPUTS
 from src.data.read_crmp import injectors, producers, producer_names, time
 from src.helpers.analysis import fit_statistics
-from src.helpers.cross_validation import scorer
+from src.helpers.cross_validation import scorer_for_crmp
 from src.helpers.features import (
     get_real_producer_data, impute_training_data, production_rate_dataset,
     producer_rows_from_df, construct_real_production_rate_dataset
@@ -50,6 +52,9 @@ def train_bagging_regressor_with_crmp():
         X_test = X_test.to_numpy()
         y_train = y_train.to_numpy()
         y_test = y_test.to_numpy()
+        n_splits = len(X_train) // 30
+        tscv = TimeSeriesSplit(n_splits)
+        cv = tscv.split(X_train)
 
         # Setting up estimator
         bgr = MBBaggingRegressor(
@@ -59,7 +64,9 @@ def train_bagging_regressor_with_crmp():
         param_grid = {
             'block_size': [7, 14, 21, 28, 90]
         }
-        gcv = GridSearchCV(bgr, param_grid=param_grid, scoring=scorer)
+        gcv = GridSearchCV(
+            bgr, param_grid=param_grid, scoring=scorer_for_crmp, cv=cv
+        )
 
         # Fitting the estimator
         gcv.fit(X_train, y_train)
