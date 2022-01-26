@@ -65,16 +65,16 @@ def impute_training_data(X, y, name):
     return (X, y)
 
 
-def construct_real_production_rate_dataset(q, I):
+def construct_real_production_rate_dataset(q, I, delta_t=1):
     return [
-        construct_real_production_rate_features(q, I),
-        construct_real_target_vector(q)
+        construct_real_production_rate_features(q, I, delta_t),
+        construct_real_target_vector(q, delta_t)
     ]
 
 
-def construct_real_target_vector(q):
+def construct_real_target_vector(q, delta_t):
     producer_name = q.columns[1]
-    producer = q[producer_name][1:]
+    producer = q[producer_name][delta_t:]
     return producer
 
 
@@ -86,12 +86,13 @@ def construct_column_of_length(data, length_of_column):
         return data[-(length_of_column + 1):-1]
 
 
-def construct_real_production_rate_features(q, I):
+def construct_real_production_rate_features(q, I, delta_t):
+    q = q.iloc[:-delta_t]
     df = pd.DataFrame(q)
     df = construct_injection_rate_columns(df, q, I)
     df.drop(columns=['Date'], inplace=True)
     df.fillna(0, inplace=True)
-    return df.iloc[:-1]
+    return df
 
 
 def construct_change_in_pressure_column(df):
