@@ -35,14 +35,16 @@ def train_bagging_regressor_with_crmp():
     # train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.45, 0.54]
     train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.66, 0.54]
     # for i in range(len(producer_names) - 1):
-    for i in [3]:
+    n_estimators = 100
+    delta_t = 1
+    for i in [0, 1, 2, 3, 4, 6]:
         # Constructing dataset
         name = producer_names[i]
         print(name)
         producer = get_real_producer_data(producers_df, name, bhp=True)
         injectors = injectors_df[['Name', 'Date', 'Water Vol']]
         X, y = construct_real_production_rate_dataset(
-            producer, injectors
+            producer, injectors, delta_t=delta_t
         )
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, train_size=train_sizes[i], shuffle=False
@@ -57,18 +59,24 @@ def train_bagging_regressor_with_crmp():
 
         # Setting up estimator
         bgr = MBBaggingRegressor(
-            base_estimator=CrmpBHP(), n_estimators=100, block_size=7,
-            bootstrap=True, n_jobs=-1, random_state=0
+            base_estimator=CrmpBHP(delta_t=delta_t), n_estimators=n_estimators,
+            block_size=7, bootstrap=True, n_jobs=-1, random_state=0
         )
         bgr.fit(X_train, y_train)
-        crmpbhp = CrmpBHP().fit(X_train, y_train)
-        print(len(y_train))
         y_fits = []
-        for i in range(len(y_train)):
-            crmpbhp.q0 = X_train[i, 0]
-            y_fits.append(crmpbhp.predict(np.array([X_train[i, 1:]])))
-        # crmpbhp.q0 = y_train[-100]
-        # y_fits = crmpbhp.predict(X_train[-100:, 1:])
+        for e in bgr.estimators_:
+            y_hat_i = []
+            for i in range(len(y_train)):
+                e.q0 = X_train[i, 0]
+                y_hat_i.append(e.predict(np.array([X_train[i, 1:]])))
+            y_fits.append(y_hat_i)
+        y_fits_by_time = np.asarray(y_fits).T.reshape(-1, n_estimators)
+        y_fits_average = []
+        for y_hats_i in y_fits_by_time:
+            average = np.average(y_hats_i)
+            y_fits_average.append(average)
+
+        r2, mse = fit_statistics(y_fits_average, y_train)
 
         # Getting all bootstrapped predictions
         y_hats = []
@@ -88,16 +96,26 @@ def train_bagging_regressor_with_crmp():
             averages.append(average)
             p90s.append(p90)
 
+        max_train = np.amax(y_train[-100:])
+        max_fit = np.amax(y_fits_average[-100:])
+        max_realization = np.amax(y_hats)
+        height = max(max_train, max_fit, max_realization)
         # Plotting
         plt.plot(t_fit[-100:], y_train[-100:], color='k')
-        plt.plot(t_fit[-100:], y_fits[-100:], color='g', label='Fitting')
+        plt.plot(t_fit[-100:], y_fits_average[-100:], color='g', label='Fitting')
         plt.plot(t_test, y_test[:30], color='k', label='True Value')
         plt.plot(t_test, averages, color='b', label='Average')
         plt.plot(t_test, p10s, color='r', alpha=0.5, label='P10 & P90')
         plt.plot(t_test, p90s, color='r', alpha=0.5)
         for hat in y_hats:
             plt.plot(t_test, hat, color='k', alpha=0.1)
-        plt.vlines(train_length - 1, 0, 10000, linewidth=2, alpha=0.8)
+        plt.annotate(
+            'r-squared={:.4f}'.format(r2), xy=(train_length - 60, height)
+        )
+        plt.vlines(
+            train_length - 1, 0, height, linewidth=2, colors='k',
+            linestyles='dashed', alpha=0.8
+        )
         plot_helper(
             FIG_DIR,
             title='{}: 30 Days Prediction'.format(name),
