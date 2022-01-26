@@ -63,9 +63,9 @@ class CrmpBHP(BaseEstimator, RegressorMixin):
         lower_bounds = np.zeros(self.n)
         upper_bounds = np.ones(self.n)
         lower_bounds[0] = 1e-6
-        upper_bounds[0] = 100
+        upper_bounds[0] = 10000
         lower_bounds[1] = 1e-12
-        upper_bounds[1] = 30
+        upper_bounds[1] = 100
         return np.array([lower_bounds, upper_bounds]).T.tolist()
 
 
