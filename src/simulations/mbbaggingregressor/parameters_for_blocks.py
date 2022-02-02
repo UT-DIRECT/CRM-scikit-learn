@@ -3,6 +3,7 @@ mpl.use('tkagg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy as sp
 
 from sklearn.model_selection import train_test_split
 
@@ -29,8 +30,58 @@ injectors_df['Date'] = pd.to_datetime(injectors_df['Date'])
 producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 
+def calculate_parameter_distribution_bagging():
+    block_size = 7
+    train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.66, 0.54]
+    n_estimators = 10000
+    delta_t = 1
+    for i in [0, 1, 2, 3, 4, 6]:
+        # Constructing dataset
+        name = producer_names[i]
+        print(name)
+        producer = get_real_producer_data(producers_df, name, bhp=True)
+        injectors = injectors_df[['Name', 'Date', 'Water Vol']]
+        X, y = construct_real_production_rate_dataset(
+            producer, injectors
+        )
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, train_size=train_sizes[i], shuffle=False
+        )
+        X_train = X_train.to_numpy()
+        X_test = X_test.to_numpy()
+        y_train = y_train.to_numpy()
+        y_test = y_test.to_numpy()
+
+        taus = []
+        bgr = MBBaggingRegressor(
+            base_estimator=CrmpBHP(delta_t=delta_t), n_estimators=n_estimators,
+            block_size=7, bootstrap=True, n_jobs=-1, random_state=0
+        )
+        bgr.fit(X_train, y_train)
+
+        for e in bgr.estimators_:
+            taus.append(e.tau_)
+
+        taus = np.asarray(taus)
+
+
+        skew = sp.stats.skew(taus)
+        print(skew)
+        plt.hist(taus, bins=100)
+        plt.annotate(
+            'Skewness = {:.4f}'.format(skew), xy=(0.6, 0.95),
+            xycoords='axes fraction'
+        )
+        plot_helper(
+            FIG_DIR,
+            title='{}: Distribution of Taus for Fitting Each Estimator'.format(name),
+            xlabel='Taus [days]',
+            ylabel='Frequency',
+            save=True
+        )
+
+
 def calculate_parameter_distribution_by_blocks():
-    # producer_names = ['PA01', 'PA02', 'PA03', 'PA09', 'PA10', 'PA12']
     block_size = 7
     for i in [0, 1, 2, 3, 4, 6]:
         # Constructing dataset
@@ -45,12 +96,15 @@ def calculate_parameter_distribution_by_blocks():
         l = len(X)
         n_blocks = l - block_size + 1
         taus = []
-
         for i in range(n_blocks):
             X_block = X[i:(i + block_size)]
             y_block = y[i:(i + block_size)]
             model = CrmpBHP().fit(X_block, y_block)
             taus.append(model.tau_)
+
+        skew = sp.stats.skew(taus)
+        print(skew)
+        continue
 
         plt.hist(taus, bins=(10000 // 100))
         plot_helper(
@@ -63,4 +117,6 @@ def calculate_parameter_distribution_by_blocks():
 
 
 
-calculate_parameter_distribution_by_blocks()
+
+calculate_parameter_distribution_bagging()
+# calculate_parameter_distribution_by_blocks()
