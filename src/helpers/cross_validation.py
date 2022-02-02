@@ -91,6 +91,7 @@ def indicator_for_interval(y_hats, y_test, interval):
 
 
 def average_indicator(y_hats, y_test, intervals):
+    intervals = 100 * intervals
     average_indicator_values = [
         indicator_for_interval(y_hats, y_test, interval)
         for interval in intervals
@@ -124,7 +125,7 @@ def precision_score(accuracy, average_indicator_values, intervals):
 
 
 def goodness_score(y_true, y_hats):
-    intervals = np.linspace(0, 100, 11)
+    intervals = np.linspace(0, 1, 11)
     average_indicator_values = average_indicator(
         y_hats, y_true, intervals
     )
