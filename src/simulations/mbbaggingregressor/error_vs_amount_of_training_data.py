@@ -119,38 +119,4 @@ def error_and_goodness_vs_amount_of_data():
         )
 
 
-def exponential(x, a, k, b):
-    return a * np.exp(x * k) + b
-
-
-def skewness_vs_goodness():
-    df = pd.DataFrame()
-    df['skewness'] = [17.3644, 0.9587, 1.3322, 0.7358, 35.2872, 4.9172]
-    df['goodness'] = [
-        0.5515151515151514, 0.9454545454545454, 0.8848484848484848,
-        0.7545454545454545, 0.2787878787878788, 0.4
-    ]
-    popt = sp.optimize.curve_fit(
-        exponential, df['skewness'], df['goodness'], p0=[1, -0.5, 1]
-    )[0]
-    df['goodness_fit'] = exponential(df['skewness'], *popt)
-    df = df.sort_values('skewness')
-    r2 = r2_score(df['goodness_fit'], df['goodness'])
-    plt.scatter(df['skewness'], df['goodness'], color='r', label='True Values')
-    plt.plot(
-        df['skewness'], df['goodness_fit'], color='k', linestyle='--',
-        label='Fitting'
-    )
-    plt.text(10, 0.9, '$y = 0.68 e^{-0.40x} + 0.39$')
-    plt.text(10, 0.85, 'r-squared = {:.4f}'.format(r2))
-    plot_helper(
-        FIG_DIR,
-        xlabel='Skewness',
-        ylabel='Goodness',
-        legend=True,
-        save=True
-    )
-
-
 # error_and_goodness_vs_amount_of_data()
-skewness_vs_goodness()
