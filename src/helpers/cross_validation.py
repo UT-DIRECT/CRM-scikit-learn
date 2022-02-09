@@ -2,8 +2,9 @@ import numpy as np
 
 from sklearn.linear_model import (BayesianRidge, ElasticNet, ElasticNetCV,
         Lasso, LassoCV, LinearRegression)
+from sklearn.metrics import mean_absolute_percentage_error
 
-from src.helpers.analysis import fit_statistics, mean_absolute_percentage_error
+from src.helpers.analysis import fit_statistics
 from src.helpers.models import test_model
 
 
@@ -154,6 +155,31 @@ def scorer_for_crmp(estimator, X, y):
         y_hats.append(y_hat_i)
     y_hats = np.asarray(y_hats)
     mape = 1 - mean_absolute_percentage_error(y, y_hat)
+    goodness = goodness_score(y, y_hats)
+    score = 0.5 * mape + 0.5 * goodness
+    return score
+
+
+def scorer(estimator, X, y):
+    l = len(X)
+    y_hats = []
+    for e in estimator.estimators_:
+        y_hat_i = X[0, 0]
+        y_hat = []
+        for i in range(l):
+            X_i = X[i, :]
+            X_i[0] = y_hat_i
+            X_i = X_i.reshape(1, -1)
+            y_hat_i = e.predict(X_i)
+            y_hat.append(np.exp(y_hat_i) - 1)
+        y_hats.append(y_hat)
+    y_hats = np.asarray(y_hats)
+    y_hats_by_time = np.asarray(y_hats).T.reshape(-1, len(estimator.estimators_))
+    averages = []
+    for y_hats_i in y_hats_by_time:
+        average = np.average(y_hats_i)
+        averages.append(average)
+    mape = 1 - mean_absolute_percentage_error(y, averages)
     goodness = goodness_score(y, y_hats)
     score = 0.5 * mape + 0.5 * goodness
     return score
