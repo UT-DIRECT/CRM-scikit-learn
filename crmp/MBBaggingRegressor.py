@@ -83,9 +83,6 @@ def _parallel_build_estimators(
     block_size = ensemble._block_size
     bootstrap = ensemble.bootstrap
     bootstrap_features = ensemble.bootstrap_features
-    support_sample_weight = has_fit_parameter(ensemble.base_estimator_, "sample_weight")
-    if not support_sample_weight and sample_weight is not None:
-        raise ValueError("The base estimator doesn't support sample weight")
 
     # Build estimators
     estimators = []
@@ -112,25 +109,7 @@ def _parallel_build_estimators(
             block_size,
         )
 
-        # Draw samples, using sample weights, and then fit
-        if support_sample_weight:
-            if sample_weight is None:
-                curr_sample_weight = np.ones((n_samples,))
-            else:
-                curr_sample_weight = sample_weight.copy()
-
-            if bootstrap:
-                sample_counts = np.bincount(indices, minlength=n_samples)
-                curr_sample_weight *= sample_counts
-            else:
-                not_indices_mask = ~indices_to_mask(indices, n_samples)
-                curr_sample_weight[not_indices_mask] = 0
-
-            estimator.fit(X[:, features], y, sample_weight=curr_sample_weight)
-
-        else:
-            estimator.fit((X[indices])[:, features], y[indices])
-
+        estimator.fit((X[indices])[:, features], y[indices])
         estimators.append(estimator)
         estimators_features.append(features)
 
