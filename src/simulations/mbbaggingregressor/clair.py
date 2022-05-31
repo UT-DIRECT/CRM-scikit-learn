@@ -32,7 +32,6 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 
 def train_bagging_regressor_with_crmp():
-    # train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.45, 0.54]
     train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.66, 0.54]
     # for i in range(len(producer_names) - 1):
     n_estimators = 100
@@ -63,6 +62,7 @@ def train_bagging_regressor_with_crmp():
             block_size=7, bootstrap=True, n_jobs=-1, random_state=0
         )
         bgr.fit(X_train, y_train)
+        model = CrmpBHP().fit(X_train, y_train)
         y_fits = []
         for e in bgr.estimators_:
             y_hat_i = []
@@ -95,6 +95,7 @@ def train_bagging_regressor_with_crmp():
             p10s.append(p10)
             averages.append(average)
             p90s.append(p90)
+        mse = fit_statistics(y_test[:30], averages)[1]
 
         max_train = np.amax(y_train[-100:])
         max_fit = np.amax(y_fits_average[-100:])
@@ -108,9 +109,9 @@ def train_bagging_regressor_with_crmp():
         plt.plot(t_test, p10s, color='r', alpha=0.5, label='P10 & P90')
         plt.plot(t_test, p90s, color='r', alpha=0.5)
         for hat in y_hats:
-            plt.plot(t_test, hat, color='k', alpha=0.1)
+            plt.plot(t_test, hat, color='k', alpha=0.02)
         plt.annotate(
-            'r-squared={:.4f}'.format(r2), xy=(train_length - 60, height)
+            'r-squared = {:.4f}'.format(r2), xy=(train_length - 60, height)
         )
         plt.vlines(
             train_length - 1, 0, height, linewidth=2, colors='k',
