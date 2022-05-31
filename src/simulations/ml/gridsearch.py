@@ -10,6 +10,7 @@ from sklearn.linear_model import (
 from sklearn.model_selection import (
     GridSearchCV, train_test_split, TimeSeriesSplit
 )
+from sklearn.neural_network import MLPRegressor
 
 from crmp import MBBaggingRegressor
 
@@ -38,7 +39,7 @@ producers_df['Date'] = pd.to_datetime(producers_df['Date'])
 
 def train_bagging_regressor_with_different_estimators():
     train_sizes = [0.33, 0.735, 0.49, 0.45, 0.52, 0.66, 0.54]
-    for i in [0, 1, 2, 3, 4, 6]:
+    for i in [4, 6]:
         # Constructing dataset
         name = producer_names[i]
         print(name)
@@ -54,6 +55,8 @@ def train_bagging_regressor_with_different_estimators():
         X_test[name] = log_transformation(X_test[name])
         y_train_scaled = log_transformation(y_train)
         y_test_scaled = log_transformation(y_test)
+        # y_train_scaled = y_train
+        # y_test_scaled = y_test
         X_train = X_train.to_numpy()
         X_test = X_test.to_numpy()
         y_train = y_train.to_numpy()
@@ -66,8 +69,8 @@ def train_bagging_regressor_with_different_estimators():
 
         # Setting up estimator
         bgr = MBBaggingRegressor(
-            base_estimator=HuberRegressor(), n_estimators=100, bootstrap=True,
-            random_state=0
+            base_estimator=MLPRegressor(random_state=0), n_estimators=100,
+            bootstrap=True, random_state=0
         )
         # LinearRegression hyperparameters
         # param_grid = {
@@ -76,18 +79,24 @@ def train_bagging_regressor_with_different_estimators():
         # }
         # BayesianRidge hyperparamters
         # param_grid = {
-        #     'base_estimator__alpha_init': [1e-08, 1, 100],
-        #     'base_estimator__lambda_init': [0.001, 0.1, 1],
-        #     'base_estimator__compute_score': [True, False],
-        #     'base_estimator__fit_intercept': [True, False],
-        #     'base_estimator__normalize': [True, False]
+        #     'base_estimator__alpha_init': [1e-08],
+        #     'base_estimator__lambda_init': [0.1],
+        #     'base_estimator__compute_score': [False],
+        #     'base_estimator__fit_intercept': [True],
+        #     'base_estimator__normalize': [False]
         # }
         # HuberRegressor hyperparamters
         # param_grid = {
-        #     'base_estimator__epsilon': [1.35, 5, 10, 100],
-        #     'base_estimator__alpha': [0.0001, 0.5, 1],
-        #     'base_estimator__fit_intercept': [True, False]
+        #     'base_estimator__epsilon': [1.35],
+        #     'base_estimator__alpha': [0.5],
+        #     'base_estimator__fit_intercept': [True]
         # }
+        # MLPRegressor hyperparamters
+        param_grid = {
+            'base_estimator__hidden_layer_sizes': [10],
+            'base_estimator__activation': ['logistic'],
+            'base_estimator__solver': ['adam'],
+        }
         gcv = GridSearchCV(
             bgr, param_grid=param_grid, scoring=scorer, cv=cv
         )
@@ -95,9 +104,23 @@ def train_bagging_regressor_with_different_estimators():
         # Fitting the estimator
         gcv.fit(X_train, y_train_scaled)
 
-        print(gcv.best_params_)
-        print()
-        print()
+        # print(gcv.best_params_)
+        best_estimator = gcv.best_estimator_
+        best_estimator.fit(X_train, y_train_scaled)
+        y_hat_i = y_train_scaled[-1]
+        y_hat = []
+        for i in range(30):
+            X_test_i = X_test[i, :]
+            X_test_i[0] = y_hat_i
+            X_test_i = X_test_i.reshape(1, -1)
+            y_hat_i = best_estimator.predict(X_test_i)
+            # y_hat.append(np.exp(y_hat_i) - 1)
+            y_hat.append(y_hat_i)
+
+        r2, mse = fit_statistics(y_test[:30], y_hat)
+        print(mse)
+        # print()
+        # print()
 
 
 def log_transformation(column):
