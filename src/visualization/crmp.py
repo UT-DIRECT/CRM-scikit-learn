@@ -16,12 +16,12 @@ FIG_DIR = INPUTS['crmp']['figures_dir']
 
 def producers_vs_time():
     plt.figure()
-    plt.plot(time, producers.T)
+    plt.plot(np.linspace(1, 150, 150), injectors.T)
     plot_helper(
         FIG_DIR,
-        xlabel='Time',
-        ylabel='Production Rate',
-        legend=producer_names,
+        xlabel='Time [days]',
+        ylabel='Injection Rate [bbls/day]',
+        legend=['Injector 1', 'Injector 2'],
         save=True
     )
 
@@ -34,8 +34,8 @@ def producers_vs_injector():
         plot_helper(
             FIG_DIR,
             title='Injector {}'.format(i + 1),
-            xlabel='Injection Rate',
-            ylabel='Production Rate',
+            xlabel='Injection Rate [bbls/day]',
+            ylabel='Production Rate [bbls/day]',
             legend=producer_names,
             save=True
         )
@@ -156,7 +156,7 @@ def production_rate_with_predictions():
         )
 
 
-# producers_vs_time()
+producers_vs_time()
 # producers_vs_injector()
 # production_rate_estimators_and_time_steps()
 # production_rate_good_estimators_and_time_steps()
