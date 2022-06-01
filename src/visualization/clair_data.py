@@ -53,6 +53,28 @@ def plot_production_rate():
         )
 
 
+def plot_production_rate_on_same_figure():
+    fig, axs = plt.subplots(3, 2, figsize=(8, 16))
+    tmp_producer_names = producer_names[:5]
+    tmp_producer_names.append(producer_names[6])
+    for i in range(len(tmp_producer_names)):
+        name = tmp_producer_names[i]
+        producer = producers_df.loc[
+            producers_df['Name'] == name
+        ]
+        production_rate = producer['total rate']
+        t = np.linspace(0, len(production_rate), len(production_rate))
+        axs[i // 2, i % 2].plot(t, production_rate)
+        axs[i // 2, i % 2].set_title(name)
+    # for ax in axs.flat:
+    #     ax.set(xlabel='Time [days]', ylabel='Production Rate [bbls/days]')
+    fontsize = 16
+    fig.text(0.5, 0.96, 'North Sea Field Producers and Their Production Rates', ha='center', fontsize=fontsize)
+    fig.text(0.5, 0.04, 'Time [days]', ha='center', fontsize=fontsize)
+    fig.text(0.04, 0.5, 'Production Rate [bbls/days]', va='center', rotation='vertical', fontsize=fontsize)
+    plt.show()
+
+
 def plot_injection_rates():
     for name in injector_names:
         injector = injectors_df.loc[
@@ -60,7 +82,12 @@ def plot_injection_rates():
         ]
         injection_rate = injector['Water Vol']
         l = len(injection_rate)
+        count = (injector['Water Vol'] == 0).sum()
+        print('Length: {}'.format(l))
+        print('Count: {}'.format(count))
+        print('Shut in Fraction: {}'.format(count * 1.0 / l))
         t = np.linspace(0, l, l)
+        continue
         plt.plot(t, injection_rate)
         plot_helper(
             FIG_DIR,
@@ -69,6 +96,25 @@ def plot_injection_rates():
             title=name,
             save=True
         )
+
+
+def plot_injection_rate_on_same_figure():
+    fig, axs = plt.subplots(2, 2, figsize=(8, 12))
+    for i in range(len(injector_names)):
+        name = injector_names[i]
+        injector = injectors_df.loc[
+            injectors_df['Name'] == name
+        ]
+        injection_rate = injector['Water Vol']
+        l = len(injection_rate)
+        t = np.linspace(0, l, l)
+        axs[i // 2, i % 2].plot(t, injection_rate)
+        axs[i // 2, i % 2].set_title(name)
+    fontsize = 16
+    fig.text(0.5, 0.96, 'North Sea Field Producers and Their Injection Rates', ha='center', fontsize=fontsize)
+    fig.text(0.5, 0.04, 'Time [days]', ha='center', fontsize=fontsize)
+    fig.text(0.04, 0.5, 'Injection Rate [bbls/days]', va='center', rotation='vertical', fontsize=fontsize)
+    plt.show()
 
 
 def plot_production_history_with_fit_and_predict():
@@ -279,13 +325,15 @@ def plot_production_rate_and_injection_rate():
 
 
 # plot_production_rate()
-# plot_injection_rates()
+# plot_production_rate_on_same_figure()
+plot_injection_rates()
+# plot_injection_rate_on_same_figure()
 # plot_production_history_with_fit_and_predict()
 # plot_fractional_flow_curve()
 # plot_average_hour_production_rate()
 # plot_on_line_hours_per_day()
 # plot_histogram_of_production_rates()
-plot_bhp()
-plot_delta_bhp()
+# plot_bhp()
+# plot_delta_bhp()
 # plot_imputed_and_original_production_rate()
 # plot_production_rate_and_injection_rate()
