@@ -1,3 +1,4 @@
+import re
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -31,17 +32,20 @@ def fig_saver(fig_dir, title, xlabel, ylabel):
 
 def fig_filename(title, xlabel, ylabel):
     filename = ''
+    xlabel = re.sub('[^\w]', '_', xlabel)
+    ylabel = re.sub('[^\w]', '_', ylabel)
     if len(title) > 0:
+        title = re.sub('[^\w]', '_', title)
         filename = '{}_{}_{}.png'.format(
             title,
             xlabel,
             ylabel
-        ).lower().replace(' ', '_')
+        ).lower()
     else:
         filename = '{}_{}.png'.format(
             xlabel,
             ylabel
-        ).lower().replace(' ', '_')
+        ).lower()
     return filename
 
 

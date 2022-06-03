@@ -20,3 +20,7 @@ for i in tau:
         i = 1e-06
     for j in range(len(f1)):
         param_grid['p0'].append([i, f1[j], f2[j]])
+
+
+injector_names = ['IA04', 'IA08', 'IA11', 'IA13']
+producer_names = ['PA01', 'PA02', 'PA03', 'PA05', 'PA09', 'PA10', 'PA12']

@@ -2,6 +2,7 @@
   'raw_data': './data/raw/CRMP_Corrected_July16_2018.xlsx'
   'data': './data/processed/crmp/CRMP_Corrected_July16_2018.csv'
   'figures_dir': './reports/figures/crmp/'
+  'lstm': './data/processed/crmp/lstm.csv'
   'crmp':
     'fit':
       'fit': './data/processed/crmp/crmp/fit/fit.csv'
@@ -31,11 +32,14 @@
   'koval_predictions': './data/processed/wfsim/koval_predictions.csv'
   'koval_predictions_metrics': './data/processed/wfsim/koval_predictions_metrics.csv'
 'real_data':
-  'raw_data': './data/raw/Clairrawdata.xls'
-  'data': './data/processed/real_data/real_data.csv'
+  'raw_data': './data/raw/Northsearawdata.xls'
+  'producer': './data/processed/real_data/producer_data.csv'
+  'injector': './data/processed/real_data/injector_data.csv'
   'figures_dir': './reports/figures/real_data/'
   'fit':
     'fit': './data/processed/real_data/crmp/fit/fit.csv'
     'sensitivity_analysis': './data/processed/real_data/fit/sensitivity_analysis.csv'
+    'bhp_sensitivity_analysis': './data/processed/real_data/fit/bhp_sensitivity_analysis.csv'
   'predict':
     'sensitivity_analysis': './data/processed/real_data/predict/sensitivity_analysis.csv'
+    'bhp_sensitivity_analysis': './data/processed/real_data/predict/bhp_sensitivity_analysis.csv'

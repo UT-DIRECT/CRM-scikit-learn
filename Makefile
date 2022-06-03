@@ -46,8 +46,8 @@ wfsim-features:
 real-data-features:
 	$(PYTHON) src.features.build_real_data_features
 
-clair-data-features:
-	$(PYTHON) src.features.build_clair_data_features
+north-sea-data-features:
+	$(PYTHON) src.features.build.north_sea_data_features
 
 ## Run all the models
 simulate: simulate-crmp simulate-koval
@@ -88,11 +88,14 @@ crmp-characteristic-param:
 crmp-characteristic-param-plots:
 	$(PYTHON) src.visualization.characteristic_param
 
-crmp-clair-data:
-	$(PYTHON) src.simulations.crmp.clair_data
+crmp-north-sea-data:
+	$(PYTHON) src.simulations.crmp.north_sea_data
 
-clair-plots:
-	$(PYTHON) src.visualization.clair_data
+crmpbhp-north-sea-data:
+	$(PYTHON) src.simulations.crmpbhp.north_sea_data
+
+north-sea-plots:
+	$(PYTHON) src.visualization.north_sea_data
 
 ## Entire Koval workflow
 koval: simulate-koval koval-plots
@@ -109,6 +112,10 @@ predict-koval:
 ## Make the Koval plots
 koval-plots:
 	$(PYTHON) src.visualization.koval
+
+## Run MBBaggingRegressor
+simulate-mbbagging:
+	$(PYTHON) src.simulations.mbbaggingregressor.simulate
 
 ## Run tests
 test:
