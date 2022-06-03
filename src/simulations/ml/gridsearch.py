@@ -123,6 +123,9 @@ def train_bagging_regressor_with_different_estimators():
         # print()
 
 
+# Log transformation prevents negative predictions once predictions are
+# converted back to the original scale by taking the exponential.
+# https://stackoverflow.com/questions/66334730/ways-to-handle-negative-value-of-prediction-in-regression-model
 def log_transformation(column):
     return np.log(column + 1)
 
