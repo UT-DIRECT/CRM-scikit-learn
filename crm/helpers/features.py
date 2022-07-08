@@ -63,9 +63,9 @@ def impute_training_data(X, y, name):
     return (X, y)
 
 
-def construct_real_production_rate_dataset(q, I, delta_t=1, injector_names):
+def construct_real_production_rate_dataset(q, I, injector_names, delta_t=1):
     return [
-        construct_real_production_rate_features(q, I, delta_t, injector_names),
+        construct_real_production_rate_features(q, I, injector_names, delta_t),
         construct_real_target_vector(q, delta_t)
     ]
 
@@ -84,7 +84,7 @@ def construct_column_of_length(data, length_of_column):
         return data[-(length_of_column + 1):-1]
 
 
-def construct_real_production_rate_features(q, I, delta_t, injector_names):
+def construct_real_production_rate_features(q, I, injector_names, delta_t):
     q = q.iloc[:-delta_t]
     df = pd.DataFrame(q)
     df = construct_injection_rate_columns(df, q, I, injector_names)
