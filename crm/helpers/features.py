@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from src.simulations import injector_names
-
 
 def production_rate_features(q, *I):
     size = q[:-1].size
@@ -65,9 +63,9 @@ def impute_training_data(X, y, name):
     return (X, y)
 
 
-def construct_real_production_rate_dataset(q, I, delta_t=1):
+def construct_real_production_rate_dataset(q, I, injector_names, delta_t=1):
     return [
-        construct_real_production_rate_features(q, I, delta_t),
+        construct_real_production_rate_features(q, I, injector_names, delta_t),
         construct_real_target_vector(q, delta_t)
     ]
 
@@ -86,10 +84,10 @@ def construct_column_of_length(data, length_of_column):
         return data[-(length_of_column + 1):-1]
 
 
-def construct_real_production_rate_features(q, I, delta_t):
+def construct_real_production_rate_features(q, I, injector_names, delta_t):
     q = q.iloc[:-delta_t]
     df = pd.DataFrame(q)
-    df = construct_injection_rate_columns(df, q, I)
+    df = construct_injection_rate_columns(df, q, I, injector_names)
     df.drop(columns=['Date'], inplace=True)
     df.fillna(0, inplace=True)
     return df
@@ -104,7 +102,7 @@ def construct_change_in_pressure_column(df):
     return df
 
 
-def construct_injection_rate_columns(df, q, I):
+def construct_injection_rate_columns(df, q, I, injector_names):
     length = len(q)
     for name in injector_names:
         injector = I.loc[
